@@ -1,0 +1,5 @@
+node_modules/**
+cypress.config.ts
+src/utils/api/
+generate.correct.js
+cypress

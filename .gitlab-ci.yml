@@ -1,13 +1,86 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
+  - build
+  - lint
+  - sast
+
+dev_vars:
+  stage: .pre
+  script:
+    - |
+      cat > .env-ci << EOF
+      ENV_TARGET=dev
+      EOF
+  artifacts:
+    expire_in: 1h
+    paths:
+      - .env-ci
+  rules:
+    - if: ($CI_COMMIT_BRANCH != "master" && $CI_COMMIT_BRANCH != "staging")
+  tags:
+    - securd_frontend
+
+staging_vars:
+  stage: .pre
+  script:
+    - |
+      cat > .env-ci << EOF
+      ENV_TARGET=staging
+      EOF
+  artifacts:
+    expire_in: 1h
+    paths:
+      - .env-ci
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+  tags:
+    - securd_frontend
+
+prod_vars:
+  stage: .pre
+  script:
+    - |
+      cat > .env-ci << EOF
+      ENV_TARGET=prod
+      EOF
+  artifacts:
+    expire_in: 1h
+    paths:
+      - .env-ci
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  tags:
+    - securd_frontend
+
+build:
+  stage: build
+  image: node:latest
+  before_script:
+    - source .env-ci
+    - npm ci
+  script:
+    - npm run build:$ENV_TARGET
+  allow_failure: false
+  artifacts:
+    expire_in: 1h
+    paths:
+      - .next
+      - node_modules
+  tags:
+    - securd_frontend
+
+lint:
+  stage: lint
+  image: node:latest
+  script:
+    - npm run lint
+  allow_failure: false
+  needs:
+    - job: build
+      artifacts: true
+  tags:
+    - securd_frontend
+
 sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+  stage: sast
+  include:
+    - template: Security/SAST.gitlab-ci.yml
