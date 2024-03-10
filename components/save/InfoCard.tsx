@@ -19,6 +19,7 @@ import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPrice
 import { useSaveStore } from "@/lib/data/saveStore";
 import getTotalDeposit from "@/lib/hooks/getTotalDeposit";
 import getTotalAverageApy from "@/lib/hooks/getTotalAverageApy";
+import { Skeleton } from "../ui/skeleton";
 
 const Info = ({ value, name, type = "currency", tooltip }: {
     value: number,
@@ -59,7 +60,7 @@ export default function InfoCard() {
 
     const averageApy = getTotalAverageApy(reservesInfo, balanceLDTokens, coinPrices);
 
-    if (status === "reconnecting") return null;
+    if (status === "reconnecting") return <Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />;
 
     return <>
         {status === "connected" && <h2 className="text-xl font-bold text-white mt-4">Summary</h2>}

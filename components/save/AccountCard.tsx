@@ -60,14 +60,14 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
             <Table>
                 <TableBody>
                     <TableRow>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-bold">
                             Account Balance
                             <Help>
                                 Savings value (Deposit+Interest) for this account
                             </Help>
                         </TableCell>
-                        <TableCell>{securdFormat(userDepositBalance, 3)}</TableCell>
-                        <TableCell>${securdFormat(price * userDepositBalance)}</TableCell>
+                        <TableCell className="font-bold" >{securdFormat(userDepositBalance, 3)}</TableCell>
+                        <TableCell className="text-secondary">${securdFormat(price * userDepositBalance)}</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell className="font-medium">
@@ -77,7 +77,7 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
                             </Help>
                         </TableCell>
                         <TableCell>{securdFormat(userDeposit[userReserveInfo.address], 3)}</TableCell>
-                        <TableCell>${securdFormat(price * userDeposit[userReserveInfo.address])}</TableCell>
+                        <TableCell className="text-secondary">${securdFormat(price * userDeposit[userReserveInfo.address])}</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell className="font-medium">
@@ -87,7 +87,7 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
                             </Help>
                         </TableCell>
                         <TableCell>{securdFormat(userInterest, 3)}</TableCell>
-                        <TableCell>${securdFormat(price * userInterest)}</TableCell>
+                        <TableCell className="text-secondary">${securdFormat(price * userInterest)}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
