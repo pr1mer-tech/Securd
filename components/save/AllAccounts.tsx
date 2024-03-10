@@ -1,7 +1,7 @@
 "use client";
 
 import Help from "@/components/ui/Help";
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, SortingState } from "@tanstack/react-table"
 import { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { getDepositBalance, getDeposit, getPoolLiquidity, getPoolUtilization, getSavingApy } from "@/lib/helpers/lenderPool.helpers";
@@ -9,6 +9,9 @@ import { securdFormat, toFormattedPercentage } from "@/lib/helpers/numberFormat.
 import { useSaveStore } from "@/lib/data/saveStore";
 import { DataTable } from "../layout/DataTable";
 import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export const columns: ColumnDef<ReserveInfo>[] = [
     {
@@ -23,7 +26,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
                     width={40}
                     height={40}
                 />
-                <div className="ml-2">{row.original.symbol}</div>
+                <div className="ml-2 text-xl font-bold">{row.original.symbol}</div>
             </div>
         )
     },
@@ -41,10 +44,10 @@ export const columns: ColumnDef<ReserveInfo>[] = [
             const depositBalance = getDepositBalance(row.original);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
-                <div className="text-base">
+                <div className="text-xl font-bold">
                     {securdFormat(depositBalance, 0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-secondary">
                     ${securdFormat(depositBalance && (depositBalance * price))}
                 </div>
             </div>
@@ -63,10 +66,10 @@ export const columns: ColumnDef<ReserveInfo>[] = [
             const globalDeposit = getDeposit(row.original);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
-                <div className="text-base">
+                <div className="text-xl font-bold">
                     {securdFormat(globalDeposit, 0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-secondary">
                     ${securdFormat(globalDeposit && (globalDeposit * price))}
                 </div>
             </div>
@@ -90,10 +93,10 @@ export const columns: ColumnDef<ReserveInfo>[] = [
                 getInterestAmount(depositBalance, globalDeposit);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
-                <div className="text-base">
+                <div className="text-xl font-bold">
                     {securdFormat(globalInterest, 0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-secondary">
                     ${securdFormat(globalInterest && (globalInterest * price))}
                 </div>
             </div>
@@ -112,10 +115,10 @@ export const columns: ColumnDef<ReserveInfo>[] = [
             const liquidity = getPoolLiquidity(row.original);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
-                <div className="text-base">
+                <div className="text-xl font-bold">
                     {securdFormat(liquidity, 0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-secondary">
                     ${securdFormat(liquidity && (liquidity * price))}
                 </div>
             </div>
@@ -131,7 +134,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const utilization = getPoolUtilization(row.original);
-            return <div className="text-base">{toFormattedPercentage(utilization, 1)}</div>
+            return <div className="text-xl font-bold">{toFormattedPercentage(utilization, 1)}</div>
         }
     },
     {
@@ -144,7 +147,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const poolAPY = getSavingApy(row.original);
-            return <div className="text-base">{toFormattedPercentage(poolAPY, 1)}</div>
+            return <div className="text-xl font-bold">{toFormattedPercentage(poolAPY, 1)}</div>
         }
     }
 ]
@@ -153,9 +156,22 @@ export const columns: ColumnDef<ReserveInfo>[] = [
 
 export default function AllAccounts() {
     const reservesInfo = useSaveStore.use.reservesInfo();
+    const [sorting, setSorting] = useState<SortingState>([])
 
-    return <div className="mt-4">
+
+    return <div className="mt-4 mb-16">
         <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>
-        <DataTable columns={columns} data={reservesInfo} />
+        <div className="flex flex-row justify-between">
+            <div className="text-secondary text-sm">
+                Sort by
+                <Button
+                    className={cn("ml-2 rounded-full px-2 h-6",
+                        sorting[0]?.id === "symbol" && "bg-securdPrimary text-white"
+                    )}
+                    onClick={() => setSorting([{ id: "symbol", desc: false }])}
+                >APY</Button>
+            </div>
+        </div>
+        <DataTable columns={columns} data={reservesInfo} sorting={sorting} setSorting={setSorting} />
     </div>
 }

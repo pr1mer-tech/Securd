@@ -7,12 +7,8 @@ import { Address } from "viem"
 type State = {
     coinPrices: Record<keyof Coins, number>
     reservesInfo: ReserveInfo[],
-    userReservesInfo: ReserveInfo[],
     balanceLDTokens: Record<Address, BalanceLDToken>
     userDeposit: Record<Address, number>
-    totalUserDeposit: number,
-    totalUserBalance: number,
-    averageApy: number
 }
 
 export const useSaveStoreBase = create<State>((set) => ({
@@ -26,10 +22,6 @@ export const useSaveStoreBase = create<State>((set) => ({
     reservesInfo: [],
     balanceLDTokens: {},
     userDeposit: {},
-    userReservesInfo: [],
-    totalUserDeposit: 0,
-    totalUserBalance: 0,
-    averageApy: 0
 }));
 
 export const useSaveStore = createSelectors(useSaveStoreBase)
