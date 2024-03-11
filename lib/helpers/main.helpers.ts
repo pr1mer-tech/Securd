@@ -1,5 +1,5 @@
 import { MAIN_ERRORS } from "../errors/main.errors";
-import { Address } from "viem";
+import { Address, formatEther } from "viem";
 import { toast } from "sonner"
 
 
@@ -67,8 +67,8 @@ export const getRounded = (
  * @param num amount to convert
  * @returns num converted from wei to eth units
  */
-export const weiToEth = (num: number) => {
-  return num * 10 ** -18;
+export const weiToEth = (num: bigint) => {
+  return parseFloat(formatEther(num));
 };
 
 /**
@@ -77,7 +77,7 @@ export const weiToEth = (num: number) => {
  * @returns num converted from eth to wei units
  */
 export const ethToWei = (num: number) => {
-  return num * 10 ** 18;
+  return BigInt(num) * 10n ** 18n;
 };
 
 function countDigits(num: bigint) {

@@ -1,7 +1,7 @@
 "use client";
 
 import Help from "@/components/ui/Help";
-import { ColumnDef, SortingState } from "@tanstack/react-table"
+import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
 import { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { getDepositBalance, getDeposit, getPoolLiquidity, getPoolUtilization, getSavingApy } from "@/lib/helpers/lenderPool.helpers";
@@ -12,6 +12,11 @@ import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import GridIconBlack from "@/assets/icons/grid-icon-black.svg";
+import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
 
 export const columns: ColumnDef<ReserveInfo>[] = [
     {
@@ -31,7 +36,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         )
     },
     {
-        accessorKey: "symbol",
+        id: "lendingPool",
+        accessorFn: (row) => getDepositBalance(row),
         header: ({ column }) => <>
             Lending Pool
             <Help>
@@ -41,11 +47,11 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const depositBalance = getDepositBalance(row.original);
+            const depositBalance = row.getValue("lendingPool") as number;
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
-                    {securdFormat(depositBalance, 0)}
+                    {securdFormat(depositBalance, 2)}
                 </div>
                 <div className="text-sm text-secondary">
                     ${securdFormat(depositBalance && (depositBalance * price))}
@@ -54,7 +60,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         }
     },
     {
-        accessorKey: "symbol",
+        id: "deposit",
+        accessorFn: (row) => getDeposit(row),
         header: ({ column }) => <>
             Deposit
             <Help>
@@ -63,11 +70,11 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const globalDeposit = getDeposit(row.original);
+            const globalDeposit = row.getValue("deposit") as number;
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
-                    {securdFormat(globalDeposit, 0)}
+                    {securdFormat(globalDeposit, 2)}
                 </div>
                 <div className="text-sm text-secondary">
                     ${securdFormat(globalDeposit && (globalDeposit * price))}
@@ -76,7 +83,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         }
     },
     {
-        accessorKey: "symbol",
+        id: "interest",
+        accessorFn: (row) => getInterestAmount(getDepositBalance(row), getDeposit(row)),
         header: ({ column }) => <>
             Interest
             <Help>
@@ -85,16 +93,11 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const depositBalance = getDepositBalance(row.original);
-            const globalDeposit = getDeposit(row.original);
-            const globalInterest =
-                depositBalance &&
-                globalDeposit &&
-                getInterestAmount(depositBalance, globalDeposit);
+            const globalInterest = row.getValue("interest") as number;
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
-                    {securdFormat(globalInterest, 0)}
+                    {securdFormat(globalInterest, 2)}
                 </div>
                 <div className="text-sm text-secondary">
                     ${securdFormat(globalInterest && (globalInterest * price))}
@@ -103,7 +106,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         }
     },
     {
-        accessorKey: "symbol",
+        id: "liquidity",
+        accessorFn: (row) => getPoolLiquidity(row),
         header: ({ column }) => <>
             Liquidity
             <Help>
@@ -112,11 +116,11 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const liquidity = getPoolLiquidity(row.original);
+            const liquidity = row.getValue("liquidity") as number;
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
-                    {securdFormat(liquidity, 0)}
+                    {securdFormat(liquidity, 2)}
                 </div>
                 <div className="text-sm text-secondary">
                     ${securdFormat(liquidity && (liquidity * price))}
@@ -125,7 +129,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         }
     },
     {
-        accessorKey: "symbol",
+        id: "utilization",
+        accessorFn: (row) => getPoolUtilization(row),
         header: ({ column }) => <>
             Utilization
             <Help>
@@ -133,12 +138,12 @@ export const columns: ColumnDef<ReserveInfo>[] = [
             </Help>
         </>,
         cell: ({ row }) => {
-            const utilization = getPoolUtilization(row.original);
-            return <div className="text-xl font-bold">{toFormattedPercentage(utilization, 1)}</div>
+            return <div className="text-xl font-bold">{toFormattedPercentage(row.getValue("utilization"), 1)}</div>
         }
     },
     {
-        accessorKey: "symbol",
+        id: "savingsApy",
+        accessorFn: (row) => getSavingApy(row),
         header: ({ column }) => <>
             Savings APY
             <Help>
@@ -146,8 +151,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
             </Help>
         </>,
         cell: ({ row }) => {
-            const poolAPY = getSavingApy(row.original);
-            return <div className="text-xl font-bold">{toFormattedPercentage(poolAPY, 1)}</div>
+            return <div className="text-xl font-bold">{toFormattedPercentage(row.getValue("savingsApy"), 1)}</div>
         }
     }
 ]
@@ -156,22 +160,75 @@ export const columns: ColumnDef<ReserveInfo>[] = [
 
 export default function AllAccounts() {
     const reservesInfo = useSaveStore.use.reservesInfo();
-    const [sorting, setSorting] = useState<SortingState>([])
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [mode, setMode] = useState<"table" | "grid">("table");
 
 
     return <div className="mt-4 mb-16">
-        <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>
         <div className="flex flex-row justify-between">
+            <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>
+            <Tabs value={mode} onValueChange={setMode}>
+                <TabsList>
+                    <TabsTrigger value="table">
+                        <Image src={MenuIconBlack} alt="menu" className="w-4 h-4" />
+                    </TabsTrigger>
+                    <TabsTrigger value="grid">
+                        <Image src={GridIconBlack} alt="grid" className="w-4 h-4" />
+                    </TabsTrigger>
+                </TabsList>
+            </Tabs>
+        </div>
+        <div className="flex flex-row justify-between my-4">
             <div className="text-secondary text-sm">
                 Sort by
                 <Button
                     className={cn("ml-2 rounded-full px-2 h-6",
-                        sorting[0]?.id === "symbol" && "bg-securdPrimary text-white"
+                        sorting[0]?.id === "savingsApy" ? "bg-securdPrimary text-white" : "bg-secondary"
                     )}
-                    onClick={() => setSorting([{ id: "symbol", desc: false }])}
+                    onClick={() => sorting[0]?.id === "savingsApy" ? setSorting([]) : setSorting([{ id: "savingsApy", desc: false }])}
                 >APY</Button>
+                <Button
+                    className={cn("ml-2 rounded-full px-2 h-6",
+                        sorting[0]?.id === "lendingPool" ? "bg-securdPrimary text-white" : "bg-secondary"
+                    )}
+                    onClick={() => sorting[0]?.id === "lendingPool" ? setSorting([]) : setSorting([{ id: "lendingPool", desc: true }])}
+                >Lending Pool</Button>
+            </div>
+            <div className="relative flex items-center">
+                <Input
+                    placeholder="Search"
+                    className="pl-8 w-48 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-b-black focus-visible:border-b-2"
+                    value={(columnFilters.find((f) => f.id === "symbol")?.value || "") as string}
+                    onChange={(e) => {
+                        const value = e.target.value
+                        setColumnFilters((prev) => {
+                            const newFilters = prev.filter((f) => f.id !== "symbol")
+                            if (value) {
+                                newFilters.push({ id: "symbol", value })
+                            }
+                            return newFilters
+                        })
+                    }}
+                />
+                <Search className="absolute left-0 w-4 h-4 ml-2" />
             </div>
         </div>
-        <DataTable columns={columns} data={reservesInfo} sorting={sorting} setSorting={setSorting} />
+        <DataTable
+            mode={mode}
+            columns={columns}
+            columnVisibility={mode === "grid" ? {
+                "deposit": false,
+                "interest": false,
+                "liquidity": false,
+                "utilization": false,
+            } : {}}
+            data={reservesInfo}
+            sorting={sorting}
+            setSorting={setSorting}
+            columnFilters={columnFilters}
+            setColumnFilters={setColumnFilters}
+            linkFn={(row) => `/save/${row.address}`}
+        />
     </div>
 }

@@ -20,9 +20,6 @@ export default function Accounts() {
     const userReservesInfo = getUserReservesInfo(reservesInfo, balanceLDTokens);
 
     return <>
-        <div className="absolute inset-0 z-[-1]">
-            <div className="bg-primary w-full h-44" />
-        </div>
         <div className={cn("relative before:absolute before:inset-0 before:bg-securdPrimaryLight before:-top-[4.3rem] before:w-full before:z-[-1] pb-4",
             userReservesInfo.length > 0 ? "before:h-[calc(100%+4.25rem)]" : "before:h-0"
         )}>
