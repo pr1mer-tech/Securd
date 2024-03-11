@@ -165,10 +165,10 @@ export default function AllAccounts() {
     const [mode, setMode] = useState<"table" | "grid">("table");
 
 
-    return <div className="mt-4 mb-16">
-        <div className="flex flex-row justify-between">
-            <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>
-            <Tabs value={mode} onValueChange={setMode}>
+    return <Tabs value={mode} onValueChange={setMode}>
+        <div className="mt-4 mb-16">
+            <div className="flex flex-row justify-between">
+                <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>
                 <TabsList>
                     <TabsTrigger value="table">
                         <Image src={MenuIconBlack} alt="menu" className="w-4 h-4" />
@@ -177,58 +177,57 @@ export default function AllAccounts() {
                         <Image src={GridIconBlack} alt="grid" className="w-4 h-4" />
                     </TabsTrigger>
                 </TabsList>
-            </Tabs>
-        </div>
-        <div className="flex flex-row justify-between my-4">
-            <div className="text-secondary text-sm">
-                Sort by
-                <Button
-                    className={cn("ml-2 rounded-full px-2 h-6",
-                        sorting[0]?.id === "savingsApy" ? "bg-securdPrimary text-white" : "bg-secondary"
-                    )}
-                    onClick={() => sorting[0]?.id === "savingsApy" ? setSorting([]) : setSorting([{ id: "savingsApy", desc: false }])}
-                >APY</Button>
-                <Button
-                    className={cn("ml-2 rounded-full px-2 h-6",
-                        sorting[0]?.id === "lendingPool" ? "bg-securdPrimary text-white" : "bg-secondary"
-                    )}
-                    onClick={() => sorting[0]?.id === "lendingPool" ? setSorting([]) : setSorting([{ id: "lendingPool", desc: true }])}
-                >Lending Pool</Button>
             </div>
-            <div className="relative flex items-center">
-                <Input
-                    placeholder="Search"
-                    className="pl-8 w-48 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-b-black focus-visible:border-b-2"
-                    value={(columnFilters.find((f) => f.id === "symbol")?.value || "") as string}
-                    onChange={(e) => {
-                        const value = e.target.value
-                        setColumnFilters((prev) => {
-                            const newFilters = prev.filter((f) => f.id !== "symbol")
-                            if (value) {
-                                newFilters.push({ id: "symbol", value })
-                            }
-                            return newFilters
-                        })
-                    }}
-                />
-                <Search className="absolute left-0 w-4 h-4 ml-2" />
+            <div className="flex flex-row justify-between my-4">
+                <div className="text-secondary text-sm">
+                    Sort by
+                    <Button
+                        className={cn("ml-2 rounded-full px-2 h-6",
+                            sorting[0]?.id === "savingsApy" ? "bg-securdPrimary text-white" : "bg-secondary"
+                        )}
+                        onClick={() => sorting[0]?.id === "savingsApy" ? setSorting([]) : setSorting([{ id: "savingsApy", desc: false }])}
+                    >APY</Button>
+                    <Button
+                        className={cn("ml-2 rounded-full px-2 h-6",
+                            sorting[0]?.id === "lendingPool" ? "bg-securdPrimary text-white" : "bg-secondary"
+                        )}
+                        onClick={() => sorting[0]?.id === "lendingPool" ? setSorting([]) : setSorting([{ id: "lendingPool", desc: true }])}
+                    >Lending Pool</Button>
+                </div>
+                <div className="relative flex items-center">
+                    <Input
+                        placeholder="Search"
+                        className="pl-8 w-48 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-b-black focus-visible:border-b-2"
+                        value={(columnFilters.find((f) => f.id === "symbol")?.value || "") as string}
+                        onChange={(e) => {
+                            const value = e.target.value
+                            setColumnFilters((prev) => {
+                                const newFilters = prev.filter((f) => f.id !== "symbol")
+                                if (value) {
+                                    newFilters.push({ id: "symbol", value })
+                                }
+                                return newFilters
+                            })
+                        }}
+                    />
+                    <Search className="absolute left-0 w-4 h-4 ml-2" />
+                </div>
             </div>
+            <DataTable
+                columns={columns}
+                columnVisibility={mode === "grid" ? {
+                    "deposit": false,
+                    "interest": false,
+                    "liquidity": false,
+                    "utilization": false,
+                } : {}}
+                data={reservesInfo}
+                sorting={sorting}
+                setSorting={setSorting}
+                columnFilters={columnFilters}
+                setColumnFilters={setColumnFilters}
+                linkFn={(row) => `/save/${row.address}`}
+            />
         </div>
-        <DataTable
-            mode={mode}
-            columns={columns}
-            columnVisibility={mode === "grid" ? {
-                "deposit": false,
-                "interest": false,
-                "liquidity": false,
-                "utilization": false,
-            } : {}}
-            data={reservesInfo}
-            sorting={sorting}
-            setSorting={setSorting}
-            columnFilters={columnFilters}
-            setColumnFilters={setColumnFilters}
-            linkFn={(row) => `/save/${row.address}`}
-        />
-    </div>
+    </Tabs >
 }

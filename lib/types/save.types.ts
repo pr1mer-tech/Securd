@@ -70,9 +70,4 @@ export type ReserveInfo = {
 
 export type BalanceCoins = {
   [key: string]: bigint;
-  ETH: bigint;
-  USDC: bigint;
-  USDT: bigint;
-  DAI: bigint;
-  WBTC: bigint;
 };

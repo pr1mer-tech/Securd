@@ -3,18 +3,30 @@
 import { useSaveAddressStore } from "@/lib/data/saveAddressStore";
 import { useSaveStoreBase } from "@/lib/data/saveStore";
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
+import useBalanceCoins from "@/lib/hooks/wagmiSH/viewFunctions/useBalanceCoins";
 import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSupply";
 import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
+import { Coins } from "@/lib/types/save.types";
 import { useEffect } from "react";
+import { Address } from "viem";
 
-export default function SaveAddressSync({ children, address }: { children: React.ReactNode, address: string }) {
+export default function SaveAddressSync({ children, address }: { children: React.ReactNode, address: Address }) {
     const { reservesInfo } = useLendingPool();
+    const reserveInfo = reservesInfo.find((reserve) => reserve.address === address);
+    const coinPrices = useAssetPriceOracle(reserveInfo ? [reserveInfo] : []);
+    const { balanceLDTokens } = useLDtokens(reserveInfo ? [reserveInfo] : []);
+    const userDeposit = useGetLenderSupply(reserveInfo ? [reserveInfo] : []);
+    const userBalance = useBalanceCoins(reserveInfo ? [reserveInfo] : []);
 
     useEffect(() => {
         useSaveAddressStore.setState({
-            reserveInfo: reservesInfo.find((reserve) => reserve.address === address),
+            reserveInfo,
+            coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins] ?? 0,
+            balanceLDToken: balanceLDTokens[address] ?? { dToken: 0n, lToken: 0n },
+            userDeposit: userDeposit[address] ?? 0,
+            userBalance: userBalance[reserveInfo?.symbol as keyof Coins] ?? 0n,
         })
-    }, [address, reservesInfo]);
+    }, [address, balanceLDTokens, coinPrices, reserveInfo, reservesInfo, userBalance, userDeposit]);
     return children;
 }
