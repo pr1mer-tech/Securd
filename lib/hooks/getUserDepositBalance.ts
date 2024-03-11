@@ -8,7 +8,7 @@ const getUserDepositBalance = (reserveInfo: ReserveInfo | undefined, balanceLDTo
   lToken: bigint;
 }) => {
   if (reserveInfo === undefined) {
-    return { userDepositBalance: 0 };
+    return undefined;
   }
   const dTokenPrice = getDtokenprice(reserveInfo)
 
@@ -16,10 +16,10 @@ const getUserDepositBalance = (reserveInfo: ReserveInfo | undefined, balanceLDTo
 
   const userDepositBalance =
     userDTokenAmount !== undefined && dTokenPrice !== undefined
-      ? userDTokenAmount * dTokenPrice
-      : 0;
+      ? (userDTokenAmount * dTokenPrice) / (10n ** BigInt(reserveInfo.decimals))
+      : 0n;
 
-  return { userDepositBalance };
+  return userDepositBalance;
 };
 
 export default getUserDepositBalance;

@@ -22,10 +22,10 @@ export default function SaveAddressSync({ children, address }: { children: React
     useEffect(() => {
         useSaveAddressStore.setState({
             reserveInfo,
-            coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins] ?? 0,
-            balanceLDToken: balanceLDTokens[address] ?? { dToken: 0n, lToken: 0n },
-            userDeposit: userDeposit[address] ?? 0,
-            userBalance: userBalance[reserveInfo?.symbol as keyof Coins] ?? 0n,
+            coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins],
+            balanceLDToken: balanceLDTokens[address],
+            userDeposit: userDeposit[address],
+            userBalance: userBalance[reserveInfo?.symbol as keyof Coins],
         })
     }, [address, balanceLDTokens, coinPrices, reserveInfo, reservesInfo, userBalance, userDeposit]);
     return children;

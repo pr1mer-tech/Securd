@@ -8,7 +8,7 @@ type State = {
     coinPrices: Record<keyof Coins, number>
     reservesInfo: ReserveInfo[],
     balanceLDTokens: Record<Address, BalanceLDToken>
-    userDeposit: Record<Address, number>
+    userDeposit: Record<Address, bigint>
 }
 
 export const useSaveStoreBase = create<State>((set) => ({

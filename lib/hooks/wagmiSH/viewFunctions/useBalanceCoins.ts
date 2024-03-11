@@ -22,6 +22,7 @@ const useBalanceCoins = (reservesInfo: ReserveInfo[]) => {
   if (!data) return {} as BalanceCoins;
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
+    if (!data[index].result) return acc;
     acc[reserve.symbol as keyof Coins] = BigInt(data[index].result as string);
     return acc;
   }, {} as BalanceCoins);

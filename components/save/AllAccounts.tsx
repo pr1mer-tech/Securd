@@ -17,6 +17,7 @@ import GridIconBlack from "@/assets/icons/grid-icon-black.svg";
 import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 
 export const columns: ColumnDef<ReserveInfo>[] = [
     {
@@ -47,7 +48,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const depositBalance = row.getValue("lendingPool") as number;
+            const _depositBalance = row.getValue("lendingPool") as bigint;
+            const depositBalance = bigIntToDecimal(_depositBalance, row.original.decimals);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
@@ -84,7 +86,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     },
     {
         id: "interest",
-        accessorFn: (row) => getInterestAmount(getDepositBalance(row), getDeposit(row)),
+        accessorFn: (row) => getInterestAmount(bigIntToDecimal(getDepositBalance(row), row.decimals), getDeposit(row)),
         header: ({ column }) => <>
             Interest
             <Help>

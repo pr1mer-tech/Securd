@@ -28,9 +28,9 @@ export const getAssetAddress = (lenderPool: LenderPool): Address => {
  */
 export const getDtokenprice = (
   reserveInfo: ReserveInfo
-): number | undefined => {
+): bigint | undefined => {
   try {
-    return bigIntToDecimal(reserveInfo.tokenInfo.dTokenPrice, reserveInfo.decimals);
+    return reserveInfo.tokenInfo.dTokenPrice
   } catch (error) {
     throw new Error(LENDER_POOL_ERRORS.D_TOKEN_PRICE_FAILED);
   }
@@ -201,10 +201,10 @@ export const getInterestRate = (reserveInfo: ReserveInfo | undefined) => {
 export const getDepositBalance = (reserveInfo: ReserveInfo | undefined) => {
   try {
     if (reserveInfo !== undefined) {
-      const supply = bigIntToDecimal(reserveInfo.supply, 18);
+      const supply = reserveInfo.supply;
       const dTokenPrice = getDtokenprice(reserveInfo);
       if (supply !== undefined && dTokenPrice !== undefined) {
-        return supply * dTokenPrice;
+        return supply * dTokenPrice / 10n ** BigInt(reserveInfo.decimals);
       }
     }
   } catch (error) {

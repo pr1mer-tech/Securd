@@ -11,6 +11,7 @@ import { useSaveStore } from "@/lib/data/saveStore";
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
 import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSupply";
+import { Toaster } from "sonner";
 
 const config = createConfig(
     getDefaultConfig({
@@ -44,7 +45,10 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         <TooltipProvider>
             <WagmiProvider config={config}>
                 <QueryClientProvider client={queryClient}>
-                    <ConnectKitProvider>{children}</ConnectKitProvider>
+                    <ConnectKitProvider>
+                        {children}
+                        <Toaster />
+                    </ConnectKitProvider>
                 </QueryClientProvider>
             </WagmiProvider>
         </TooltipProvider>

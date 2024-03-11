@@ -13,6 +13,7 @@ import { useMemo } from "react";
 import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
 import { AccountTable } from "./AccountTable";
 import Link from "next/link";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 
 
 export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo; }) {
@@ -24,10 +25,13 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
     const price = coinPrices[coin] ?? 0;
 
     const savings = getSavingApy(userReserveInfo);
-    const { userDepositBalance } = getUserDepositBalance(userReserveInfo, balanceLDTokens[userReserveInfo.address]);
+    const userDepositBalance = getUserDepositBalance(userReserveInfo, balanceLDTokens[userReserveInfo.address]);
 
     const userInterest = useMemo(() => {
-        return getInterestAmount(userDepositBalance, userDeposit[userReserveInfo.address]);
+        return getInterestAmount(
+            bigIntToDecimal(userDepositBalance ?? 0n, userReserveInfo.decimals),
+            bigIntToDecimal(userDeposit[userReserveInfo.address] ?? 0n, userReserveInfo.decimals)
+        );
     }, [userDepositBalance, userDeposit, userReserveInfo.address]);
 
     return <Link href={`/save/${userReserveInfo.address}`}>

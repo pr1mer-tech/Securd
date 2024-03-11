@@ -4,7 +4,7 @@ import { ReserveInfo } from "@/lib/types/save.types";
 import { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
-const useGetLenderSupply: (reserveInfos: ReserveInfo[]) => Record<Address, number> = (reserveInfos) => {
+const useGetLenderSupply: (reserveInfos: ReserveInfo[]) => Record<Address, bigint> = (reserveInfos) => {
   const { isConnected, address } = useAccount();
 
   const { data } = useReadContracts({
@@ -21,7 +21,7 @@ const useGetLenderSupply: (reserveInfos: ReserveInfo[]) => Record<Address, numbe
 
   if (!data) return {};
 
-  return Object.fromEntries(data.map((item, i) => ([reserveInfos[i].address, bigIntToDecimal(BigInt(item.result as string), reserveInfos[i].decimals) ?? 0])))
+  return Object.fromEntries(data.map((item, i) => ([reserveInfos[i].address, BigInt(item.result as string)])))
 };
 
 export default useGetLenderSupply;

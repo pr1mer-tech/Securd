@@ -12,7 +12,7 @@ const getUserDToken = (reserveInfo: ReserveInfo | undefined, balanceLDToken: {
   //   reserveInfo?.tokenInfo.lToken
   // );
 
-  const userDTokenAmount = bigIntToDecimal(balanceLDToken?.dToken, 18);
+  const userDTokenAmount = balanceLDToken?.dToken
 
   return { userDTokenAmount };
 };
