@@ -1,5 +1,5 @@
 import { ReserveInfo } from "@/lib/types/save.types";
-import { erc20Abi } from "viem";
+import { BaseError, erc20Abi } from "viem";
 import { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { Effect } from "./useValueEffect";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 
-export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint, callback: () => void): () => Effect<SavePipelineState> {
+export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint, price: number, userDepositBalance: bigint, callback: () => void): () => Effect<SavePipelineState> {
     return async function* depositPipeline() {
         yield {
             buttonEnabled: amount > 0n,
@@ -56,19 +56,25 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                     });
 
                     if (receipt.status === "success") {
-                        resolve();
+                        return receipt;
                     } else {
-                        reject();
+                        throw new Error("Transaction reverted");
                     }
                 }, {
                     loading: "Approving...",
                     success: (data) => {
-                        resolve(data);
+                        resolve();
                         return "Approved";
                     },
                     error: (error) => {
                         reject(error);
-                        return "Error";
+                        if (error instanceof BaseError) {
+                            return error.shortMessage;
+                        }
+                        if (error instanceof Error) {
+                            return `Error: ${error.message}`
+                        }
+                        return "Error"
                     }
                 })
             });
@@ -102,19 +108,25 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                 });
 
                 if (receipt.status === "success") {
-                    resolve();
+                    return receipt;
                 } else {
-                    reject();
+                    throw new Error("Transaction reverted");
                 }
             }, {
                 loading: "Depositing...",
                 success: (data) => {
-                    resolve(data);
+                    resolve();
                     return "Deposited";
                 },
                 error: (error) => {
                     reject(error);
-                    return "Error";
+                    if (error instanceof BaseError) {
+                        return error.shortMessage;
+                    }
+                    if (error instanceof Error) {
+                        return `Error: ${error.message}`
+                    }
+                    return "Error"
                 }
             })
         }));
@@ -123,6 +135,24 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
             useImpactStore.setState({
                 open: true,
                 title: "Confirm Deposit",
+                transactionDetails: {
+                    title: "Deposit",
+                    amount,
+                    symbol: reserveInfo.symbol,
+                    decimals: reserveInfo.decimals,
+                    price,
+                },
+                impacts: [
+                    {
+                        label: "Account Balance",
+                        fromAmount: userDepositBalance,
+                        toAmount: userDepositBalance + amount,
+                        fromDecimals: reserveInfo.decimals,
+                        toDecimals: reserveInfo.decimals,
+                        fromPrice: price,
+                        toPrice: price,
+                    }
+                ],
                 action: async () => {
                     await deposit();
                     callback();

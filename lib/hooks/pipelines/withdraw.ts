@@ -6,8 +6,9 @@ import { SavePipelineState, savePipelineState2 } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
+import { BaseError, TransactionRejectedRpcError } from "viem";
 
-export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigint, callback: () => void): () => Effect<SavePipelineState> {
+export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigint, price: number, userDepositBalance: bigint, callback: () => void): () => Effect<SavePipelineState> {
     return async function* depositPipeline() {
         yield savePipelineState2;
 
@@ -45,19 +46,25 @@ export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigin
                 });
 
                 if (receipt.status === "success") {
-                    resolve();
+                    return receipt;
                 } else {
-                    reject();
+                    throw new Error("Transaction reverted");
                 }
             }, {
                 loading: "Withdrawing...",
                 success: (data) => {
-                    resolve(data);
+                    resolve();
                     return "Withdrawn";
                 },
                 error: (error) => {
                     reject(error);
-                    return "Error";
+                    if (error instanceof BaseError) {
+                        return error.shortMessage;
+                    }
+                    if (error instanceof Error) {
+                        return `Error: ${error.message}`
+                    }
+                    return "Error"
                 }
             })
         }));
@@ -66,9 +73,29 @@ export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigin
             useImpactStore.setState({
                 open: true,
                 title: "Confirm Withdrawal",
+                transactionDetails: {
+                    title: "Withdraw",
+                    amount,
+                    symbol: reserveInfo.symbol,
+                    decimals: reserveInfo.decimals,
+                    price: price,
+                },
+                impacts: [{
+                    label: "Balance",
+                    fromAmount: userDepositBalance,
+                    toAmount: userDepositBalance - amount,
+                    fromDecimals: reserveInfo.decimals,
+                    toDecimals: reserveInfo.decimals,
+                    fromPrice: price,
+                    toPrice: price,
+                }],
                 action: async () => {
-                    await withdraw();
-                    callback();
+                    try {
+                        await withdraw();
+                        callback();
+                    } catch (error) {
+                        console.error(error);
+                    }
                 },
                 finalize: () => {
                     resolve();

@@ -53,8 +53,8 @@ export default function InfoAddressCard() {
         if (reserveInfo) {
 
             setPipeline(menu === "deposit"
-                ? deposit(config, reserveInfo, amount, resetInput)
-                : withdraw(config, reserveInfo, amount, resetInput));
+                ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput)
+                : withdraw(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput));
         }
     }, [config, reserveInfo, amount, menu]);
 
