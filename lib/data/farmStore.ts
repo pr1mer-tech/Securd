@@ -1,0 +1,28 @@
+import { Coins, ReserveInfo } from "../types/save.types"
+import { create } from 'zustand'
+import { createSelectors } from './createSelectors'
+import { Address } from "viem"
+import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
+import { CollateralInfos } from "../types/farm.types"
+
+type State = {
+    coinPrices: Record<keyof Coins, number>,
+    reservesInfo: ReserveInfo[],
+    collateralsInfos: CollateralInfos[],
+    collateralAmountPrice: Record<Address, CollateralAmountPrice>
+}
+
+export const useFarmStoreBase = create<State>((set) => ({
+    coinPrices: {
+        ETH: 0,
+        USDC: 0,
+        USDT: 0,
+        DAI: 0,
+        WBTC: 0
+    },
+    reservesInfo: [],
+    collateralsInfos: [],
+    collateralAmountPrice: {}
+}));
+
+export const useFarmStore = createSelectors(useFarmStoreBase)

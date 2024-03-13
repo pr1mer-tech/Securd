@@ -81,10 +81,23 @@ export type LiquidationThresholdInfo = {
   buffer: bigint;
 };
 
+export enum PoolType {
+  UniswapV2 = "UniswapV2",
+};
+
+export function poolLink(poolType: PoolType, address: Address): string {
+  if (poolType === PoolType.UniswapV2) {
+    return `https://info.uniswap.org/pair/${address}`;
+  }
+  return "";
+}
+
 export type CollateralInfos = {
   symbol: string;
+  decimals: number;
   address: Address;
   addressLP: Address;
+  poolType: PoolType;
   tokenInfo: TokenInfo;
   liquidationThresholdInfo: LiquidationThresholdInfo;
   liquidationPremium: bigint;

@@ -1,63 +1,76 @@
-import { collateralPoolContract } from "@/utils/constants/wagmiConfig/wagmiConfig";
-import { Debts } from "@/utils/types/farm.types";
-import { useState } from "react";
-import { Address, useAccount, useContractReads } from "wagmi";
+import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
+import { CollateralInfos, Debts } from "@/lib/types/farm.types";
+import { Address } from "viem";
+import { useAccount, useReadContracts } from "wagmi";
 
-const useCollateralAmountPrice = (assetLp: Address | undefined) => {
-  const [collateralAmount, setCollateralAmount] = useState<bigint>();
-  const [collateralValue, setCollateralValue] = useState<bigint>();
-  const [debts, setDebts] = useState<Debts>();
-  const [collateralFactor, setCollateralFactor] = useState<bigint>();
-  const [leverageFactor, setLeverageFactor] = useState<bigint>();
+export type CollateralAmountPrice = {
+  collateralAmount?: bigint;
+  collateralValue?: bigint;
+  debts?: Debts;
+  collateralFactor?: bigint;
+  leverageFactor?: bigint;
+};
+
+const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
   const { isConnected, address } = useAccount();
 
-  useContractReads({
-    contracts: [
+  const { data } = useReadContracts({
+    contracts: collateralInfos.map(info => ([
       {
         ...collateralPoolContract,
         functionName: "borrowerBalances",
-        args: [address as Address, assetLp as Address],
+        args: [address, info.addressLP],
       },
       {
         ...collateralPoolContract,
         functionName: "getCollateralValue",
-        args: [address as Address, assetLp as Address],
+        args: [address, info.addressLP],
       },
       {
         ...collateralPoolContract,
         functionName: "getCollateralFactor",
-        args: [address as Address, assetLp as Address],
+        args: [address, info.addressLP],
       },
       {
         ...collateralPoolContract,
         functionName: "getLeverageFactor",
-        args: [address as Address, assetLp as Address],
+        args: [address, info.addressLP],
       },
-    ],
-    onSuccess(data: any) {
-      setCollateralAmount(data[0].result[0]);
-      setDebts({
-        tokenA: data[0].result[1],
-        tokenB: data[0].result[2],
-      });
-      setCollateralValue(data[1].result);
-      setCollateralFactor(data[2].result);
-      setLeverageFactor(data[3].result);
+    ])).flat(),
+    query: {
+      enabled: isConnected,
+      refetchInterval: 10000,
     },
-    onError(error) {
-      // eslint-disable-next-line no-console
-      console.log("Error", error);
-    },
-    enabled: isConnected && assetLp !== undefined,
-    watch: true,
-  }) as any;
+  });
 
-  return {
-    collateralAmount,
-    collateralValue,
-    debts,
-    collateralFactor,
-    leverageFactor,
-  };
+  if (!data || data.length < collateralInfos.length * 4) {
+    return {};
+  }
+
+  const collateralAmountPrice = Object.fromEntries(
+    collateralInfos.map((info, index) => {
+      const baseIndex = index * 4;
+      const [collateralAmount, tokenA, tokenB] = data[baseIndex].result as unknown as [bigint, bigint, bigint];
+      const collateralValue = data[baseIndex + 1].result;
+      const collateralFactor = data[baseIndex + 2].result;
+      const leverageFactor = data[baseIndex + 3].result;
+
+      return [
+        info.addressLP,
+        {
+          collateralAmount,
+          collateralValue,
+          debts: {
+            tokenA,
+            tokenB,
+          },
+          collateralFactor,
+          leverageFactor,
+        },
+      ];
+    })
+  );
+
+  return collateralAmountPrice as Record<Address, CollateralAmountPrice>;
 };
 export default useCollateralAmountPrice;

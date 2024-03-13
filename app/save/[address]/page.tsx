@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import SaveAddressTitle from "./SaveAddressTitle";
 import InfoAddressCard from "@/components/save/address/InfoAddressCard";
 import { Address } from "viem";
+import PoolDetails from "@/components/save/address/PoolDetails";
 
 export default function SaveAddress({ params }: { params: { address: Address } }) {
     return <SaveAddressSync address={params.address}>
@@ -18,7 +19,13 @@ export default function SaveAddress({ params }: { params: { address: Address } }
                     <SaveAddressTitle />
                 </div>
             </div>
+        </div>
+        <div className="relative">
             <InfoAddressCard />
+            <div className="absolute top-10 w-full h-full before:absolute before:inset-0 before:bg-securdPrimaryLight  before:w-full z-[-1] pb-4 before:h-full" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 my-16">
+            <PoolDetails />
         </div>
     </SaveAddressSync>
 }

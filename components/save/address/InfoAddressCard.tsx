@@ -25,6 +25,7 @@ import { SavePipelineState, savePipelineState } from "@/lib/hooks/pipelines/Save
 import { withdraw } from "@/lib/hooks/pipelines/withdraw";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Impact from "@/components/layout/Impact";
+import { cn } from "@/lib/utils";
 
 export default function InfoAddressCard() {
     const reserveInfo = useSaveAddressStore.use.reserveInfo?.();
@@ -69,141 +70,143 @@ export default function InfoAddressCard() {
         return <Skeleton className="w-full rounded-xl h-56 max-w-screen-xl mx-auto mt-8" />
     }
 
-    return <Card className="flex flex-col md:flex-row mt-8">
-        <div className="flex flex-col gap-2 bg-securdLightGrey rounded-t-2xl md:rounded-none md:rounded-l-2xl p-6 w-full md:w-2/5">
-            <h2 className="text-2xl font-bold text-primary">My balance</h2>
-            <Separator className="bg-securdWhite" />
-            <div className="text-xl">
-                <AccountTable userDepositBalance={userDepositBalance} price={coinPrice} userDeposit={userDeposit} userReserveInfo={reserveInfo} userInterest={userInterest} />
-            </div>
-        </div>
-        <div className="flex flex-col gap-2 p-6 w-full md:w-3/5">
-            <div className="flex flex-row justify-between items-center w-full">
-                <h2 className="text-2xl font-bold text-primary">Deposit / Withdraw</h2>
-                <div className="text-lg">
-                    Saving APY
-
-                    <Help>
-                        Current yield for this account
-                    </Help>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-2xl font-bold inline ml-2">
-                                {toFormattedPercentage(savings, 1)}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{savings}%</p>
-                        </TooltipContent>
-                    </Tooltip>
+    return <div className="max-w-7xl mx-auto px-4">
+        <Card className="flex flex-col md:flex-row mt-8">
+            <div className="flex flex-col gap-2 bg-securdLightGrey rounded-t-2xl md:rounded-none md:rounded-l-2xl p-6 w-full md:w-2/5">
+                <h2 className="text-2xl font-bold text-primary">My balance</h2>
+                <Separator className="bg-securdWhite" />
+                <div className="text-xl">
+                    <AccountTable userDepositBalance={userDepositBalance} price={coinPrice} userDeposit={userDeposit} userReserveInfo={reserveInfo} userInterest={userInterest} />
                 </div>
             </div>
-            <Separator />
-            <div className="flex flex-row justify-between items-center w-full">
-                <MenuTabs value={menu} onValueChange={(value) => {
-                    setMenu(value as "deposit" | "withdraw");
-                    resetInput();
-                }}>
-                    <MenuTabsList>
-                        <MenuTabsTrigger value="deposit">Deposit</MenuTabsTrigger>
-                        <MenuTabsTrigger value="withdraw">Withdraw</MenuTabsTrigger>
-                    </MenuTabsList>
-                </MenuTabs>
-                {menu === "deposit" ? (<div className="text-md">
-                    Wallet Balance
-                    <Help>
-                        Amount of this asset in your wallet
-                    </Help>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-xl font-bold inline ml-2">
-                                {securdFormatFloor(bigIntToDecimal(userBalance, reserveInfo.decimals), 2)}
-                                {" " + reserveInfo.symbol}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{bigIntToDecimal(userBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </div>) : (<div className="text-md">
-                    Account Balance
-                    <Help>
-                        Amount of this asset in your Savings Account
-                    </Help>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="text-xl font-bold inline ml-2">
-                                {securdFormatFloor(bigIntToDecimal(userDepositBalance, reserveInfo.decimals), 2)}
-                                {" " + reserveInfo.symbol}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </div>)}
-            </div>
-            <div className="flex flex-row gap-4 mt-4">
-                <div className="relative flex items-center w-full">
-                    <div className="absolute left-0 flex flex-row items-center justify-evenly border w-24 h-full bg-muted rounded-l-md">
-                        <Image
-                            className="rounded-full"
-                            src={reserveInfo?.imgSrc}
-                            alt={reserveInfo?.symbol}
-                            width={20}
-                            height={20} />
-                        <div className="text-base font-bold">{reserveInfo?.symbol}</div>
+            <div className="flex flex-col gap-2 p-6 w-full md:w-3/5">
+                <div className="flex flex-row justify-between items-center w-full">
+                    <h2 className="text-2xl font-bold text-primary">Deposit / Withdraw</h2>
+                    <div className="text-lg">
+                        Saving APY
+
+                        <Help>
+                            Current yield for this account
+                        </Help>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="text-2xl font-bold inline ml-2">
+                                    {toFormattedPercentage(savings, 1)}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{savings}%</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
-                    <Input
-                        placeholder="Amount"
-                        type="number"
-                        className="pl-28 h-12"
-                        value={amountInput}
-                        onChange={(e) => {
-                            setAmountInput(e.target.value);
-                            setAmount(parseUnits(Number(e.target.value).toString(), reserveInfo.decimals));
-                        }}
-                        onBlur={() => {
-                            setAmountInput(formatUnits(amount, reserveInfo.decimals));
-                        }}
-                    />
                 </div>
-                <Button className="h-12 font-bold text-xl w-44" disabled={!pipeline.buttonEnabled} onClick={nextStep}>
-                    {pipeline.buttonLabel}
-                </Button>
-            </div>
-            <Slider
-                className="mt-4"
-                min={0}
-                max={100}
-                step={25}
-                value={[sliderBase ? Math.round(Number(amount * 10000n / sliderBase)) / 100 : 0]}
-                onValueChange={(value) => {
-                    if (!sliderBase) return;
-                    const exactPercentage = value[0] ?? 0;
-                    const amount = sliderBase * BigInt(exactPercentage) / 100n;
+                <Separator />
+                <div className="flex flex-row justify-between items-center w-full">
+                    <MenuTabs value={menu} onValueChange={(value) => {
+                        setMenu(value as "deposit" | "withdraw");
+                        resetInput();
+                    }}>
+                        <MenuTabsList className="h-[3.25rem]">
+                            <MenuTabsTrigger value="deposit" className="p-6">Deposit</MenuTabsTrigger>
+                            <MenuTabsTrigger value="withdraw" className="p-6">Withdraw</MenuTabsTrigger>
+                        </MenuTabsList>
+                    </MenuTabs>
+                    {menu === "deposit" ? (<div className="text-md">
+                        Wallet Balance
+                        <Help>
+                            Amount of this asset in your wallet
+                        </Help>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="text-xl font-bold inline ml-2">
+                                    {securdFormatFloor(bigIntToDecimal(userBalance, reserveInfo.decimals), 2)}
+                                    {" " + reserveInfo.symbol}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{bigIntToDecimal(userBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>) : (<div className="text-md">
+                        Account Balance
+                        <Help>
+                            Amount of this asset in your Savings Account
+                        </Help>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="text-xl font-bold inline ml-2">
+                                    {securdFormatFloor(bigIntToDecimal(userDepositBalance, reserveInfo.decimals), 2)}
+                                    {" " + reserveInfo.symbol}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>)}
+                </div>
+                <div className="flex flex-row gap-4 mt-4">
+                    <div className="relative flex items-center w-full">
+                        <div className="absolute left-0 flex flex-row items-center justify-evenly border w-24 h-full bg-muted rounded-l-md">
+                            <Image
+                                className="rounded-full"
+                                src={reserveInfo?.imgSrc}
+                                alt={reserveInfo?.symbol}
+                                width={20}
+                                height={20} />
+                            <div className="text-base font-bold">{reserveInfo?.symbol}</div>
+                        </div>
+                        <Input
+                            placeholder="Amount"
+                            type="number"
+                            className="pl-28 h-12"
+                            value={amountInput}
+                            onChange={(e) => {
+                                setAmountInput(e.target.value);
+                                setAmount(parseUnits(Number(e.target.value).toString(), reserveInfo.decimals));
+                            }}
+                            onBlur={() => {
+                                setAmountInput(formatUnits(amount, reserveInfo.decimals));
+                            }}
+                        />
+                    </div>
+                    <Button className="h-12 font-bold text-xl w-44" disabled={!pipeline.buttonEnabled} onClick={nextStep}>
+                        {pipeline.buttonLabel}
+                    </Button>
+                </div>
+                <Slider
+                    className="mt-4"
+                    min={0}
+                    max={100}
+                    step={25}
+                    value={[sliderBase ? Math.round(Number(amount * 10000n / sliderBase)) / 100 : 0]}
+                    onValueChange={(value) => {
+                        if (!sliderBase) return;
+                        const exactPercentage = value[0] ?? 0;
+                        const amount = sliderBase * BigInt(exactPercentage) / 100n;
 
-                    setAmount(amount);
-                    setAmountInput(formatUnits(amount, reserveInfo.decimals));
-                }}
-            >
-                <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-0">
-                    <span className="absolute top-5 text-xs">0%</span>
-                </div>
-                <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-1/4 -translate-x-1/4">
-                    <span className="absolute top-5 text-xs">25%</span>
-                </div>
-                <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-1/2 -translate-x-1/2">
-                    <span className="absolute top-5 text-xs">50%</span>
-                </div>
-                <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-1/4 translate-x-1/4">
-                    <span className="absolute top-5 text-xs">75%</span>
-                </div>
-                <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-0">
-                    <span className="absolute top-5 text-xs">100%</span>
-                </div>
-            </Slider>
-        </div>
-        <Impact />
-    </Card>
+                        setAmount(amount);
+                        setAmountInput(formatUnits(amount, reserveInfo.decimals));
+                    }}
+                >
+                    <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-0">
+                        <span className="absolute top-5 text-xs">0%</span>
+                    </div>
+                    <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-1/4 -translate-x-1/4">
+                        <span className="absolute top-5 text-xs">25%</span>
+                    </div>
+                    <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors left-1/2 -translate-x-1/2">
+                        <span className="absolute top-5 text-xs">50%</span>
+                    </div>
+                    <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-1/4 translate-x-1/4">
+                        <span className="absolute top-5 text-xs">75%</span>
+                    </div>
+                    <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-0">
+                        <span className="absolute top-5 text-xs">100%</span>
+                    </div>
+                </Slider>
+            </div>
+            <Impact />
+        </Card>
+    </div>
 }

@@ -1,21 +1,22 @@
 import { Coins, ReserveInfo } from "../types/save.types";
 import getUserDepositBalance from "./getUserDepositBalance";
-import { useContext, useEffect, useState } from "react";
 import { getSavingApy } from "../helpers/lenderPool.helpers";
 import { Address } from "viem";
 import { BalanceLDToken } from "../types/global.types";
+import { bigIntToDecimal } from "../helpers/main.helpers";
 
 const getTotalAverageApy = (reservesInfo: ReserveInfo[], balanceLDTokens: Record<Address, BalanceLDToken>, coinPrices: Record<keyof Coins, number>) => {
   let numerator = 0;
   let denominator = 0;
 
   const results = reservesInfo.reduce((acc, reserve) => {
-    const { userDepositBalance } = getUserDepositBalance(reserve, balanceLDTokens[reserve.address]);
+    const userDepositBalance = getUserDepositBalance(reserve, balanceLDTokens[reserve.address]);
     if (userDepositBalance) {
       const apy = getSavingApy(reserve) || 0;
       const price = coinPrices[reserve.symbol as keyof Coins] || 0;
-      acc.numerator += userDepositBalance * price * apy;
-      acc.denominator += userDepositBalance * price;
+      const decimals = (bigIntToDecimal(userDepositBalance, reserve.decimals) ?? 0)
+      acc.numerator += decimals * price * apy;
+      acc.denominator += decimals * price;
     }
     return acc;
   }, { numerator: 0, denominator: 0 });
