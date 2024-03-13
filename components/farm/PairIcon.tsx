@@ -31,7 +31,15 @@ export function DexIcon({
     </>
 }
 
-export default function PairIcon({ userCollateralsInfo }: { userCollateralsInfo: CollateralInfos }) {
+export default function PairIcon({
+    className,
+    userCollateralsInfo,
+    size = "normal", // Default size is set to "normal" if not provided
+}: {
+    className?: string;
+    userCollateralsInfo: CollateralInfos;
+    size?: "small" | "normal" | "large";
+}) {
     const reservesInfo = useFarmStore.use.reservesInfo();
 
     const tokensUn = getTokensSymbol(userCollateralsInfo);
@@ -41,36 +49,46 @@ export default function PairIcon({ userCollateralsInfo }: { userCollateralsInfo:
         return <Skeleton className="w-8 h-6" />
     }
 
+    // Define size mappings for width and height
+    const sizeMappings = {
+        small: { width: 24, height: 24 },
+        normal: { width: 32, height: 32 },
+        large: { width: 48, height: 48 },
+    };
+
+    // Get the width and height based on the size prop
+    const { width, height } = sizeMappings[size];
+
     return <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger className={className}>
             <div className="flex items-center">
                 <div className="relative flex items-center">
                     <Image
                         className="rounded-full"
                         src={pairReservesInfosUn.reserveInfoTokenA?.imgSrc}
                         alt={pairReservesInfosUn.reserveInfoTokenA?.symbol}
-                        width={32}
-                        height={32}
+                        width={width}
+                        height={height}
                     />
                     <Image
                         className="rounded-full -ml-2 border-2 border-white"
                         src={pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
                         alt={pairReservesInfosUn.reserveInfoTokenB?.symbol}
-                        width={32}
-                        height={32}
+                        width={width}
+                        height={height}
                     />
                     <DexIcon
                         className="absolute right-0 bottom-0 translate-x-1 translate-y-1 rounded-full bg-white"
                         userCollateralsInfo={userCollateralsInfo}
-                        width={16}
-                        height={16}
+                        width={width / 2} // Adjust DexIcon size based on the parent size
+                        height={height / 2} // Adjust DexIcon size based on the parent size
                     />
                 </div>
                 {userCollateralsInfo.symbol}
             </div>
         </TooltipTrigger>
-        <TooltipContent>
-            <Link href={poolLink(userCollateralsInfo.poolType, userCollateralsInfo.addressLP)} target="_blank" onClick={(e) => e.stopPropagation()}>
+        <TooltipContent className="font-bold">
+            <Link href={poolLink(userCollateralsInfo.poolType, userCollateralsInfo.addressLP)} target="_blank" onClick={(e) => e.stopPropagation()} className="hover:underline">
                 <DexIcon
                     className="inline mr-1"
                     userCollateralsInfo={userCollateralsInfo}

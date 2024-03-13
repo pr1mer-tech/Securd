@@ -26,6 +26,8 @@ import { withdraw } from "@/lib/hooks/pipelines/withdraw";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Impact from "@/components/layout/Impact";
 import { cn } from "@/lib/utils";
+import SecurdFormat from "@/components/utils/SecurdFormat";
+import PercentageFormat from "@/components/utils/PercentageFormat";
 
 export default function InfoAddressCard() {
     const reserveInfo = useSaveAddressStore.use.reserveInfo?.();
@@ -51,13 +53,12 @@ export default function InfoAddressCard() {
     const [pipeline, nextStep, resetPipeline, setPipeline] = useValueEffect<SavePipelineState>(savePipelineState);
 
     useEffect(() => {
-        if (reserveInfo) {
-
+        if (reserveInfo && userDepositBalance) {
             setPipeline(menu === "deposit"
                 ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput)
                 : withdraw(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput));
         }
-    }, [config, reserveInfo, amount, menu]);
+    }, [config, reserveInfo, amount, menu, userDepositBalance]);
 
     const userInterest = useMemo(() => {
         return getInterestAmount(
@@ -88,16 +89,10 @@ export default function InfoAddressCard() {
                         <Help>
                             Current yield for this account
                         </Help>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="text-2xl font-bold inline ml-2">
-                                    {toFormattedPercentage(savings, 1)}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{savings}%</p>
-                            </TooltipContent>
-                        </Tooltip>
+                        <PercentageFormat
+                            className="text-2xl font-bold inline ml-2"
+                            value={savings}
+                        />
                     </div>
                 </div>
                 <Separator />
@@ -116,33 +111,21 @@ export default function InfoAddressCard() {
                         <Help>
                             Amount of this asset in your wallet
                         </Help>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="text-xl font-bold inline ml-2">
-                                    {securdFormatFloor(bigIntToDecimal(userBalance, reserveInfo.decimals), 2)}
-                                    {" " + reserveInfo.symbol}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{bigIntToDecimal(userBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
-                            </TooltipContent>
-                        </Tooltip>
+                        <SecurdFormat
+                            className="text-xl font-bold inline ml-2"
+                            value={bigIntToDecimal(userBalance, reserveInfo.decimals)}
+                            suffix={reserveInfo.symbol}
+                        />
                     </div>) : (<div className="text-md">
                         Account Balance
                         <Help>
                             Amount of this asset in your Savings Account
                         </Help>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="text-xl font-bold inline ml-2">
-                                    {securdFormatFloor(bigIntToDecimal(userDepositBalance, reserveInfo.decimals), 2)}
-                                    {" " + reserveInfo.symbol}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}{" " + reserveInfo.symbol}</p>
-                            </TooltipContent>
-                        </Tooltip>
+                        <SecurdFormat
+                            className="text-xl font-bold inline ml-2"
+                            value={bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}
+                            suffix={reserveInfo.symbol}
+                        />
                     </div>)}
                 </div>
                 <div className="flex flex-row gap-4 mt-4">

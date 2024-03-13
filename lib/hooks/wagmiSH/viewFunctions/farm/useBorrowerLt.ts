@@ -1,32 +1,38 @@
-import { collateralPoolContract } from "@/utils/constants/wagmiConfig/wagmiConfig";
-import { useState } from "react";
+import { CollateralInfos } from "@/lib/types/farm.types";
+import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
+import { useAccount, useReadContracts } from "wagmi";
 import { Address } from "viem";
-import { useAccount, useContractReads } from "wagmi";
+import getUserCollateralsInfos from "@/lib/hooks/getUserCollateralsInfos";
+import { CollateralAmountPrice } from "./useCollateralAmountPrice";
 
-const useBorrowerLt = (assetLp: Address | undefined) => {
-  const [borrowerLT, setBorrowerLT] = useState<bigint>(BigInt(0));
+const useBorrowerLt: (collateralInfos: CollateralInfos[], collateralAmountPrice: Record<Address, CollateralAmountPrice>) => Record<Address, bigint> = (collateralInfos, collateralAmountPrice) => {
   const { isConnected, address } = useAccount();
 
-  useContractReads({
-    contracts: [
-      {
-        ...collateralPoolContract,
-        functionName: "isLiquidablePosition",
-        args: [address as Address, assetLp as Address],
-      },
-    ],
-    onSuccess(data: any) {
-      if (data && data[0].result) setBorrowerLT(data[0].result[1]);
-    },
-    onError(error: Error) {
-      throw new Error(error.message);
-    },
-    enabled: isConnected && assetLp !== undefined,
-    watch: true,
-  }) as any;
+  const userCollateralInfos = getUserCollateralsInfos(collateralInfos, collateralAmountPrice);
 
-  return {
-    borrowerLT,
-  };
+  const { data } = useReadContracts({
+    contracts: userCollateralInfos.map(info => ({
+      ...collateralPoolContract,
+      functionName: "isLiquidablePosition",
+      args: [address, info.addressLP],
+    })),
+    query: {
+      enabled: isConnected,
+      refetchInterval: 10000,
+    },
+  });
+
+  if (!data || data.length < userCollateralInfos.length) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    userCollateralInfos.map((info, index) => {
+      return [
+        info.addressLP,
+        data[index].result as bigint,
+      ];
+    })
+  );
 };
 export default useBorrowerLt;

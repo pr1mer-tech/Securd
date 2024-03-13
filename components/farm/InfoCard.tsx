@@ -64,12 +64,14 @@ export default function InfoCard() {
 
     const averageApy = getFarmAverageApy(userCollateralsInfos, collateralAmountPrice, reservesInfo, coinPrices);
 
-    if (status === "reconnecting") return <Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />;
+    if (!reservesInfo || !coinPrices || !collateralsInfos || !collateralAmountPrice) {
+        return <Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />;
+    }
 
     return <>
-        {status === "connected" && <h2 className="text-xl font-bold text-white mt-4">Summary</h2>}
+        {(status === "connected" || status === "reconnecting") && <h2 className="text-xl font-bold text-white mt-4">Summary</h2>}
         <Card className="mt-4 p-4">
-            {status === "connected" ? <div className="flex flex-row justify-evenly">
+            {(status === "connected" || status === "reconnecting") ? <div className="flex flex-row justify-evenly">
                 <Info value={accountBalanceUSD} name="balance" tooltip="Total value of locked assets backing your loans in all your accounts" />
                 <Info value={totalUserFarmBalance} name="collateral" tooltip="Total value of locked assets backing your loans in all your accounts" />
                 <Info value={farmTotalLoan} name="loan" tooltip="Total value of loans in all your accounts" />
