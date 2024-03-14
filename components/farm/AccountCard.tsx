@@ -88,7 +88,7 @@ export function AccountCard({
     const balanceLT = bigIntToDecimal(borrowerLTs[userCollateralsInfo.addressLP], userCollateralsInfo.decimals);
     const colorRisk = (borrowerCF && balanceLT) ? (borrowerCF / balanceLT - 1) * 100 : 0;
 
-    return <Link href={`/save/${userCollateralsInfo.addressLP}`}>
+    return <Link href={`/farm/${userCollateralsInfo.addressLP}`}>
         <Card>
             <CardContent className="pb-1">
                 <div className="flex flex-row justify-between">
@@ -194,7 +194,7 @@ export function AccountCard({
                             Collateral value divided by Loan value
                         </Help>
                     </div>
-                    <SecurdFormat value={borrowerCF} className="text-xl font-bold w-12 text-left -mr-4" />
+                    <SecurdFormat value={borrowerCF} className="text-xl font-bold" />
                 </div>
                 <div className="flex flex-row justify-between text-base mt-2 mb-4">
                     <div className="">
@@ -203,7 +203,7 @@ export function AccountCard({
                             Minimum Collateral Factor before your collateral is liquidated
                         </Help>
                     </div>
-                    <PercentageFormat value={balanceLT} className="text-xl font-bold w-12 text-left -mr-4" />
+                    <PercentageFormat value={balanceLT} className="text-xl font-bold" />
                 </div>
             </CardContent>
         </Card>

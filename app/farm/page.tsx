@@ -1,4 +1,4 @@
-import AllAccounts from "@/components/save/AllAccounts";
+import AllAccounts from "@/components/farm/AllAccounts";
 import Accounts from "@/components/farm/Accounts";
 import InfoCard from "@/components/farm/InfoCard";
 import FarmSync from "./FarmSync";

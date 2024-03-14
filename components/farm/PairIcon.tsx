@@ -61,7 +61,7 @@ export default function PairIcon({
 
     return <Tooltip>
         <TooltipTrigger className={className}>
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
                 <div className="relative flex items-center">
                     <Image
                         className="rounded-full"
@@ -71,7 +71,7 @@ export default function PairIcon({
                         height={height}
                     />
                     <Image
-                        className="rounded-full -ml-2 border-2 border-white"
+                        className="rounded-full -ml-2 border-2 border-white bg-white"
                         src={pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
                         alt={pairReservesInfosUn.reserveInfoTokenB?.symbol}
                         width={width}

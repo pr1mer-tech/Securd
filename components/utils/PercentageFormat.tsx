@@ -6,7 +6,7 @@ export default function PercentageFormat({
     className,
     decimals = 2,
     prefix = "",
-    suffix = "%"
+    suffix = ""
 }: {
     value?: number;
     className?: string;

@@ -11,6 +11,10 @@ type State = {
     collateralsInfos: CollateralInfos[],
     collateralAmountPrice: Record<Address, CollateralAmountPrice>;
     borrowerLt: Record<Address, bigint>;
+    collateralPoolBalances: Record<Address, {
+        balance: bigint;
+        collateralPrice: bigint;
+    }>;
 }
 
 export const useFarmStoreBase = create<State>((set) => ({
@@ -25,6 +29,8 @@ export const useFarmStoreBase = create<State>((set) => ({
     collateralsInfos: [],
     collateralAmountPrice: {},
     borrowerLt: {},
+    collateralPoolBalances: {},
 }));
 
 export const useFarmStore = createSelectors(useFarmStoreBase)
+export type FarmStoreState = State;
