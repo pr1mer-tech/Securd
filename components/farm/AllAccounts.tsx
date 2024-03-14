@@ -29,10 +29,8 @@ import { getPoolAPY } from "@/lib/helpers/lenderPool.helpers";
 
 export const columns: ColumnDef<{
     collateralInfos: CollateralInfos,
-    collateralPoolBalance: {
-        balance: bigint;
-        collateralPrice: bigint;
-    },
+    collateralPoolBalance: bigint,
+    collateralPrice: bigint,
     collateralPoolPrice: CollateralAmountPrice,
     reservesInfo: ReserveInfo[],
     coinPrices: Record<keyof Coins, number>
@@ -42,7 +40,7 @@ export const columns: ColumnDef<{
             accessorFn: (row) => row.collateralInfos.symbol,
             header: "LP Token",
             cell: ({ row }) => (
-                <PairIcon userCollateralsInfo={row.original.collateralInfos} size="small" className="w-36" />
+                <PairIcon userCollateralsInfo={row.original.collateralInfos} size="small" className="w-36" reservesInfo={row.original.reservesInfo} />
             )
         },
         {
@@ -54,14 +52,12 @@ export const columns: ColumnDef<{
                 </Help>
             </>,
             cell: ({ row }) => {
-                const collateralPoolBalance = row.getValue("collateralPoolBalance") as {
-                    balance: bigint;
-                    collateralPrice: bigint;
-                };
-                if (!collateralPoolBalance) return <Skeleton className="w-8 h-4" />;
+                const collateralPoolBalance = row.getValue("collateralPoolBalance") as bigint;
+                const collateralPrice = row.original.collateralPrice;
+                if (!collateralPoolBalance || !collateralPrice) return <Skeleton className="w-8 h-4" />;
 
-                const balance = bigIntToDecimal(collateralPoolBalance.balance, row.original.collateralInfos.decimals);
-                const price = bigIntToDecimal(collateralPoolBalance.collateralPrice * collateralPoolBalance.balance, row.original.collateralInfos.decimals * 2);
+                const balance = bigIntToDecimal(collateralPoolBalance, row.original.collateralInfos.decimals);
+                const price = bigIntToDecimal(collateralPrice * collateralPoolBalance, row.original.collateralInfos.decimals * 2);
 
                 return <div className="flex flex-col">
                     <div className="text-xl font-bold">
@@ -214,6 +210,7 @@ export default function AllAccounts() {
     const collateralInfos = useFarmStore.use.collateralsInfos();
     const collateralAmountPrices = useFarmStore.use.collateralAmountPrice();
     const collateralPoolBalances = useFarmStore.use.collateralPoolBalances();
+    const collateralProportions = useFarmStore.use.collateralProportions();
     const reservesInfo = useFarmStore.use.reservesInfo();
     const coinPrices = useFarmStore.use.coinPrices();
 
@@ -226,8 +223,9 @@ export default function AllAccounts() {
             collateralInfos: collateralInfo,
             collateralPoolBalance: collateralPoolBalances[collateralInfo.addressLP],
             collateralPoolPrice: collateralAmountPrices[collateralInfo.addressLP],
+            collateralPrice: collateralProportions[collateralInfo.addressLP]?.collateralPrice,
             reservesInfo: reservesInfo,
-            coinPrices: coinPrices
+            coinPrices: coinPrices,
         }
     })
 

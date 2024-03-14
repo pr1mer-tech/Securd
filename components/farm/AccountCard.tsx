@@ -93,7 +93,7 @@ export function AccountCard({
             <CardContent className="pb-1">
                 <div className="flex flex-row justify-between">
                     <h3 className="text-lg font-bold mt-4 flex flex-row items-center">
-                        <PairIcon userCollateralsInfo={userCollateralsInfo} />
+                        <PairIcon userCollateralsInfo={userCollateralsInfo} reservesInfo={reservesInfo} />
                     </h3>
                     <div className="text-base mt-4">
                         Farming APY
@@ -115,7 +115,7 @@ export function AccountCard({
                     </Help>
                 </div>
                 <div className="flex flex-row justify-between text-base mt-2">
-                    <PairIcon userCollateralsInfo={userCollateralsInfo} size="small" className="w-36" />
+                    <PairIcon userCollateralsInfo={userCollateralsInfo} size="small" className="w-36" reservesInfo={reservesInfo} />
                     <SecurdFormat
                         value={bigIntToDecimal(collateralPrice.collateralAmount, userCollateralsInfo.decimals)}
                         decimals={2}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
+import { ReserveInfo } from "@/lib/types/save.types";
 
 export function DexIcon({
     userCollateralsInfo,
@@ -34,14 +35,14 @@ export function DexIcon({
 export default function PairIcon({
     className,
     userCollateralsInfo,
+    reservesInfo,
     size = "normal", // Default size is set to "normal" if not provided
 }: {
     className?: string;
     userCollateralsInfo: CollateralInfos;
+    reservesInfo?: ReserveInfo[];
     size?: "small" | "normal" | "large";
 }) {
-    const reservesInfo = useFarmStore.use.reservesInfo();
-
     const tokensUn = getTokensSymbol(userCollateralsInfo);
     const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
 
@@ -61,7 +62,7 @@ export default function PairIcon({
 
     return <Tooltip>
         <TooltipTrigger className={className}>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
                 <div className="relative flex items-center">
                     <Image
                         className="rounded-full"
