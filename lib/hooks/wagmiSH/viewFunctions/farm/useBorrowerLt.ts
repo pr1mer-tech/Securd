@@ -28,9 +28,10 @@ const useBorrowerLt: (collateralInfos: CollateralInfos[], collateralAmountPrice:
 
   return Object.fromEntries(
     userCollateralInfos.map((info, index) => {
+      const result = data[index].result as unknown as [boolean, bigint];
       return [
         info.addressLP,
-        data[index].result as bigint,
+        result[1] as bigint,
       ];
     })
   );

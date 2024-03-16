@@ -1,22 +1,16 @@
 "use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { polygonMumbai } from "wagmi/chains";
+import { cronosTestnet, polygonMumbai } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
-import { useEffect } from "react";
-import { useSaveStore } from "@/lib/data/saveStore";
-import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
-import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
-import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSupply";
 import { Toaster } from "sonner";
 
 const config = createConfig(
     getDefaultConfig({
         // Your dApps chains
-        chains: [polygonMumbai],
+        chains: [polygonMumbai, cronosTestnet],
         transports: {
             // RPC URL for each chain
             [polygonMumbai.id]: http(
@@ -29,12 +23,12 @@ const config = createConfig(
         walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
 
         // Required App Info
-        appName: "Your App Name",
+        appName: "Secur·d",
 
         // Optional App Info
-        appDescription: "Your App Description",
-        appUrl: "https://family.co", // your app's url
-        appIcon: "https://family.co/logo.png", // your app's icon, no bigger than 1024x1024px (max. 1MB)
+        appDescription: "Secur·d Liquidity Backed Lending protocol",
+        appUrl: "https://securd.org", // your app's url
+        appIcon: "https://securd.org/logo.png", // your app's icon, no bigger than 1024x1024px (max. 1MB)
     }),
 );
 

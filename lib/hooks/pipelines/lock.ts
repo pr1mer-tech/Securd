@@ -3,13 +3,14 @@ import { BaseError, erc20Abi } from "viem";
 import { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { Effect } from "./useValueEffect";
-import { SavePipelineState, savePipelineState } from "./SavePipelineState";
+import { CollateralPipelineState, lockPipelineState } from "./CollateralPipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
+import { CollateralInfos } from "@/lib/types/farm.types";
 
-export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint, price: number, userDepositBalance: bigint, userBalance: bigint, callback: () => void): () => Effect<SavePipelineState> {
-    return async function* depositPipeline() {
+export function lock(config: Config, collateralInfo: CollateralInfos, amount: bigint, price: number, userDepositBalance: bigint, userBalance: bigint, callback: () => void): () => Effect<CollateralPipelineState> {
+    return async function* lockPipeline() {
         yield {
             buttonEnabled: amount > 0n,
             buttonLabel: "Approve",
@@ -19,14 +20,14 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
         // Check if we need to approve the token
         const account = getAccount(config);
         if (!account.address || amount <= 0n || userBalance < amount) {
-            yield savePipelineState;
+            yield lockPipelineState;
             return // Restart the pipeline
         }
         const result = await readContract(config, {
             abi: erc20Abi,
-            address: reserveInfo.address,
+            address: collateralInfo.addressLP,
             functionName: "allowance",
-            args: [account.address, process.env.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`],
+            args: [account.address, process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`],
         })
 
         if (result < amount) {
@@ -46,9 +47,9 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                     // Approve the token
                     const hash = await writeContract(config, {
                         abi: erc20Abi,
-                        address: reserveInfo.address,
+                        address: collateralInfo.addressLP,
                         functionName: "approve",
-                        args: [process.env.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`, amount],
+                        args: [process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`, amount],
                     });
 
                     const receipt = await waitForTransactionReceipt(config, {
@@ -83,13 +84,13 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
 
         yield {
             buttonEnabled: true,
-            buttonLabel: "Deposit",
+            buttonLabel: "Lock",
             buttonLoading: false,
         }
 
         yield {
             buttonEnabled: false,
-            buttonLabel: "Depositing",
+            buttonLabel: "Locking",
             buttonLoading: true,
         }
 
@@ -98,9 +99,9 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                 // Deposit the token
                 const hash = await writeContract(config, {
                     abi: abiCollateralPool,
-                    address: process.env.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
+                    address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
                     functionName: "supply",
-                    args: [reserveInfo.address, amount, account.address!],
+                    args: [collateralInfo.addressLP, amount, account.address!],
                 });
 
                 const receipt = await waitForTransactionReceipt(config, {
@@ -113,10 +114,10 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                     throw new Error("Transaction reverted");
                 }
             }, {
-                loading: "Depositing...",
+                loading: "Locking...",
                 success: (data) => {
                     resolve();
-                    return "Deposited";
+                    return "Locked";
                 },
                 error: (error) => {
                     reject(error);
@@ -134,12 +135,12 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
         const showImpact = new Promise<void>((resolve) => {
             useImpactStore.setState({
                 open: true,
-                title: "Confirm Deposit",
+                title: "Confirm Lock",
                 transactionDetails: {
-                    title: "Deposit",
+                    title: "Lock",
                     amount,
-                    symbol: reserveInfo.symbol,
-                    decimals: reserveInfo.decimals,
+                    symbol: collateralInfo.symbol,
+                    decimals: collateralInfo.decimals,
                     price,
                 },
                 impacts: [
@@ -147,8 +148,8 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                         label: "Account Balance",
                         fromAmount: userDepositBalance,
                         toAmount: userDepositBalance + amount,
-                        fromDecimals: reserveInfo.decimals,
-                        toDecimals: reserveInfo.decimals,
+                        fromDecimals: collateralInfo.decimals,
+                        toDecimals: collateralInfo.decimals,
                         fromPrice: price,
                         toPrice: price,
                     }

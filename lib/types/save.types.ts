@@ -69,5 +69,5 @@ export type ReserveInfo = {
 };
 
 export type BalanceCoins = {
-  [key: string]: bigint;
+  [key: Address]: bigint;
 };

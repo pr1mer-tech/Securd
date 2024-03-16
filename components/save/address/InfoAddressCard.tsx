@@ -22,7 +22,7 @@ import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import { deposit } from "@/lib/hooks/pipelines/deposit";
 import { useConfig } from "wagmi";
 import { SavePipelineState, savePipelineState } from "@/lib/hooks/pipelines/SavePipelineState";
-import { withdraw } from "@/lib/hooks/pipelines/withdraw";
+import { withdraw } from "@/lib/hooks/pipelines/withdrawSave";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Impact from "@/components/layout/Impact";
 import { cn } from "@/lib/utils";
@@ -55,17 +55,17 @@ export default function InfoAddressCard() {
     useEffect(() => {
         if (reserveInfo && userDepositBalance) {
             setPipeline(menu === "deposit"
-                ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput)
+                ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, userBalance ?? 0n, resetInput)
                 : withdraw(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput));
         }
-    }, [config, reserveInfo, amount, menu, userDepositBalance]);
+    }, [config, reserveInfo, amount, menu, userDepositBalance, setPipeline, coinPrice, userBalance]);
 
     const userInterest = useMemo(() => {
         return getInterestAmount(
             bigIntToDecimal(userDepositBalance ?? 0n, reserveInfo?.decimals),
             bigIntToDecimal(userDeposit ?? 0n, reserveInfo?.decimals)
         );
-    }, [userDepositBalance, userDeposit, reserveInfo?.address]);
+    }, [userDepositBalance, reserveInfo?.decimals, userDeposit]);
 
     if (!reserveInfo || !coinPrice || !balanceLDToken) {
         return <Skeleton className="w-full rounded-xl h-56 max-w-screen-xl mx-auto mt-8" />

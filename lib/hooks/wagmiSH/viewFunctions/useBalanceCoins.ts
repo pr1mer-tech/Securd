@@ -1,9 +1,8 @@
 import { useAccount, useReadContracts } from "wagmi";
 import { BalanceCoins } from "@/lib/types/save.types";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
-import { erc20Abi } from "viem";
+import { Address, erc20Abi } from "viem";
 
-const useBalanceCoins = (reservesInfo: ReserveInfo[]) => {
+const useBalanceCoins = (reservesInfo: { address: Address }[]) => {
   const { isConnected, address } = useAccount();
 
   const { data } = useReadContracts({
@@ -23,7 +22,7 @@ const useBalanceCoins = (reservesInfo: ReserveInfo[]) => {
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
     if (!data[index].result) return acc;
-    acc[reserve.symbol as keyof Coins] = BigInt(data[index].result as string);
+    acc[reserve.address] = BigInt(data[index].result as string);
     return acc;
   }, {} as BalanceCoins);
 

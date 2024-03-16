@@ -48,27 +48,35 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
   }
 
   const collateralAmountPrice = Object.fromEntries(
-    collateralInfos.map((info, index) => {
-      const baseIndex = index * 4;
-      const [collateralAmount, tokenA, tokenB] = data[baseIndex].result as unknown as [bigint, bigint, bigint];
-      const collateralValue = data[baseIndex + 1].result;
-      const collateralFactor = data[baseIndex + 2].result;
-      const leverageFactor = data[baseIndex + 3].result;
+    collateralInfos
+      .filter((info, index) => {
+        const baseIndex = index * 4;
+        return (
+          Array.isArray(data[baseIndex].result) &&
+          (data[baseIndex].result as unknown as any[]).length === 3
+        );
+      })
+      .map((info, index) => {
+        const baseIndex = index * 4;
+        const [collateralAmount, tokenA, tokenB] = data[baseIndex].result as unknown as [bigint, bigint, bigint];
+        const collateralValue = data[baseIndex + 1].result;
+        const collateralFactor = data[baseIndex + 2].result;
+        const leverageFactor = data[baseIndex + 3].result;
 
-      return [
-        info.addressLP,
-        {
-          collateralAmount,
-          collateralValue,
-          debts: {
-            tokenA,
-            tokenB,
+        return [
+          info.addressLP,
+          {
+            collateralAmount,
+            collateralValue,
+            debts: {
+              tokenA,
+              tokenB,
+            },
+            collateralFactor,
+            leverageFactor,
           },
-          collateralFactor,
-          leverageFactor,
-        },
-      ];
-    })
+        ];
+      })
   );
 
   return collateralAmountPrice as Record<Address, CollateralAmountPrice>;

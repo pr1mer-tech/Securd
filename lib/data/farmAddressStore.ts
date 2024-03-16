@@ -24,6 +24,7 @@ type State = {
         };
         collateralPrice: bigint;
     };
+    userBalance?: bigint;
 }
 
 type Queries = {
@@ -46,6 +47,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
     borrowerLt: 0n,
     collateralPoolBalance: 0n,
     collateralProportions: undefined,
+    userBalance: 0n,
 
     lpApy: () => {
         // MARK: ANTHONY wanted to have this to be fixed for a demo purpose

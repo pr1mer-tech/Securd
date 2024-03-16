@@ -36,11 +36,13 @@ export default function PairIcon({
     className,
     userCollateralsInfo,
     reservesInfo,
+    symbol = true,
     size = "normal", // Default size is set to "normal" if not provided
 }: {
     className?: string;
     userCollateralsInfo: CollateralInfos;
     reservesInfo?: ReserveInfo[];
+    symbol?: boolean;
     size?: "small" | "normal" | "large";
 }) {
     const tokensUn = getTokensSymbol(userCollateralsInfo);
@@ -85,7 +87,7 @@ export default function PairIcon({
                         height={height / 2} // Adjust DexIcon size based on the parent size
                     />
                 </div>
-                {userCollateralsInfo.symbol}
+                {symbol && userCollateralsInfo.symbol}
             </div>
         </TooltipTrigger>
         <TooltipContent className="font-bold">

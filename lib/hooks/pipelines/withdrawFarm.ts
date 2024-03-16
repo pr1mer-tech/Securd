@@ -7,15 +7,17 @@ import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { BaseError, TransactionRejectedRpcError } from "viem";
+import { CollateralPipelineState, withdrawPipelineState } from "./CollateralPipelineState";
+import { CollateralInfos } from "@/lib/types/farm.types";
 
-export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigint, price: number, userDepositBalance: bigint, callback: () => void): () => Effect<SavePipelineState> {
-    return async function* depositPipeline() {
-        yield savePipelineState2;
+export function withdraw(config: Config, collateralInfo: CollateralInfos, amount: bigint, price: number, userDepositBalance: bigint, userBalance: bigint, callback: () => void): () => Effect<CollateralPipelineState> {
+    return async function* withdrawPipeline() {
+        yield withdrawPipelineState;
 
         // Check if we need to approve the token
         const account = getAccount(config);
-        if (!account.address || amount <= 0n) {
-            yield savePipelineState2;
+        if (!account.address || amount <= 0n || userDepositBalance < amount) {
+            yield withdrawPipelineState;
             return // Restart the pipeline
         }
 
@@ -36,9 +38,9 @@ export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigin
                 // Deposit the token
                 const hash = await writeContract(config, {
                     abi: abiCollateralPool,
-                    address: process.env.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
+                    address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
                     functionName: "withdraw",
-                    args: [reserveInfo.address, amount, account.address!],
+                    args: [collateralInfo.addressLP, amount, account.address!],
                 });
 
                 const receipt = await waitForTransactionReceipt(config, {
@@ -76,16 +78,16 @@ export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigin
                 transactionDetails: {
                     title: "Withdraw",
                     amount,
-                    symbol: reserveInfo.symbol,
-                    decimals: reserveInfo.decimals,
+                    symbol: collateralInfo.symbol,
+                    decimals: collateralInfo.decimals,
                     price: price,
                 },
                 impacts: [{
                     label: "Balance",
                     fromAmount: userDepositBalance,
                     toAmount: userDepositBalance - amount,
-                    fromDecimals: reserveInfo.decimals,
-                    toDecimals: reserveInfo.decimals,
+                    fromDecimals: collateralInfo.decimals,
+                    toDecimals: collateralInfo.decimals,
                     fromPrice: price,
                     toPrice: price,
                 }],

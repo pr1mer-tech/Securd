@@ -25,7 +25,7 @@ export default function SaveAddressSync({ children, address }: { children: React
             coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins],
             balanceLDToken: balanceLDTokens[address],
             userDeposit: userDeposit[address],
-            userBalance: userBalance[reserveInfo?.symbol as keyof Coins],
+            userBalance: userBalance[reserveInfo?.address as Address],
         })
     }, [address, balanceLDTokens, coinPrices, reserveInfo, reservesInfo, userBalance, userDeposit]);
     return children;

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -8,7 +9,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { createSelectors } from "@/lib/data/createSelectors";
 import { create } from "zustand";
 import { Separator } from "../ui/separator";
@@ -27,6 +27,7 @@ export type TransactionDetails = {
 
 export type AccountImpact = {
     label: React.ReactNode;
+    symbol?: string;
     fromAmount: bigint;
     toAmount: bigint;
     fromDecimals: number;
@@ -104,7 +105,7 @@ export default function Impact() {
                                 <div className="flex flex-col items-end">
                                     <div className="font-bold inline ml-2">
                                         {securdFormatFloor(bigIntToDecimal(impact.fromAmount, impact.fromDecimals), 2)}
-                                        {" " + transactionDetails?.symbol}
+                                        {" " + (impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
                                         ${securdFormatFloor((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0 * impact.fromPrice), 2)}
@@ -114,7 +115,7 @@ export default function Impact() {
                                 <div className="flex flex-col items-end">
                                     <div className="font-bold inline ml-2">
                                         {securdFormatFloor(bigIntToDecimal(impact.toAmount, impact.toDecimals), 2)}
-                                        {" " + transactionDetails?.symbol}
+                                        {" " + (impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
                                         ${securdFormatFloor((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0 * impact.toPrice), 2)}

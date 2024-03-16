@@ -1,3 +1,5 @@
+"use client";
+
 import { StoreApi, UseBoundStore } from 'zustand'
 
 type WithSelectors<S> = S extends { getState: () => infer T }

@@ -23,7 +23,8 @@ const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, 
   if (!data) return {} as Record<keyof Coins, number>;
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
-    const price = weiToEth(BigInt(data[index].result as string));
+    if (typeof data[index].result != "string" && typeof data[index].result != "bigint") return acc;
+    const price = weiToEth(BigInt(data[index].result as string | bigint));
     acc[reserve.symbol as keyof Coins] = price;
     return acc;
   }, {} as Record<keyof Coins, number>);

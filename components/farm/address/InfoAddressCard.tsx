@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import FarmingAPY from "./FarmingAPY";
 import AccountBalance from "./AccountBalance";
+import Actions from "./Actions";
+import Impact from "@/components/layout/Impact";
 
 export default function InfoAddressCard() {
     return <div className="max-w-7xl mx-auto px-4">
@@ -32,7 +34,9 @@ export default function InfoAddressCard() {
             <Card className="p-4 w-full">
                 <h2 className="text-2xl font-bold text-primary">Actions</h2>
                 <Separator className="mt-2" />
+                <Actions />
             </Card>
         </div>
+        <Impact />
     </div>
 }
