@@ -53,10 +53,10 @@ export default function InfoAddressCard() {
     const [pipeline, nextStep, resetPipeline, setPipeline] = useValueEffect<SavePipelineState>(savePipelineState);
 
     useEffect(() => {
-        if (reserveInfo && userDepositBalance) {
+        if (reserveInfo) {
             setPipeline(menu === "deposit"
-                ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, userBalance ?? 0n, resetInput)
-                : withdraw(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance, resetInput));
+                ? deposit(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance ?? 0n, userBalance ?? 0n, resetInput)
+                : withdraw(config, reserveInfo, amount, coinPrice ?? 0, userDepositBalance ?? 0n, resetInput));
         }
     }, [config, reserveInfo, amount, menu, userDepositBalance, setPipeline, coinPrice, userBalance]);
 

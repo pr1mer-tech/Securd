@@ -52,9 +52,8 @@ export const columns: ColumnDef<{
                 </Help>
             </>,
             cell: ({ row }) => {
-                const collateralPoolBalance = row.getValue("collateralPoolBalance") as bigint;
-                const collateralPrice = row.original.collateralPrice;
-                if (!collateralPoolBalance || !collateralPrice) return <Skeleton className="w-8 h-4" />;
+                const collateralPoolBalance = row.getValue("collateralPoolBalance") as bigint ?? 0n;
+                const collateralPrice = row.original.collateralPrice ?? 0n;
 
                 const balance = bigIntToDecimal(collateralPoolBalance, row.original.collateralInfos.decimals);
                 const price = bigIntToDecimal(collateralPrice * collateralPoolBalance, row.original.collateralInfos.decimals * 2);
@@ -81,7 +80,6 @@ export const columns: ColumnDef<{
             </>,
             cell: ({ row }) => {
                 const minLT = row.getValue("minLT") as number;
-                if (!minLT) return <Skeleton className="w-8 h-4" />;
                 return <div className="text-xl font-bold">
                     <PercentageFormat value={minLT} />
                 </div>
@@ -99,7 +97,6 @@ export const columns: ColumnDef<{
             </>,
             cell: ({ row }) => {
                 const maxLT = row.getValue("maxLT") as number;
-                if (!maxLT) return <Skeleton className="w-8 h-4" />;
                 return <div className="text-xl font-bold">
                     <PercentageFormat value={maxLT} />
                 </div>
@@ -116,7 +113,6 @@ export const columns: ColumnDef<{
             </>,
             cell: ({ row }) => {
                 const maxLeverage = row.getValue("maxLeverage") as number;
-                if (!maxLeverage) return <Skeleton className="w-8 h-4" />;
                 return <div className="text-xl font-bold">
                     <SecurdFormat prefix="&times;" value={maxLeverage} />
                 </div>
