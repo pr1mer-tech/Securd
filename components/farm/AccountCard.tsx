@@ -194,7 +194,7 @@ export function AccountCard({
                             Collateral value divided by Loan value
                         </Help>
                     </div>
-                    <SecurdFormat value={borrowerCF} className="text-xl font-bold" />
+                    <PercentageFormat value={borrowerCF} className="text-xl font-bold" />
                 </div>
                 <div className="flex flex-row justify-between text-base mt-2 mb-4">
                     <div className="">

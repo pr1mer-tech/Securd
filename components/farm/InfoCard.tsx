@@ -16,11 +16,16 @@ import getUserCollateralsInfos from "@/lib/hooks/getUserCollateralsInfos";
 import getFarmTotalBalance from "@/lib/hooks/getFarmTotalBalance";
 import getFarmTotalLoan from "@/lib/hooks/getFarmTotalLoan";
 import getFarmAverageApy from "@/lib/hooks/getFarmAverageApy";
+import PercentageFormat from "../utils/PercentageFormat";
+import SecurdFormat from "../utils/SecurdFormat";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 
-export const Info = ({ value, name, type = "currency", tooltip, decimals = 2 }: {
+export const Info = ({ bigIntValue, bigIntDecimals, value, name, type = "currency", tooltip, decimals = 2 }: {
+    bigIntValue?: bigint, // Then value is the price
+    bigIntDecimals?: number,
     value?: number,
     name: string,
-    type?: "currency" | "percentage"
+    type?: "currency" | "percentage" | "multiplier"
     tooltip?: string,
     decimals?: number
 }) => (
@@ -36,7 +41,15 @@ export const Info = ({ value, name, type = "currency", tooltip, decimals = 2 }: 
                 </TooltipContent>
             </Tooltip>
         </h3>
-        <p className="text-3xl font-bold">{type == "currency" ? ("$" + securdFormat(value, decimals)) : toFormattedPercentage(value, 1)}</p>
+        <div className="text-3xl font-bold">
+            {type === "percentage" && <PercentageFormat value={value} />}
+            {(type === "currency" || type === "multiplier") && <SecurdFormat
+                prefix={type === "currency" ? (!bigIntValue ? "$" : "") : "\u{00d7}"}
+                value={bigIntValue ? bigIntToDecimal(bigIntValue, bigIntDecimals ?? 18) : value}
+                decimals={decimals}
+            />}
+        </div>
+        {typeof bigIntValue === "bigint" && <p className="text-sm text-secondary">${securdFormat(value, 2)}</p>}
     </div>
 );
 

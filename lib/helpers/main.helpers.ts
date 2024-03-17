@@ -96,7 +96,7 @@ export const bigIntToDecimal = (
     return Number(
       String(wholePart) +
       "." +
-      "0".repeat(leadingZerosAfterDecimal) +
+      "0".repeat(Math.max(leadingZerosAfterDecimal, 0)) +
       String(decimalPart)
     );
   }

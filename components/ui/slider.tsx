@@ -7,7 +7,10 @@ import { cn } from "@/lib/utils"
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & {
+    thumbs?: React.ReactNode[],
+    rangeClassName?: string
+  }
 >(({ className, children, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
@@ -18,12 +21,17 @@ const Slider = React.forwardRef<
     {...props}
   >
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
-      <SliderPrimitive.Range className="absolute h-full bg-primary" />
+      <SliderPrimitive.Range className={cn("absolute h-full bg-primary", props.rangeClassName)} />
     </SliderPrimitive.Track>
     <div className="absolute left-0 w-full h-5 pointer-events-none flex flex-row z-0">
       {children}
     </div>
-    <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-primary ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+    {
+      props.value?.map((value, index) => (<SliderPrimitive.Thumb key={index} className="block h-5 w-5 rounded-full border-2 border-primary bg-primary ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+        {props.thumbs?.[index]}
+      </SliderPrimitive.Thumb>))
+    }
+
   </SliderPrimitive.Root >
 ))
 Slider.displayName = SliderPrimitive.Root.displayName

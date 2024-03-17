@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { Coins, ReserveInfo } from "../types/save.types"
-import { StoreApi, UseBoundStore, create } from 'zustand'
+import { create } from 'zustand'
 import { createSelectors } from './createSelectors'
-import { Address } from "viem"
 import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
-import { CollateralInfos } from "../types/farm.types"
+import { CollateralInfos, TokenPrices } from "../types/farm.types"
 import { getPoolAPY } from "../helpers/lenderPool.helpers"
-import { getBorrowAPY, getBorrowAPYLP, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol } from "../helpers/borrow.helpers"
+import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolMaxLeverage, getMaxLpApy, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
 import { bigIntToDecimal } from "../helpers/main.helpers"
 import getPairBorrowBalances from "../hooks/getPairBorrowBalances"
 
@@ -28,9 +27,19 @@ type State = {
 }
 
 type Queries = {
+    totalApy(): number | undefined;
     lpApy(): number | undefined;
+    maxLeverageApy(): number | undefined;
     borrowApy(): number | undefined;
+    totalBorrowApy(): number | undefined;
     leverage(): number | undefined;
+    borrowBalances(): {
+        borrowBalanceA: number;
+        borrowBalanceB: number;
+    } | undefined;
+    tokensUSDPrices(): TokenPrices;
+    accountBalance(): number | undefined;
+    collateralFactor(): number | undefined;
 }
 
 const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
@@ -49,6 +58,18 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
     collateralProportions: undefined,
     userBalance: 0n,
 
+    totalApy: () => {
+        const collateralValueDecimal = bigIntToDecimal(get().collateralAmountPrice?.collateralValue, get().collateralInfo?.decimals || 18);
+        const lpApy = get().lpApy();
+        const borrowApy = get().borrowApy();
+
+        const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
+        const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
+
+        const priceLoan = loanAUSD + loanBUSD;
+
+        return getTotalApy(collateralValueDecimal, lpApy, priceLoan, borrowApy);
+    },
     lpApy: () => {
         // MARK: ANTHONY wanted to have this to be fixed for a demo purpose
         const lpApr = 0.089;
@@ -57,20 +78,22 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
             lpApr !== undefined ? getPoolAPY(undefined, lpApr) : undefined;
         return lpApy;
     },
+    maxLeverageApy: () => {
+        const maxLeverage = getBorrowerPoolMaxLeverage(get().collateralInfo);
+
+        const borrowLpApy = get().totalBorrowApy();
+
+        const lpApy = get().lpApy();
+
+        return getMaxLpApy(maxLeverage, borrowLpApy, lpApy);
+    },
     borrowApy: () => {
         const tokensUn = getTokensSymbol(get().collateralInfo);
         const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
             getPairBorrowApy(get().reservesInfo, tokensUn);
 
-        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
-
-        const borrowBalances = getPairBorrowBalances(
-            get().collateralAmountPrice?.debts,
-            pairReservesInfosUn.reserveInfoTokenA,
-            pairReservesInfosUn.reserveInfoTokenB
-        );
-
-        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
+        const borrowBalances = get().borrowBalances();
+        const tokensUSDPrices = get().tokensUSDPrices();
 
         const borrowApy = getBorrowAPY(
             tokensUSDPrices,
@@ -82,11 +105,44 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
 
         return borrowApy;
     },
+    totalBorrowApy: () => {
+        const tokensUn = getTokensSymbol(get().collateralInfo);
+        const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
+            getPairBorrowApy(get().reservesInfo, tokensUn);
+
+        return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
+    },
     leverage: () => {
         const state = get();
         return bigIntToDecimal(state.collateralAmountPrice?.leverageFactor, state.collateralInfo?.decimals || 18);
-    }
+    },
+    borrowBalances: () => {
+        const tokensUn = getTokensSymbol(get().collateralInfo);
+        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
 
+        const borrowBalances = getPairBorrowBalances(
+            get().collateralAmountPrice?.debts,
+            pairReservesInfosUn.reserveInfoTokenA,
+            pairReservesInfosUn.reserveInfoTokenB
+        );
+
+        return borrowBalances;
+    },
+    tokensUSDPrices: () => {
+        const tokensUn = getTokensSymbol(get().collateralInfo);
+        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
+        return tokensUSDPrices;
+    },
+    accountBalance: () => {
+        const collateralValueDecimal = bigIntToDecimal(get().collateralAmountPrice?.collateralValue, get().collateralInfo?.decimals || 18) ?? 0;
+        const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
+        const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
+        const priceLoan = loanAUSD + loanBUSD;
+        return collateralValueDecimal - priceLoan;
+    },
+    collateralFactor: () => {
+        return bigIntToDecimal(get().collateralAmountPrice?.collateralFactor, get().collateralInfo?.decimals || 18);
+    }
 }));
 
 export const useFarmAddressStore = createSelectors(useFarmAddressStoreBase)

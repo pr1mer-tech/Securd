@@ -43,7 +43,7 @@ export default function PairIcon({
     userCollateralsInfo: CollateralInfos;
     reservesInfo?: ReserveInfo[];
     symbol?: boolean;
-    size?: "small" | "normal" | "large";
+    size?: "tiny" | "small" | "normal" | "large";
 }) {
     const tokensUn = getTokensSymbol(userCollateralsInfo);
     const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
@@ -54,6 +54,7 @@ export default function PairIcon({
 
     // Define size mappings for width and height
     const sizeMappings = {
+        tiny: { width: 18, height: 18 },
         small: { width: 24, height: 24 },
         normal: { width: 32, height: 32 },
         large: { width: 48, height: 48 },

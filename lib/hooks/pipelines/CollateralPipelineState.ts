@@ -27,3 +27,9 @@ export const repayPipelineState: CollateralPipelineState = {
     buttonLabel: 'Approve',
     buttonLoading: false,
 };
+
+export const leveragePipelineState: CollateralPipelineState = {
+    buttonEnabled: false,
+    buttonLabel: 'Apply Leverage',
+    buttonLoading: false,
+};

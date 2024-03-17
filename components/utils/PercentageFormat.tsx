@@ -19,7 +19,7 @@ export default function PercentageFormat({
             {`${prefix} ${toFormattedPercentage(value, decimals)} ${suffix}`}
         </TooltipTrigger>
         <TooltipContent>
-            {`${prefix} ${value} ${suffix}`}
+            {`${prefix} ${(value ?? 0) * 100}% ${suffix}`}
         </TooltipContent>
     </Tooltip>
 }

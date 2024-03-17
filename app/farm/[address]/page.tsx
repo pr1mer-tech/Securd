@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import FarmAddressTitle from "./FarmAddressTitle";
 import InfoAddressCard from "@/components/farm/address/InfoAddressCard";
 import { Address } from "viem";
-import PoolDetails from "@/components/save/address/PoolDetails";
+import PoolDetails from "@/components/farm/address/PoolDetails";
 
 export default function FarmAddress({ params }: { params: { address: Address } }) {
     return <FarmAddressSync address={params.address}>
@@ -25,7 +25,7 @@ export default function FarmAddress({ params }: { params: { address: Address } }
             <div className="absolute top-10 w-full h-full before:absolute before:inset-0 before:bg-securdPrimaryLight  before:w-full z-[-1] pb-4 before:h-full" />
         </div>
         <div className="max-w-7xl mx-auto px-4 my-16">
-            {/* <PoolDetails /> */}
+            <PoolDetails />
         </div>
     </FarmAddressSync>
 }

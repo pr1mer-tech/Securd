@@ -9,7 +9,7 @@ export const leverageToLp = (
   borrowerLeverage: number | undefined,
   maxLeverageFactor: number | undefined,
   borrowerMaxLeverageLP: number | undefined
-) => {
+): number | undefined => {
   try {
     if (
       borrowerLeverage !== undefined &&

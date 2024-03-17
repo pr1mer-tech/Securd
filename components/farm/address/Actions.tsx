@@ -4,6 +4,7 @@ import BorrowIconPrimary from "@/assets/icons/borrow-icon-primary";
 import LeverageIconPrimary from "@/assets/icons/leverage-icon-primary";
 import Collateral from "./actions/Collateral";
 import Loan from "./actions/Loan";
+import Leverage from "./actions/Leverage";
 export default function Actions() {
     return <Tabs defaultValue="collateral" className="mt-2">
         <TabsList className="bg-transparent w-full h-full gap-4">
@@ -33,7 +34,7 @@ export default function Actions() {
             <Collateral />
         </TabsContent>
         <TabsContent value="leverage" className="mt-4">
-            Leverage
+            <Leverage />
         </TabsContent>
         <TabsContent value="loan" className="mt-4">
             <Loan />
