@@ -61,7 +61,7 @@ export default function InfoCard() {
 
     const averageApy = getTotalAverageApy(reservesInfo, balanceLDTokens, coinPrices);
 
-    if (!totalUserBalance || !totalUserDeposit || !totalInterest || !averageApy) {
+    if (!reservesInfo || !coinPrices) {
         return <Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />;
     }
 
