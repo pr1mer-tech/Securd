@@ -167,7 +167,7 @@ export default function AllAccounts() {
     const [mode, setMode] = useState<"table" | "grid">("table");
 
 
-    return <Tabs value={mode} onValueChange={setMode}>
+    return <Tabs value={mode} onValueChange={(v) => setMode(v as "table" | "grid")}>
         <div className="mt-4 mb-16">
             <div className="flex flex-row justify-between">
                 <h2 className="text-xl font-bold my-4">All Accounts ({reservesInfo.length})</h2>

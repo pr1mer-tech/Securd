@@ -13,7 +13,7 @@ const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, 
       ...assetPriceOracleContract,
       functionName: "getAssetPrice",
       args: [reserve.address],
-    })),
+    })) as any,
     query: {
       enabled: isConnected,
       refetchInterval: 10000,

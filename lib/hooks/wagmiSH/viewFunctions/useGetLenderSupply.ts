@@ -12,7 +12,7 @@ const useGetLenderSupply: (reserveInfos: ReserveInfo[]) => Record<Address, bigin
       ...lendingPoolContract,
       functionName: "getLenderSupply",
       args: [reserve.address, address as string],
-    })),
+    })) as any,
     query: {
       enabled: isConnected,
       refetchInterval: 10000,

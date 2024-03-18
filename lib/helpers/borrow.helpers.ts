@@ -297,8 +297,8 @@ export const getPairPoolSize = (
       );
 
       return {
-        poolSizeA: getDepositBalance(reserveInfoTokenUn),
-        poolSizeB: getDepositBalance(reserveInfoTokenDeux),
+        poolSizeA: bigIntToDecimal(getDepositBalance(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
+        poolSizeB: bigIntToDecimal(getDepositBalance(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
       };
     }
   } catch (error) {

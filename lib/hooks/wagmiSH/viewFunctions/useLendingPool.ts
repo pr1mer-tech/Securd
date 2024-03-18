@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   AddressZero,
   decimalDAI,
@@ -48,7 +49,7 @@ export const useLendingPool = () => {
     },
   });
 
-  if (!data || data.some((item) => !item.result) || data.length !== 5) {
+  if (!data || data.some((item) => !Array.isArray(item.result)) || data.length !== 5) {
     return {
       reservesInfo: [],
     };

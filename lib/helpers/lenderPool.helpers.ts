@@ -99,7 +99,7 @@ export const getPoolSize = (
   coinsPrice: Coins
 ): number | undefined => {
   try {
-    const depositBalance = getDepositBalance(reserveInfo);
+    const depositBalance = bigIntToDecimal(getDepositBalance(reserveInfo), reserveInfo.decimals);
     const price = coinsPrice[reserveInfo.symbol as keyof Coins];
     if (depositBalance !== undefined) {
       return depositBalance * price;

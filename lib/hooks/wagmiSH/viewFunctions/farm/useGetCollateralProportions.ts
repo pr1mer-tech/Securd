@@ -20,7 +20,7 @@ const useGetCollateralProportions = (collateralInfos: CollateralInfos[], collate
         functionName: "getCollateralPrice",
         args: [info.addressLP],
       }
-    ])).flat(),
+    ])).flat() as any,
     query: {
       enabled: isConnected,
       refetchInterval: 10000,
