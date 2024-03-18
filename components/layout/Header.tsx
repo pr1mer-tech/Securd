@@ -25,7 +25,7 @@ const Header = () => {
 
     return (
         <div className="relative z-49 bg-black">
-            <div className="flex items-center justify-between bg-securdBlack text-white px-8 py-4 sm:px-4">
+            <div className="flex items-center justify-between bg-securdBlack text-white px-8 h-[72px] sm:px-4">
                 <div className="flex items-center gap-16 h-full">
                     <div className="cursor-pointer" onClick={() => router.push("/save")}>
                         <Image priority={true} alt="securd logo" src={SecurdLogo} />
@@ -33,8 +33,8 @@ const Header = () => {
                     <div className="hidden sm:flex items-center gap-4 h-full">
                         <Link
                             href="/save"
-                            className={`px-4 py-2 rounded-md ${activeTab === ActiveTab.SAVE
-                                ? "bg-securdWhite text-securdBlack"
+                            className={`px-4 h-full leading-[72px] font-bold ${activeTab === ActiveTab.SAVE
+                                ? "border-b-4 border-b-securdWhite"
                                 : "text-securdWhite"
                                 }`}
                         >
@@ -42,8 +42,8 @@ const Header = () => {
                         </Link>
                         <Link
                             href="/farm"
-                            className={`px-4 py-2 rounded-md ${activeTab === ActiveTab.FARM
-                                ? "bg-securdWhite text-securdBlack"
+                            className={`px-4 h-full leading-[72px] font-bold ${activeTab === ActiveTab.FARM
+                                ? "border-b-4 border-b-securdWhite"
                                 : "text-securdWhite"
                                 }`}
                         >
