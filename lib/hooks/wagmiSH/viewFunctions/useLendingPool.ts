@@ -13,6 +13,9 @@ import { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
 export const useLendingPool = () => {
+  if (!process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS) {
+    console.log({ process: process.env });
+  }
   const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
