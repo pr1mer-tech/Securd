@@ -3,6 +3,11 @@ import Accounts from "@/components/save/Accounts";
 import InfoCard from "@/components/save/InfoCard";
 import SaveSync from "./SaveSync";
 
+export const metadata = {
+    title: "Secur·d - Save",
+    description: "Save your assets and earn interest on your crypto."
+}
+
 export default function Save() {
     return <SaveSync>
         <div className="max-w-7xl mx-auto pt-8 px-4">

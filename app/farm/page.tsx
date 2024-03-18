@@ -3,6 +3,11 @@ import Accounts from "@/components/farm/Accounts";
 import InfoCard from "@/components/farm/InfoCard";
 import FarmSync from "./FarmSync";
 
+export const metadata = {
+    title: "Secur·d - Farm",
+    description: "Farm your assets and earn interest on your crypto."
+}
+
 export default function Farm() {
     return <FarmSync>
         <div className="max-w-7xl mx-auto pt-8 px-4">
