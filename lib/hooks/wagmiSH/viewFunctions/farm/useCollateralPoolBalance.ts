@@ -14,7 +14,7 @@ const useCollateralPoolBalances: (collateralInfos: CollateralInfos[]) => Record<
             args: [info.address],
         })),
         query: {
-            enabled: isConnected,
+            // enabled: isConnected,
             refetchInterval: 10000,
         },
     });

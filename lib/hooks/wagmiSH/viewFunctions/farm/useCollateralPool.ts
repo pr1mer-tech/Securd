@@ -39,7 +39,7 @@ const useCollateralPool: () => CollateralInfos[] = () => {
       },
     ],
     query: {
-      enabled: isConnected,
+      // enabled: isConnected,
       refetchInterval: 10000,
     },
   });

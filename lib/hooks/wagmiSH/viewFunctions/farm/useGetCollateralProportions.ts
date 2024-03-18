@@ -22,7 +22,7 @@ const useGetCollateralProportions = (collateralInfos: CollateralInfos[], collate
       }
     ])).flat() as any,
     query: {
-      enabled: isConnected,
+      // enabled: isConnected,
       refetchInterval: 10000,
     },
   });

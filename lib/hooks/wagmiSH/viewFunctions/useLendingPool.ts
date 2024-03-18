@@ -16,7 +16,7 @@ export const useLendingPool = () => {
   if (!process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS) {
     console.log({ process: process.env });
   }
-  const { isConnected } = useAccount();
+  // const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
     contracts: [
@@ -47,7 +47,7 @@ export const useLendingPool = () => {
       },
     ],
     query: {
-      enabled: isConnected,
+      // enabled: isConnected,
       refetchInterval: 10000,
     },
   });
