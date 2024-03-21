@@ -29,6 +29,8 @@ const config = createConfig(
         appDescription: "Secur·d Liquidity Backed Lending protocol",
         appUrl: "https://securd.org", // your app's url
         appIcon: "https://securd.org/logo.png", // your app's icon, no bigger than 1024x1024px (max. 1MB)
+
+        ssr: true,
     }),
 );
 
