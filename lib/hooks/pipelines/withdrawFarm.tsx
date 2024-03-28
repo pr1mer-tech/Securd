@@ -7,29 +7,32 @@ import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { BaseError, TransactionRejectedRpcError } from "viem";
-import { CollateralPipelineState, withdrawPipelineState } from "./CollateralPipelineState";
+import { CollateralPipelineState, releasePipelineState, withdrawPipelineState } from "./CollateralPipelineState";
 import { CollateralInfos } from "@/lib/types/farm.types";
+import PairIcon from "@/components/farm/PairIcon";
+import { getTokensSymbol } from "@/lib/helpers/borrow.helpers";
+import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 
 export function withdraw(config: Config, collateralInfo: CollateralInfos, amount: bigint, price: number, userDepositBalance: bigint, userBalance: bigint, callback: () => void): () => Effect<CollateralPipelineState> {
     return async function* withdrawPipeline() {
-        yield withdrawPipelineState;
+        yield releasePipelineState;
 
         // Check if we need to approve the token
         const account = getAccount(config);
         if (!account.address || amount <= 0n || userDepositBalance < amount) {
-            yield withdrawPipelineState;
+            yield releasePipelineState;
             return // Restart the pipeline
         }
 
         yield {
             buttonEnabled: true,
-            buttonLabel: "Withdraw",
+            buttonLabel: "Release",
             buttonLoading: false,
         }
 
         yield {
             buttonEnabled: false,
-            buttonLabel: "Withdrawing",
+            buttonLabel: "Releasing",
             buttonLoading: true,
         }
 
@@ -43,6 +46,10 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
                     args: [collateralInfo.addressLP, amount, account.address!],
                 });
 
+                if (!hash) {
+                    throw new Error("Transaction rejected");
+                }
+
                 const receipt = await waitForTransactionReceipt(config, {
                     hash,
                 });
@@ -53,10 +60,10 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
                     throw new Error("Transaction reverted");
                 }
             }, {
-                loading: "Withdrawing...",
+                loading: "Releasing...",
                 success: (data) => {
                     resolve();
-                    return "Withdrawn";
+                    return "Released"
                 },
                 error: (error) => {
                     reject(error);
@@ -71,12 +78,15 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
             })
         }));
 
+        const tokensUn = getTokensSymbol(collateralInfo);
+        const reservesInfo = useFarmAddressStore.getState().reservesInfo;
+
         const showImpact = new Promise<void>((resolve) => {
             useImpactStore.setState({
                 open: true,
-                title: "Confirm Withdrawal",
+                title: "Confirm Release",
                 transactionDetails: {
-                    title: "Withdraw",
+                    title: "Release",
                     amount,
                     symbol: collateralInfo.symbol,
                     decimals: collateralInfo.decimals,
@@ -84,6 +94,7 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
                 },
                 impacts: [{
                     label: "Balance",
+                    symbol: <PairIcon userCollateralsInfo={collateralInfo} reservesInfo={reservesInfo} size="tiny" symbol={false} className="translate-y-1" />,
                     fromAmount: userDepositBalance,
                     toAmount: userDepositBalance - amount,
                     fromDecimals: collateralInfo.decimals,

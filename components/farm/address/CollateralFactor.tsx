@@ -28,22 +28,22 @@ export default function CollateralFactor() {
             rangeClassName={color}
             min={0}
             max={Math.max(collateralFactor ?? 0, borrowerLt ?? 0) * 100}
-            value={[
+            value={collateralFactor && borrowerLt ? [
                 (collateralFactor ?? 0) * 100,
                 (borrowerLt ?? 0) * 100
-            ]}
+            ] : []}
             thumbs={[
                 <span key={0} className="absolute -top-6 w-12 -translate-x-6 text-center">
-                    LT
+                    CF
                     <Help>
-                        Liquidation Threshold (Minimum Collateral Factor before your collateral is liquidated)
+                        Collateral Factor (Collateral value divided by Loan value)
                     </Help>
                     <PercentageFormat value={collateralFactor} className="mt-6" />
                 </span>,
                 <span key={1} className="absolute -top-6 w-12 -translate-x-6 text-center">
-                    CF
+                    LT
                     <Help>
-                        Collateral Factor (Collateral value divided by Loan value)
+                        Liquidation Threshold (Minimum Collateral Factor before your collateral is liquidated)
                     </Help>
                     <PercentageFormat value={borrowerLt} className="mt-6" />
                 </span>

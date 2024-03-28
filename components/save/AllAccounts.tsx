@@ -9,7 +9,7 @@ import { securdFormat, toFormattedPercentage } from "@/lib/helpers/numberFormat.
 import { useSaveStore } from "@/lib/data/saveStore";
 import { DataTable } from "../layout/DataTable";
 import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
@@ -18,6 +18,7 @@ import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import { useBreakpoint } from "@/lib/media-queries";
 
 export const columns: ColumnDef<ReserveInfo>[] = [
     {
@@ -165,6 +166,15 @@ export default function AllAccounts() {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [mode, setMode] = useState<"table" | "grid">("table");
+    const { isAboveMd } = useBreakpoint("md");
+
+    useEffect(() => {
+        if (isAboveMd) {
+            setMode("table")
+        } else {
+            setMode("grid")
+        }
+    }, [isAboveMd]);
 
 
     return <Tabs value={mode} onValueChange={(v) => setMode(v as "table" | "grid")}>
@@ -180,7 +190,7 @@ export default function AllAccounts() {
                     </TabsTrigger>
                 </TabsList>
             </div>
-            <div className="flex flex-row justify-between my-4">
+            <div className="w-full flex flex-col-reverse gap-2 md:gap-0 md:flex-row justify-between my-4">
                 <div className="text-secondary text-sm">
                     Sort by
                     <Button
@@ -199,7 +209,7 @@ export default function AllAccounts() {
                 <div className="relative flex items-center">
                     <Input
                         placeholder="Search"
-                        className="pl-8 w-48 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-b-black focus-visible:border-b-2"
+                        className="pl-8 md:w-48 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-b-black focus-visible:border-b-2"
                         value={(columnFilters.find((f) => f.id === "symbol")?.value || "") as string}
                         onChange={(e) => {
                             const value = e.target.value

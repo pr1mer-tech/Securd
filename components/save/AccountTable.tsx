@@ -44,7 +44,7 @@ export function AccountTable({
                 <TableCell className="text-secondary pr-0">${securdFormat(price * (userDepositBalanceNumber ?? 0))}</TableCell>
             </TableRow>
             <TableRow>
-                <TableCell className="font-medium pl-0">
+                <TableCell className="font-normal pl-0">
                     Deposit
                     <Help>
                         Deposited amount in this account
@@ -61,7 +61,7 @@ export function AccountTable({
                 <TableCell className="text-secondary pr-0">${securdFormat(price * (userDepositNumber ?? 0))}</TableCell>
             </TableRow>
             <TableRow>
-                <TableCell className="font-medium pl-0">
+                <TableCell className="font-normal pl-0">
                     Interest
                     <Help>
                         Accrued interest in this account

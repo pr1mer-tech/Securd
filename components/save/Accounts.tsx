@@ -1,7 +1,7 @@
 "use client";
 
 import getUserReservesInfo from "@/lib/hooks/getUserReservesInfo";
-import { ReserveInfo } from "@/lib/types/save.types";
+import { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import QuestionMark from "@/assets/icons/question-mark.svg";
 import { useSaveStore } from "@/lib/data/saveStore";
@@ -10,14 +10,27 @@ import {
 } from "@/components/ui/table"
 import { AccountCard } from "./AccountCard";
 import { cn } from "@/lib/utils";
+import getUserDepositBalance from "@/lib/hooks/getUserDepositBalance";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 
 
 export default function Accounts() {
 
     const reservesInfo = useSaveStore.use.reservesInfo();
     const balanceLDTokens = useSaveStore.use.balanceLDTokens();
+    const coinPrices = useSaveStore.use.coinPrices();
 
-    const userReservesInfo = getUserReservesInfo(reservesInfo, balanceLDTokens);
+    const userReservesInfo = getUserReservesInfo(reservesInfo, balanceLDTokens).filter(
+        (userReserveInfo: ReserveInfo) => {
+            const coin = userReserveInfo.symbol as keyof Coins;
+            const price = coinPrices[coin] ?? 0;
+
+            const userDepositBalance = getUserDepositBalance(userReserveInfo, balanceLDTokens[userReserveInfo.address]);
+            const userDepositBalanceNumber = bigIntToDecimal(userDepositBalance, userReserveInfo.decimals);
+
+            return price * (userDepositBalanceNumber ?? 0) > 0.001; // Filter out accounts with less than $0.001 value
+        }
+    );
 
     return <>
         <div className={cn("relative before:absolute before:inset-0 before:bg-securdPrimaryLight before:-top-[4.3rem] before:w-full before:z-[-1] pb-4",

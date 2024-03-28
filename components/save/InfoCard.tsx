@@ -21,12 +21,13 @@ import getTotalDeposit from "@/lib/hooks/getTotalDeposit";
 import getTotalAverageApy from "@/lib/hooks/getTotalAverageApy";
 import { Skeleton } from "../ui/skeleton";
 
-export const Info = ({ value, name, type = "currency", tooltip, decimals = 2 }: {
+export const Info = ({ value, name, type = "currency", tooltip, decimals = 2, nonSignificant = false }: {
     value?: number,
     name: string,
     type?: "currency" | "percentage"
     tooltip?: string,
-    decimals?: number
+    decimals?: number,
+    nonSignificant?: boolean
 }) => (
 
     <div className="flex flex-col items-center">
@@ -40,7 +41,9 @@ export const Info = ({ value, name, type = "currency", tooltip, decimals = 2 }: 
                 </TooltipContent>
             </Tooltip>
         </h3>
-        <p className="text-3xl font-bold">{type == "currency" ? ("$" + securdFormat(value, decimals)) : toFormattedPercentage(value, 1)}</p>
+        <p className="text-3xl font-bold">{type == "currency"
+            ? ("$" + securdFormat(value, nonSignificant ? decimals : ((value ?? 0) > 100 ? 0 : decimals)))
+            : toFormattedPercentage(value, 1)}</p>
     </div>
 );
 

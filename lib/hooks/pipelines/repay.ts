@@ -68,6 +68,10 @@ export function repay(
                         args: [process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`, amount],
                     });
 
+                    if (!hash) {
+                        throw new Error("Transaction rejected");
+                    }
+
                     const receipt = await waitForTransactionReceipt(config, {
                         hash,
                     });

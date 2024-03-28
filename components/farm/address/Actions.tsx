@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LockIconPrimary from "@/assets/icons/lock-icon-primary";
 import BorrowIconPrimary from "@/assets/icons/borrow-icon-primary";
@@ -5,7 +7,9 @@ import LeverageIconPrimary from "@/assets/icons/leverage-icon-primary";
 import Collateral from "./actions/Collateral";
 import Loan from "./actions/Loan";
 import Leverage from "./actions/Leverage";
+import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 export default function Actions() {
+    const collateralPrice = useFarmAddressStore.use.collateralAmountPrice?.();
     return <Tabs defaultValue="collateral" className="mt-2">
         <TabsList className="bg-transparent w-full h-full gap-4">
             <TabsTrigger
@@ -18,6 +22,7 @@ export default function Actions() {
             <TabsTrigger
                 value="leverage"
                 className="w-full h-28 rounded-md text-primary flex flex-col gap-1 border-2 border-primary data-[state=active]:bg-primary data-[state=active]:text-white"
+                disabled={(collateralPrice?.collateralAmount ?? 0n) === 0n}
             >
                 <LeverageIconPrimary className="block w-6 h-6" />
                 Leverage
@@ -25,6 +30,7 @@ export default function Actions() {
             <TabsTrigger
                 value="loan"
                 className="w-full h-28 rounded-md text-primary flex flex-col gap-1 border-2 border-primary data-[state=active]:bg-primary data-[state=active]:text-white"
+                disabled={(collateralPrice?.collateralAmount ?? 0n) === 0n}
             >
                 <BorrowIconPrimary className="block w-6 h-6" />
                 Loan

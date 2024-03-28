@@ -47,7 +47,7 @@ export type ImpactState = {
     finalize?: () => void;
 }
 
-const useImpactStoreBase = create<ImpactState>((set) => ({
+const baseState: ImpactState = {
     open: false,
     title: undefined,
     transactionDetails: undefined,
@@ -55,7 +55,9 @@ const useImpactStoreBase = create<ImpactState>((set) => ({
     note: undefined,
     action: undefined,
     finalize: undefined,
-}));
+}
+
+const useImpactStoreBase = create<ImpactState>((set) => (baseState));
 
 export const useImpactStore = createSelectors(useImpactStoreBase);
 
@@ -75,6 +77,9 @@ export default function Impact() {
             if (busy) return;
             useImpactStore.setState({ open });
             finalize?.();
+            if (open === false) {
+                useImpactStore.setState(baseState); // Reset state
+            }
         }}>
             <DialogContent className="p-0 gap-0 max-w-2xl">
                 <DialogHeader className="border-b">

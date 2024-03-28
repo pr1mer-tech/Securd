@@ -37,14 +37,14 @@ export default function Leverage() {
         leverage: state.leverage()
     }));
 
-    const minLeverage = 1 //leverage ?? 0;
+    const minLeverage = 0;
     const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 
     const [amount, setAmount] = useState<number>(leverage ?? 0);
     const [amountInput, setAmountInput] = useState<string>((leverage ?? 0).toFixed(2));
     const resetInput = () => {
         setAmount(0);
-        setAmountInput("");
+        setAmountInput("0");
     }
 
     const config = useConfig();
@@ -55,7 +55,7 @@ export default function Leverage() {
             setPipeline(leveragePipeline(config, collateralInfo, amount, collateralAmountPrice, collateralProportions, coinsPrices, leverage ?? 0, [pairReservesInfosUn.reserveInfoTokenA, pairReservesInfosUn.reserveInfoTokenB], borrowBalances, resetInput)
             );
         }
-    }, [config, amount, setPipeline, collateralInfo, collateralAmountPrice, userBalance]);
+    }, [config, amount, setPipeline, collateralInfo, collateralAmountPrice, userBalance, leverage]);
 
     const sliderBase = maxLeverage;
 

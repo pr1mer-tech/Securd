@@ -51,6 +51,10 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                             args: [process.env.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`, amount],
                         });
 
+                        if (!hash) {
+                            throw new Error("Transaction rejected");
+                        }
+
                         const receipt = await waitForTransactionReceipt(config, {
                             hash,
                         });

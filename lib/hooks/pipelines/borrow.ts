@@ -56,6 +56,10 @@ export function borrow(
                     args: [collateralInfo.addressLP, selectedAsset.address, amount, account.address!],
                 });
 
+                if (!hash) {
+                    throw new Error("Transaction rejected");
+                }
+
                 const receipt = await waitForTransactionReceipt(config, {
                     hash,
                 });

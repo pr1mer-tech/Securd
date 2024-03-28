@@ -16,6 +16,12 @@ export const withdrawPipelineState: CollateralPipelineState = {
     buttonLoading: false,
 };
 
+export const releasePipelineState: CollateralPipelineState = {
+    buttonEnabled: false,
+    buttonLabel: 'Release',
+    buttonLoading: false,
+};
+
 export const borrowPipelineState: CollateralPipelineState = {
     buttonEnabled: false,
     buttonLabel: 'Borrow',

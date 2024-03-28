@@ -44,7 +44,7 @@ export function leverage(
 
         // Check if we need to approve the token
         const account = getAccount(config);
-        if (!account.address || amount <= 0) {
+        if (!account.address || amount < 0 || Math.abs(amount - _leverage) < 0.01) {
             yield leveragePipelineState;
             return // Restart the pipeline
         }
@@ -83,13 +83,16 @@ export function leverage(
         )
 
         const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
+        const collateralAmount = bigIntToDecimal(price.collateralAmount, collateralInfo.decimals) ?? 0;
+        const leverageFactor = bigIntToDecimal(price.leverageFactor, collateralInfo.decimals) ?? 0;
 
-        const _transactionAmount = leverageToLp(
+        const _transactionAmount = amount > _leverage ? leverageToLp(
             amount,
             _leverage,
             maxLeverage,
             borrowerMaxLeverageLP,
-        )
+        ) : -(collateralAmount -
+            (collateralAmount * amount) / leverageFactor);
 
         const abs = (n: bigint) => (n === -0n || n < 0n) ? -n : n;
 
@@ -145,6 +148,10 @@ export function leverage(
                     args: [collateralInfo.addressLP, abs(transactionAmount)],
                 });
 
+                if (!hash) {
+                    throw new Error("Transaction rejected");
+                }
+
                 const receipt = await waitForTransactionReceipt(config, {
                     hash,
                 });
@@ -186,9 +193,9 @@ export function leverage(
                     amount: price.collateralAmount ?? 0n,
                     amount0: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals),
                     amount1: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals),
-                    direction: isLeverage,
-                    direction0: isLeverage,
-                    direction1: isLeverage,
+                    direction: true,
+                    direction0: true,
+                    direction1: true,
                 },
             ]
         });
@@ -199,7 +206,7 @@ export function leverage(
                 title: "Confirm Leverage",
                 transactionDetails: {
                     title: isLeverage ? "Leverage" : "Deleverage",
-                    amount: transactionAmount,
+                    amount: abs(transactionAmount),
                     symbol: collateralInfo.symbol,
                     decimals: collateralInfo.decimals,
                     price: bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0,
@@ -216,8 +223,8 @@ export function leverage(
                 }, {
                     label: tokens[0].symbol,
                     symbol: <Image className="inline" src={tokens[0].imgSrc} alt={tokens[0].symbol} width={18} height={18} />,
-                    fromAmount: proportions?.proportions.tokenA ?? 0n,
-                    toAmount: proportions?.proportions.tokenA ?? 0n,
+                    fromAmount: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals),
+                    toAmount: isLeverage ? positionData.debt0 : 0n,
                     fromDecimals: tokens[0].decimals,
                     toDecimals: tokens[0].decimals,
                     fromPrice: tokensUSDPrices.tokenA ?? 0,
@@ -225,8 +232,8 @@ export function leverage(
                 }, {
                     label: tokens[1].symbol,
                     symbol: <Image className="inline" src={tokens[1].imgSrc} alt={tokens[1].symbol} width={18} height={18} />,
-                    fromAmount: proportions?.proportions.tokenB ?? 0n,
-                    toAmount: proportions?.proportions.tokenB ?? 0n,
+                    fromAmount: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals),
+                    toAmount: isLeverage ? positionData.debt1 : 0n,
                     fromDecimals: tokens[1].decimals,
                     toDecimals: tokens[1].decimals,
                     fromPrice: tokensUSDPrices.tokenB ?? 0,
