@@ -142,7 +142,7 @@ export function repay(
                 loading: "Repaying...",
                 success: (data) => {
                     resolve();
-                    return "Repayed";
+                    return "Repaid";
                 },
                 error: (error) => {
                     reject(error);
