@@ -99,7 +99,7 @@ export default function Impact() {
                                 <div className="text-sm text-secondary">
                                     ${securdFormatFloor(transactionDetails && (
                                         (bigIntToDecimal(transactionDetails?.amount, transactionDetails?.decimals) ?? 0) * transactionDetails.price)
-                                        , 2)}
+                                        , 0)}
                                 </div>
                             </div>
                         </div>
@@ -117,7 +117,7 @@ export default function Impact() {
                                         {(impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
-                                        ${securdFormatFloor((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0 * impact.fromPrice), 2)}
+                                        ${securdFormatFloor((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0 * impact.fromPrice), 0)}
                                     </div>
                                 </div>
                                 <ArrowRight className="w-6 h-6" />
@@ -127,7 +127,7 @@ export default function Impact() {
                                         {(impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
-                                        ${securdFormatFloor((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0 * impact.toPrice), 2)}
+                                        ${securdFormatFloor((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0 * impact.toPrice), 0)}
                                     </div>
                                 </div>
                             </div>

@@ -53,7 +53,7 @@ export const Info = ({ bigIntValue, bigIntDecimals, value, name, type = "currenc
                 decimals={decimals}
             />}
         </div>
-        {typeof bigIntValue === "bigint" && <p className="text-sm text-secondary">${securdFormat(value, 2)}</p>}
+        {typeof bigIntValue === "bigint" && <p className="text-sm text-secondary">${securdFormat(value, 0)}</p>}
     </div>
 );
 

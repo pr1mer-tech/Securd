@@ -87,7 +87,7 @@ export default function AccountBalance() {
                         className="font-bold ml-2"
                     />
                     <div className="text-xs text-secondary ml-2">
-                        ${securdFormat(bigIntToDecimal(collateralAmountPrice?.collateralValue, collateralInfo?.decimals), 2)}
+                        ${securdFormat(bigIntToDecimal(collateralAmountPrice?.collateralValue, collateralInfo?.decimals), 0)}
                     </div>
                 </TableCell>
                 <TableCell className="border-r">
@@ -99,7 +99,7 @@ export default function AccountBalance() {
                     <div className="text-xs text-secondary ml-2">
                         ${securdFormat((bigIntToDecimal(
                             collateralProportions?.proportions.tokenA,
-                            pairReservesInfosUn.reserveInfoTokenA?.decimals) ?? 0) * (tokensUSDPrices.tokenA ?? 0), 2)}
+                            pairReservesInfosUn.reserveInfoTokenA?.decimals) ?? 0) * (tokensUSDPrices.tokenA ?? 0), 0)}
                     </div>
                 </TableCell>
                 <TableCell>
@@ -111,7 +111,7 @@ export default function AccountBalance() {
                     <div className="text-xs text-secondary ml-2">
                         ${securdFormat((bigIntToDecimal(
                             collateralProportions?.proportions.tokenB,
-                            pairReservesInfosUn.reserveInfoTokenB?.decimals) ?? 0) * (tokensUSDPrices.tokenB ?? 0), 2)}
+                            pairReservesInfosUn.reserveInfoTokenB?.decimals) ?? 0) * (tokensUSDPrices.tokenB ?? 0), 0)}
                     </div>
                 </TableCell>
             </TableRow>
