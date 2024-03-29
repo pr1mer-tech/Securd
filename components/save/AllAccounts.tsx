@@ -73,7 +73,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const globalDeposit = row.getValue("deposit") as number;
+            const globalDeposit = bigIntToDecimal(row.getValue("deposit") as bigint, row.original.decimals);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
@@ -87,7 +87,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     },
     {
         id: "interest",
-        accessorFn: (row) => getInterestAmount(bigIntToDecimal(getDepositBalance(row), row.decimals), getDeposit(row)),
+        accessorFn: (row) => getInterestAmount(bigIntToDecimal(getDepositBalance(row), row.decimals), bigIntToDecimal(getDeposit(row), row.decimals)),
         header: ({ column }) => <>
             Interest
             <Help>

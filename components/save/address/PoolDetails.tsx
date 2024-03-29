@@ -15,7 +15,7 @@ export default function PoolDetails() {
 
     const lendingPool = getDepositBalance(reserveInfo);
     const deposit = getDeposit(reserveInfo);
-    const interest = getInterestAmount(bigIntToDecimal(lendingPool, reserveInfo?.decimals), deposit);
+    const interest = getInterestAmount(bigIntToDecimal(lendingPool, reserveInfo?.decimals), bigIntToDecimal(deposit, reserveInfo?.decimals));
     const liquidity = getPoolLiquidity(reserveInfo);
     const utilization = getPoolUtilization(reserveInfo);
     const savingsApy = getSavingApy(reserveInfo);
@@ -29,8 +29,12 @@ export default function PoolDetails() {
         <h2 className="text-2xl font-bold text-primary mt-4">Pool Details</h2>
         <Card className="mt-4 p-4">
             <div className="flex flex-row justify-evenly">
-                <Info value={bigIntToDecimal(lendingPool, reserveInfo.decimals)} name="lending pool" tooltip="Total Savings value (Deposit+Interest) for all depositors of this asset" />
-                <Info value={deposit} name="deposit" tooltip="Total deposited amount for all depositors of this asset" />
+                <Info bigIntValue={lendingPool} bigIntDecimals={reserveInfo.decimals} value={
+                    (bigIntToDecimal(lendingPool, reserveInfo.decimals) ?? 0) * (coinPrice ?? 0)
+                } name="lending pool" tooltip="Total Savings value (Deposit+Interest) for all depositors of this asset" />
+                <Info bigIntValue={deposit} bigIntDecimals={reserveInfo.decimals} value={
+                    (bigIntToDecimal(deposit, reserveInfo.decimals) ?? 0) * (coinPrice ?? 0)
+                } name="deposit" tooltip="Total deposited amount for all depositors of this asset" />
                 <Info value={interest} name="interest" tooltip="Total accrued interest for all depositors of this asset" />
                 <Info value={liquidity} name="liquidity" tooltip="Amount of this asset available for immediate withdrawal" />
                 <Info value={utilization} name="utilization" type="percentage" tooltip="Proportion of borrowed assets in this lending pool" />

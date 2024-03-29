@@ -167,7 +167,7 @@ export const getSavingApy = (
         pool_interest_rate !== undefined &&
           interest_fees !== undefined &&
           utilizationRate !== undefined
-          ? getSaveRate(pool_interest_rate, interest_fees, utilizationRate)
+          ? (getSaveRate(pool_interest_rate, interest_fees, utilizationRate) ?? 0) * 10000
           : 0;
 
       if (utilizationRate === 0) {
@@ -231,7 +231,7 @@ export const getPoolGlobalDeposit = (pool?: LenderPool) => {
 export const getPoolLiquidity = (reserveInfo: ReserveInfo | undefined) => {
   try {
     if (reserveInfo !== undefined) {
-      const supply = getDeposit(reserveInfo);
+      const supply = bigIntToDecimal(getDeposit(reserveInfo), reserveInfo.decimals);
       const amountUsed = getUtilizedToken(reserveInfo);
       if (supply !== undefined && amountUsed !== undefined) {
         return supply - amountUsed;
@@ -250,7 +250,7 @@ export const getPoolLiquidity = (reserveInfo: ReserveInfo | undefined) => {
 export const getDeposit = (reserveInfo: ReserveInfo | undefined) => {
   try {
     if (reserveInfo !== undefined) {
-      return bigIntToDecimal(reserveInfo.supply, 18);
+      return reserveInfo.supply;
     }
   } catch (error) {
     throw new Error(MAIN_ERRORS.FAILED_HELPER + error);
