@@ -127,20 +127,24 @@ export default function AccountBalance() {
                     <SecurdFormat
                         value={borrowBalances?.borrowBalanceA}
                         decimals={2}
-                        className="font-bold ml-2"
+                        className="font-bold ml-2 text-destructive"
+                        prefix="("
+                        suffix=")"
                     />
                     <div className="text-xs text-secondary ml-2">
-                        ${loanAUSD.toFixed(2)}
+                        ${loanAUSD.toFixed(0)}
                     </div>
                 </TableCell>
                 <TableCell>
                     <SecurdFormat
                         value={borrowBalances?.borrowBalanceB}
                         decimals={2}
-                        className="font-bold ml-2"
+                        className="font-bold ml-2 text-destructive"
+                        prefix="("
+                        suffix=")"
                     />
                     <div className="text-xs text-secondary ml-2">
-                        ${loanBUSD.toFixed(2)}
+                        ${loanBUSD.toFixed(0)}
                     </div>
                 </TableCell>
             </TableRow>

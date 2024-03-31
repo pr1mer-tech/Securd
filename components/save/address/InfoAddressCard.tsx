@@ -61,11 +61,13 @@ export default function InfoAddressCard() {
     }, [config, reserveInfo, amount, menu, userDepositBalance, setPipeline, coinPrice, userBalance]);
 
     const userInterest = useMemo(() => {
-        return getInterestAmount(
-            bigIntToDecimal(userDepositBalance ?? 0n, reserveInfo?.decimals),
-            bigIntToDecimal(userDeposit ?? 0n, reserveInfo?.decimals)
+        const interest = getInterestAmount(
+            userDepositBalance,
+            userDeposit?.[reserveInfo?.address]
         );
-    }, [userDepositBalance, reserveInfo?.decimals, userDeposit]);
+
+        return bigIntToDecimal(interest, reserveInfo?.decimals);
+    }, [userDepositBalance, userDeposit, reserveInfo?.address]);
 
     if (!reserveInfo || !coinPrice || !balanceLDToken) {
         return <Skeleton className="w-full rounded-xl h-56 max-w-screen-xl mx-auto mt-8" />
@@ -84,7 +86,7 @@ export default function InfoAddressCard() {
                 <div className="flex flex-row justify-between items-center w-full">
                     <h2 className="text-2xl font-bold text-primary">Deposit / Withdraw</h2>
                     <div className="text-lg">
-                        Saving APY
+                        Savings APY
 
                         <Help>
                             Current yield for this account

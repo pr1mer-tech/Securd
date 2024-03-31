@@ -7,6 +7,7 @@ import { SavePipelineState, savePipelineState } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
+import Image from "next/image";
 
 export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint, price: number, userDepositBalance: bigint, userBalance: bigint, callback: () => void): () => Effect<SavePipelineState> {
     return async function* depositPipeline() {
@@ -143,7 +144,7 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
                 transactionDetails: {
                     title: "Deposit",
                     amount,
-                    symbol: reserveInfo.symbol,
+                    symbol: <Image className="inline" src={reserveInfo.imgSrc} alt={reserveInfo.symbol} width={18} height={18} />,
                     decimals: reserveInfo.decimals,
                     price,
                 },

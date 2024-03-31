@@ -35,14 +35,14 @@ export const getSelectedReserveInfo = (
  * @returns number
  */
 export const getInterestAmount = (
-  accountBalance: number | undefined,
-  userDeposit: number | undefined
+  accountBalance: bigint | undefined,
+  userDeposit: bigint | undefined
 ) => {
   try {
     if (accountBalance !== undefined && userDeposit !== undefined) {
       return accountBalance - userDeposit;
     } else {
-      return 0;
+      return 0n;
     }
   } catch (error) {
     throw new Error(LENDER_DEPOSIT_ERRORS.INTEREST_AMOUNT);
