@@ -69,7 +69,7 @@ export default function InfoCard() {
     const totalUserDeposit = getTotalDeposit(reservesInfo, userDeposit, coinPrices);
 
     const totalInterest = useMemo(() => {
-        return getInterestAmount(totalUserBalance, totalUserDeposit);
+        return totalUserBalance - totalUserDeposit;
     }, [totalUserBalance, totalUserDeposit]);
 
     const averageApy = getTotalAverageApy(reservesInfo, balanceLDTokens, coinPrices);

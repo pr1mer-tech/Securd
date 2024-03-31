@@ -111,7 +111,7 @@ export default function Impact() {
                         {impacts?.map((impact, index) => (
                             <div key={index} className="flex flex-row justify-between">
                                 <div className="font-bold">{impact.label}</div>
-                                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end whitespace-nowrap">
                                     <div className="font-bold inline ml-2">
                                         {securdFormatFloor(bigIntToDecimal(impact.fromAmount, impact.fromDecimals), 2)}{" "}
                                         {(impact.symbol ?? transactionDetails?.symbol)}
@@ -121,7 +121,7 @@ export default function Impact() {
                                     </div>
                                 </div>
                                 <ArrowRight className="w-6 h-6" />
-                                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end whitespace-nowrap">
                                     <div className="font-bold inline ml-2">
                                         {securdFormatFloor(bigIntToDecimal(impact.toAmount, impact.toDecimals), 2)}{" "}
                                         {(impact.symbol ?? transactionDetails?.symbol)}

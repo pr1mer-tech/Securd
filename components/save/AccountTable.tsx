@@ -27,7 +27,7 @@ export function AccountTable({
     return <Table>
         <TableBody>
             <TableRow>
-                <TableCell className="font-bold pl-0">
+                <TableCell className="font-bold pl-0 whitespace-nowrap">
                     Account Balance
                     <Help>
                         Savings value (Deposit+Interest) for this account

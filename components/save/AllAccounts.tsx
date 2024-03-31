@@ -40,6 +40,19 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     {
         id: "lendingPool",
         accessorFn: (row) => getDepositBalance(row),
+        sortingFn: (a, b) => {
+            const coinPrices = useSaveStore.getState().coinPrices;
+            const _depositBalanceA = a.getValue("lendingPool") as bigint;
+            const _depositBalanceB = b.getValue("lendingPool") as bigint;
+            const depositBalanceA = bigIntToDecimal(_depositBalanceA, a.original.decimals);
+            const depositBalanceB = bigIntToDecimal(_depositBalanceB, b.original.decimals);
+            const priceA = coinPrices[a.original.symbol as keyof Coins];
+            const priceB = coinPrices[b.original.symbol as keyof Coins];
+            const valueA = depositBalanceA * priceA;
+            const valueB = depositBalanceB * priceB;
+
+            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+        },
         header: ({ column }) => <>
             Lending Pool
             <Help>
@@ -87,7 +100,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     },
     {
         id: "interest",
-        accessorFn: (row) => getInterestAmount(bigIntToDecimal(getDepositBalance(row), row.decimals), bigIntToDecimal(getDeposit(row), row.decimals)),
+        accessorFn: (row) => getInterestAmount(getDepositBalance(row), getDeposit(row)),
         header: ({ column }) => <>
             Interest
             <Help>
@@ -96,7 +109,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const globalInterest = row.getValue("interest") as number;
+            const _globalInterest = row.getValue("interest") as bigint;
+            const globalInterest = bigIntToDecimal(_globalInterest, row.original.decimals);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
@@ -119,7 +133,8 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         </>,
         cell: ({ row }) => {
             const coinPrices = useSaveStore.use.coinPrices();
-            const liquidity = row.getValue("liquidity") as number;
+            const _liquidity = row.getValue("liquidity") as bigint;
+            const liquidity = bigIntToDecimal(_liquidity, row.original.decimals);
             const price = coinPrices[row.original.symbol as keyof Coins];
             return <div className="flex flex-col">
                 <div className="text-xl font-bold">
@@ -197,7 +212,7 @@ export default function AllAccounts() {
                         className={cn("ml-2 rounded-full px-2 h-6",
                             sorting[0]?.id === "savingsApy" ? "bg-securdPrimary text-white" : "bg-secondary"
                         )}
-                        onClick={() => sorting[0]?.id === "savingsApy" ? setSorting([]) : setSorting([{ id: "savingsApy", desc: false }])}
+                        onClick={() => sorting[0]?.id === "savingsApy" ? setSorting([]) : setSorting([{ id: "savingsApy", desc: true }])}
                     >APY</Button>
                     <Button
                         className={cn("ml-2 rounded-full px-2 h-6",

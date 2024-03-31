@@ -323,8 +323,8 @@ export const getPairLiquidities = (
       );
 
       return {
-        poolLiquiditieA: getPoolLiquidity(reserveInfoTokenUn),
-        poolLiquiditieB: getPoolLiquidity(reserveInfoTokenDeux),
+        poolLiquiditieA: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
+        poolLiquiditieB: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
       };
     }
   } catch (error) {

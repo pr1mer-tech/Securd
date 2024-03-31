@@ -148,7 +148,7 @@ export function AccountCard({
                         className="font-bold inline ml-2"
                     />
                     <div className="text-secondary inline ml-2">
-                        ${loanAUSD.toFixed(2)}
+                        ${loanAUSD.toFixed(0)}
                     </div>
                 </div>
                 <div className="flex flex-row justify-between text-base mt-2">
@@ -167,7 +167,7 @@ export function AccountCard({
                         className="font-bold inline ml-2"
                     />
                     <div className="text-secondary inline ml-2">
-                        ${loanBUSD.toFixed(2)}
+                        ${loanBUSD.toFixed(0)}
                     </div>
                 </div>
                 <Separator className="mt-4" />

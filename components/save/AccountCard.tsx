@@ -28,10 +28,12 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
     const userDepositBalance = getUserDepositBalance(userReserveInfo, balanceLDTokens[userReserveInfo.address]);
 
     const userInterest = useMemo(() => {
-        return getInterestAmount(
-            bigIntToDecimal(userDepositBalance ?? 0n, userReserveInfo.decimals),
-            bigIntToDecimal(userDeposit[userReserveInfo.address] ?? 0n, userReserveInfo.decimals)
+        const interest = getInterestAmount(
+            userDepositBalance,
+            userDeposit[userReserveInfo.address]
         );
+
+        return bigIntToDecimal(interest, userReserveInfo.decimals);
     }, [userDepositBalance, userDeposit, userReserveInfo.address]);
 
     return <Link href={`/save/${userReserveInfo.address}`}>
@@ -47,8 +49,8 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
                             height={40} />
                         <div className="ml-2">{userReserveInfo.symbol}</div>
                     </h3>
-                    <div className="text-base mt-4">
-                        Saving APY
+                    <div className="text-base mt-4 whitespace-nowrap">
+                        Savings APY
 
                         <Help>
                             Current yield for this account

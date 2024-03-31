@@ -36,11 +36,11 @@ export default function PoolDetails() {
     const pairReservesInfos = getPairReservesInfos(reservesInfo, tokens);
     const lendingPoolA = getDepositBalance(pairReservesInfos.reserveInfoTokenA);
     const liquidityA = getPoolLiquidity(pairReservesInfos.reserveInfoTokenA);
-    const loanA = (bigIntToDecimal(lendingPoolA, collateralInfo?.decimals) ?? 0) - (liquidityA ?? 0);
+    const loanA = (bigIntToDecimal(lendingPoolA, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0);
     const utilizationA = getPoolUtilization(pairReservesInfos.reserveInfoTokenA);
     const lendingPoolB = getDepositBalance(pairReservesInfos.reserveInfoTokenB);
     const liquidityB = getPoolLiquidity(pairReservesInfos.reserveInfoTokenB);
-    const loanB = (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0) - (liquidityB ?? 0);
+    const loanB = (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0);
     const utilizationB = getPoolUtilization(pairReservesInfos.reserveInfoTokenB);
     const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
         getPairBorrowApy(reservesInfo, tokens);
@@ -73,10 +73,10 @@ export default function PoolDetails() {
                             (bigIntToDecimal(lendingPoolA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0) * (coinsPrices?.[tokens[0] as keyof Coins] ?? 0)
                         } decimals={2} name="Lending Pool" type="currency" tooltip="Total Savings value (Deposit+Interest) for all depositors of this asset" />
                         <Info
-                            bigIntValue={parseUnits((liquidityA ?? 0).toString(), pairReservesInfos.reserveInfoTokenA?.decimals ?? 18)}
+                            bigIntValue={parseUnits((bigIntToDecimal(liquidityA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0).toString(), pairReservesInfos.reserveInfoTokenA?.decimals ?? 18)}
                             bigIntDecimals={pairReservesInfos.reserveInfoTokenA?.decimals}
                             value={
-                                (liquidityA ?? 0) * (coinsPrices?.[tokens[0] as keyof Coins] ?? 0)
+                                (bigIntToDecimal(liquidityA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0) * (coinsPrices?.[tokens[0] as keyof Coins] ?? 0)
                             }
                             name="Liquidity"
                             type="currency" tooltip="Amount of this asset available for immediate withdrawal" />
@@ -104,10 +104,10 @@ export default function PoolDetails() {
                             (bigIntToDecimal(lendingPoolB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0) * (coinsPrices?.[tokens[1] as keyof Coins] ?? 0)
                         } decimals={2} name="Lending Pool" type="currency" tooltip="Total Savings value (Deposit+Interest) for all depositors of this asset" />
                         <Info
-                            bigIntValue={parseUnits((liquidityB ?? 0).toString(), pairReservesInfos.reserveInfoTokenB?.decimals ?? 18)}
+                            bigIntValue={parseUnits((bigIntToDecimal(liquidityB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0).toString(), pairReservesInfos.reserveInfoTokenB?.decimals ?? 18)}
                             bigIntDecimals={pairReservesInfos.reserveInfoTokenB?.decimals}
                             value={
-                                (liquidityB ?? 0) * (coinsPrices?.[tokens[1] as keyof Coins] ?? 0)
+                                (bigIntToDecimal(liquidityB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0) * (coinsPrices?.[tokens[1] as keyof Coins] ?? 0)
                             }
                             name="Liquidity"
                             type="currency" tooltip="Amount of this asset available for immediate withdrawal" />

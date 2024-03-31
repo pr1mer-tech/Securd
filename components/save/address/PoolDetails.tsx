@@ -15,7 +15,7 @@ export default function PoolDetails() {
 
     const lendingPool = getDepositBalance(reserveInfo);
     const deposit = getDeposit(reserveInfo);
-    const interest = getInterestAmount(bigIntToDecimal(lendingPool, reserveInfo?.decimals), bigIntToDecimal(deposit, reserveInfo?.decimals));
+    const interest = getInterestAmount(lendingPool, deposit);
     const liquidity = getPoolLiquidity(reserveInfo);
     const utilization = getPoolUtilization(reserveInfo);
     const savingsApy = getSavingApy(reserveInfo);
@@ -35,8 +35,12 @@ export default function PoolDetails() {
                 <Info bigIntValue={deposit} bigIntDecimals={reserveInfo.decimals} value={
                     (bigIntToDecimal(deposit, reserveInfo.decimals) ?? 0) * (coinPrice ?? 0)
                 } name="deposit" tooltip="Total deposited amount for all depositors of this asset" />
-                <Info value={interest} name="interest" tooltip="Total accrued interest for all depositors of this asset" />
-                <Info value={liquidity} name="liquidity" tooltip="Amount of this asset available for immediate withdrawal" />
+                <Info bigIntValue={interest} bigIntDecimals={reserveInfo.decimals} value={
+                    (bigIntToDecimal(interest, reserveInfo.decimals) ?? 0) * (coinPrice ?? 0)
+                } name="interest" tooltip="Total accrued interest for all depositors of this asset" />
+                <Info bigIntValue={liquidity} bigIntDecimals={reserveInfo.decimals} value={
+                    (bigIntToDecimal(liquidity, reserveInfo.decimals) ?? 0) * (coinPrice ?? 0)
+                } name="liquidity" tooltip="Amount of this asset available for immediate withdrawal" />
                 <Info value={utilization} name="utilization" type="percentage" tooltip="Proportion of borrowed assets in this lending pool" />
                 <Info value={savingsApy} name="savings apy" type="percentage" tooltip="Current yield for this asset" />
             </div>
