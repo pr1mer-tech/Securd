@@ -4,8 +4,8 @@ import { create } from 'zustand'
 import { createSelectors } from './createSelectors'
 import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
 import { CollateralInfos, TokenPrices } from "../types/farm.types"
-import { getPoolAPY } from "../helpers/lenderPool.helpers"
-import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolMaxLeverage, getMaxLpApy, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
+import { getLtokenprice, getPoolAPY } from "../helpers/lenderPool.helpers"
+import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getMaxLT, getMaxLpApy, getMaximumBorrow, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
 import { bigIntToDecimal } from "../helpers/main.helpers"
 import getPairBorrowBalances from "../hooks/getPairBorrowBalances"
 
@@ -32,6 +32,7 @@ type Queries = {
     maxLeverageApy(): number | undefined;
     borrowApy(): number | undefined;
     totalBorrowApy(): number | undefined;
+    maxBorrow(token: "a" | "b"): bigint | undefined;
     leverage(): number | undefined;
     borrowBalances(): {
         borrowBalanceA: number;
@@ -111,6 +112,39 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
             getPairBorrowApy(get().reservesInfo, tokensUn);
 
         return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
+    },
+    maxBorrow: (token: "a" | "b") => {
+        const collateralValueDecimal = bigIntToDecimal(get().collateralAmountPrice?.collateralValue, get().collateralInfo?.decimals || 18) ?? 0;
+        const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
+        const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
+
+        const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+        const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+
+        const tokensUn = getTokensSymbol(get().collateralInfo);
+        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
+
+        const ltokenPriceA = getLtokenprice(pairReservesInfosUn.reserveInfoTokenA) ?? 0;
+        const ltokenPriceB = getLtokenprice(pairReservesInfosUn.reserveInfoTokenB) ?? 0;
+
+        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
+
+        const maxDecimals = getMaximumBorrow(
+            token,
+            loanAUSD,
+            loanBUSD,
+            blt,
+            ult,
+            ult,
+            0.1,
+            ltokenPriceA,
+            ltokenPriceB,
+            tokensUSDPrices.tokenA ?? 0,
+            tokensUSDPrices.tokenB ?? 0,
+            collateralValueDecimal
+        )
+
+        return maxDecimals ? BigInt(Math.round(maxDecimals * 1e9)) * 10n ** 9n : 0;
     },
     leverage: () => {
         const state = get();

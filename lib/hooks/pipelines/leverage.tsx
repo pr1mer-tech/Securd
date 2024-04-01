@@ -182,7 +182,7 @@ export function leverage(
 
         const borrowerLt = useFarmAddressStore.getState().borrowerLt;
 
-        const positionData = await readContract(config, {
+        const positionData = amount > 1 ? await readContract(config, {
             abi: abiCollateralPool,
             address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
             functionName: "getPositionData",
@@ -191,14 +191,25 @@ export function leverage(
                     token: collateralInfo.addressLP,
                     borrower: account.address!,
                     amount: price.collateralAmount ?? 0n,
-                    amount0: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals),
-                    amount1: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals),
-                    direction: true,
-                    direction0: true,
-                    direction1: true,
+                    amount0: abs(transactionAmount),
+                    amount1: abs(transactionAmount),
+                    direction: isLeverage,
+                    direction0: isLeverage,
+                    direction1: isLeverage,
                 },
             ]
-        });
+        }) : {
+            debt0: 1n,
+            debt1: 1n,
+            liquidationFactor: borrowerLt,
+        }
+
+        const adjustedPriceA = positionData.debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
+        const adjustedPriceB = positionData.debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
+
+        const newCollateralFactor = (proportions?.collateralPrice ?? 0n) * ((price.collateralAmount ?? 0n) + transactionAmount) / (adjustedPriceA + adjustedPriceB);
+
+        const collatPrice = bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0;
 
         const showImpact = new Promise<void>((resolve) => {
             useImpactStore.setState({
@@ -207,9 +218,9 @@ export function leverage(
                 transactionDetails: {
                     title: isLeverage ? "Leverage" : "Deleverage",
                     amount: abs(transactionAmount),
-                    symbol: collateralInfo.symbol,
+                    symbol: <PairIcon userCollateralsInfo={collateralInfo} reservesInfo={tokens} size="tiny" symbol={false} className="translate-y-1" />,
                     decimals: collateralInfo.decimals,
-                    price: bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0,
+                    price: collatPrice,
                 },
                 impacts: [{
                     label: "Balance",
@@ -218,13 +229,13 @@ export function leverage(
                     toAmount: (price.collateralAmount ?? 0n) + transactionAmount,
                     fromDecimals: collateralInfo.decimals,
                     toDecimals: collateralInfo.decimals,
-                    fromPrice: bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0,
-                    toPrice: bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0,
+                    fromPrice: collatPrice,
+                    toPrice: collatPrice,
                 }, {
                     label: tokens[0].symbol,
                     symbol: <Image className="inline" src={tokens[0].imgSrc} alt={tokens[0].symbol} width={18} height={18} />,
                     fromAmount: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals),
-                    toAmount: isLeverage ? positionData.debt0 : 0n,
+                    toAmount: positionData.debt0,
                     fromDecimals: tokens[0].decimals,
                     toDecimals: tokens[0].decimals,
                     fromPrice: tokensUSDPrices.tokenA ?? 0,
@@ -233,7 +244,7 @@ export function leverage(
                     label: tokens[1].symbol,
                     symbol: <Image className="inline" src={tokens[1].imgSrc} alt={tokens[1].symbol} width={18} height={18} />,
                     fromAmount: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals),
-                    toAmount: isLeverage ? positionData.debt1 : 0n,
+                    toAmount: positionData.debt1,
                     fromDecimals: tokens[1].decimals,
                     toDecimals: tokens[1].decimals,
                     fromPrice: tokensUSDPrices.tokenB ?? 0,
@@ -244,7 +255,7 @@ export function leverage(
                         <div className="w-36">Collateral Factor</div>
                         <div className="w-12">{formatPCTFactor(bigIntToDecimal(price.collateralFactor, collateralInfo.decimals - 2) ?? 0)}</div>
                         <ArrowRight className="w-6 h-6" />
-                        <div className="w-12 text-right">{formatPCTFactor(bigIntToDecimal(positionData?.collateralFactor, collateralInfo.decimals - 2))}</div>
+                        <div className="w-12 text-right">{formatPCTFactor(bigIntToDecimal(newCollateralFactor, collateralInfo.decimals - 8))}</div>
                     </div>
                     <div className="flex justify-between">
                         <div className="w-36">Liquidation Threshold</div>
