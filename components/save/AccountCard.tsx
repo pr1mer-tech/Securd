@@ -60,7 +60,7 @@ export function AccountCard({ userReserveInfo }: { userReserveInfo: ReserveInfo;
                     </div>
                 </div>
                 <Separator className="my-2" />
-                <AccountTable userDepositBalance={userDepositBalance} price={price} userDeposit={userDeposit[userReserveInfo.address]} userReserveInfo={userReserveInfo} userInterest={userInterest} />
+                <AccountTable userDepositBalance={userDepositBalance} price={price} userDeposit={userDeposit[userReserveInfo.address]} userReserveInfo={userReserveInfo} userInterest={userInterest ?? 0} />
             </CardContent>
         </Card>
     </Link>;
