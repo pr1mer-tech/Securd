@@ -20,7 +20,7 @@ import { CollateralPipelineState, borrowPipelineState, lockPipelineState } from 
 import { lock } from "@/lib/hooks/pipelines/lock";
 import { withdraw } from "@/lib/hooks/pipelines/withdrawFarm";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
+import { getMaximumBorrow, getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
 import Image from "next/image";
 import { borrow } from "@/lib/hooks/pipelines/borrow";
@@ -29,6 +29,7 @@ import { repay } from "@/lib/hooks/pipelines/repay";
 export default function Loan() {
     const collateralInfo = useFarmAddressStore.use.collateralInfo?.();
     const collateralAmountPrice = useFarmAddressStore.use.collateralAmountPrice?.();
+    const collateralProportions = useFarmAddressStore.use.collateralProportions?.();
     const reservesInfo = useFarmAddressStore.use.reservesInfo?.();
     const userBalance = useFarmAddressStore.use.userBalance?.();
     const coinsPrices = useFarmAddressStore.use.coinPrices?.();
@@ -52,22 +53,24 @@ export default function Loan() {
         setAmountInput("");
     }
 
+    const maximumBorrow = useFarmAddressStore((state) => state.maxBorrow(selectedAsset === tokens[0] ? "a" : "b"))
+
     const config = useConfig();
     const [pipeline, nextStep, resetPipeline, setPipeline] = useValueEffect<CollateralPipelineState>(borrowPipelineState);
 
     useEffect(() => {
         if (borrowBalances && collateralInfo && collateralAmountPrice && pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB) {
-            const price = bigIntToDecimal(collateralAmountPrice.collateralAmount, collateralInfo.decimals);
+            const price = collateralAmountPrice;
             const asset = selectedAsset === tokens[0] ? pairReservesInfosUn.reserveInfoTokenA : pairReservesInfosUn.reserveInfoTokenB;
 
             setPipeline(menu === "borrow"
-                ? borrow(config, collateralInfo, asset, amount, price ?? 0, coinsPrices, collateralAmountPrice.collateralAmount ?? 0n, [pairReservesInfosUn.reserveInfoTokenA, pairReservesInfosUn.reserveInfoTokenB], borrowBalances, resetInput)
-                : repay(config, collateralInfo, asset, amount, price ?? 0, coinsPrices, collateralAmountPrice.collateralAmount ?? 0n, [pairReservesInfosUn.reserveInfoTokenA, pairReservesInfosUn.reserveInfoTokenB], borrowBalances, resetInput)
+                ? borrow(config, collateralInfo, asset, amount, price, collateralProportions, coinsPrices, collateralAmountPrice.collateralAmount ?? 0n, [pairReservesInfosUn.reserveInfoTokenA, pairReservesInfosUn.reserveInfoTokenB], borrowBalances, resetInput)
+                : repay(config, collateralInfo, asset, amount, price, collateralProportions, coinsPrices, collateralAmountPrice.collateralAmount ?? 0n, [pairReservesInfosUn.reserveInfoTokenA, pairReservesInfosUn.reserveInfoTokenB], borrowBalances, resetInput)
             );
         }
     }, [config, amount, menu, setPipeline, collateralInfo, collateralAmountPrice, userBalance]);
 
-    const sliderBase = menu === "borrow" ? collateralAmountPrice?.collateralAmount : parseUnits((
+    const sliderBase = menu === "borrow" ? maximumBorrow : parseUnits((
         (tokens[0] === selectedAsset ? borrowBalances?.borrowBalanceA : borrowBalances?.borrowBalanceB) ?? "0"
     ).toString(), collateralInfo?.decimals ?? 18);
 
@@ -98,17 +101,21 @@ export default function Loan() {
                 </MenuTabsList>
             </MenuTabs>
             {menu === "borrow" ? (<div className="text-md">
-                Collateral Balance
+                Max Borrow
                 <Help>
-                    Value of locked assets backing your loans in this account
+                    The maximum amount you can borrow of {selectedAsset} in this account
                 </Help>
                 <SecurdFormat
                     className="text-xl font-bold inline ml-2"
-                    value={bigIntToDecimal(collateralAmountPrice?.collateralAmount, collateralInfo?.decimals)}
+                    value={bigIntToDecimal(maximumBorrow, 18)}
                 />
-                {collateralInfo
-                    ? <PairIcon reservesInfo={reservesInfo} userCollateralsInfo={collateralInfo} size="small" symbol={false} className="translate-y-[0.375rem] ml-1" />
-                    : <Skeleton className="w-8 h-6" />}
+                {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
+                    src={selectedAsset === tokens[0] ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
+                    alt={selectedAsset}
+                    width={24}
+                    height={24}
+                    className="inline -mt-1 ml-1"
+                />}
             </div>) : (<div className="text-md">
                 Loan Balance
                 <Help>
@@ -160,8 +167,7 @@ export default function Loan() {
             value={[sliderBase ? Math.round(Number(amount * 10000n / sliderBase)) / 100 : 0]}
             onValueChange={(value) => {
                 if (!sliderBase) return;
-                const _exactPercentage = value[0] ?? 0;
-                const exactPercentage = (_exactPercentage > 80 && menu == "borrow") ? 80 : _exactPercentage;
+                const exactPercentage = value[0] ?? 0;
                 const amount = sliderBase * BigInt(exactPercentage) / 100n;
 
                 setAmount(amount);
@@ -180,9 +186,9 @@ export default function Loan() {
             <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-1/4 translate-x-1/4">
                 <span className="absolute top-5 text-xs">75%</span>
             </div>
-            {menu === "borrow" && <div className="absolute h-5 w-1/5 right-0 flex items-center">
+            {/* {menu === "borrow" && <div className="absolute h-5 w-1/5 right-0 flex items-center">
                 <div className="absolute h-2 w-full bg-red-500 rounded-full" />
-            </div>}
+            </div>} */}
             <div className="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors right-0">
                 <span className="absolute top-5 text-xs">100%</span>
             </div>

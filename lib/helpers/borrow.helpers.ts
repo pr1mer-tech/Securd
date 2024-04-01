@@ -748,7 +748,8 @@ export const getMaximumBorrow = (
   loanA: number,
   loanB: number,
   blt: number,
-  ult: number,
+  ultA: number, // Assuming ultA is the Underlying Liquidation Threshold for Token A
+  ultB: number, // Assuming ultB is the Underlying Liquidation Threshold for Token B
   buffer: number,
   tokenA_Lprice: number,
   tokenB_Lprice: number,
@@ -756,33 +757,53 @@ export const getMaximumBorrow = (
   tokenB_price: number,
   collateral: number
 ) => {
-  if (blt && ult) {
+  if (blt && ultA && ultB) {
     loanA = loanA * tokenA_Lprice * tokenA_price;
     loanB = loanB * tokenB_Lprice * tokenB_price;
 
-    const maxBorrow_v1 =
-      (1 / (2 * blt - ult)) *
-      (collateral / (1 + buffer) -
-        2 * blt * (token === "a" ? loanA : loanB) +
-        ult * (token === "a" ? loanA - loanB : loanB - loanA));
+    const loanTotal = loanA + loanB;
+    const collateralValue = collateral / (1 + buffer);
 
-    const maxBorrow_v2 =
-      (1 / ult) *
-      (collateral / (1 + buffer) -
-        2 * blt * (token === "a" ? loanB : loanA) +
-        ult * (token === "a" ? loanB - loanA : loanA - loanB));
-    if (token === "a") {
-      if (maxBorrow_v1 < loanB - loanA && maxBorrow_v1 > 0) {
-        return maxBorrow_v1 / tokenA_price;
-      } else {
-        return maxBorrow_v2 / tokenA_price;
-      }
+    const cr = loanA / loanTotal;
+    const lr = loanB / loanTotal;
+
+    let maxNewLoanA;
+    let maxNewLoanB;
+
+    if (lr <= cr) {
+      // Case 2.1.1
+      maxNewLoanA =
+        (collateralValue - ultB * loanB) *
+        (cr / (blt + (cr - 1) * ultB)) -
+        loanA;
     } else {
-      if (maxBorrow_v1 < loanA - loanB && maxBorrow_v1 > 0) {
-        return maxBorrow_v1 / tokenB_price;
-      } else {
-        return maxBorrow_v2 / tokenB_price;
-      }
+      // Case 2.1.2
+      maxNewLoanA =
+        (collateralValue - ((blt - cr * ultA) / (1 - cr)) * loanB) *
+        (1 / ultA) -
+        loanA;
+    }
+
+    if (lr <= cr) {
+      // Case 2.2.1
+      maxNewLoanB =
+        (1 / ultB) * (collateralValue - ((blt - ultB) / cr) * loanA) -
+        loanA -
+        loanB;
+    } else {
+      // Case 2.2.2
+      maxNewLoanB =
+        (collateralValue - ((ultA - blt) / (1 - cr)) * loanA) *
+        ((1 - cr) / (blt - cr * ultA)) -
+        loanA -
+        loanB;
+    }
+
+    if (token === "a") {
+      return maxNewLoanA / tokenA_price;
+    } else {
+      return maxNewLoanB / tokenB_price;
     }
   }
 };
+

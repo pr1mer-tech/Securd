@@ -17,6 +17,7 @@ import { securdFormatFloor } from "@/lib/helpers/numberFormat.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { ArrowRight } from "lucide-react";
 import { Card } from "../ui/card";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type TransactionDetails = {
     title: React.ReactNode;
@@ -72,11 +73,16 @@ export default function Impact() {
 
     const [busy, setBusy] = React.useState(false);
 
+    const queryClient = useQueryClient();
+
     return (
         <Dialog open={open} onOpenChange={(open) => {
             if (busy) return;
             useImpactStore.setState({ open });
-            finalize?.();
+            if (finalize && !open) {
+                finalize();
+                queryClient.invalidateQueries();
+            }
             if (open === false) {
                 useImpactStore.setState(baseState); // Reset state
             }
@@ -117,7 +123,7 @@ export default function Impact() {
                                         {(impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
-                                        ${securdFormatFloor((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0 * impact.fromPrice), 0)}
+                                        ${securdFormatFloor(((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0) * impact.fromPrice), 0)}
                                     </div>
                                 </div>
                                 <ArrowRight className="w-6 h-6" />
@@ -127,7 +133,7 @@ export default function Impact() {
                                         {(impact.symbol ?? transactionDetails?.symbol)}
                                     </div>
                                     <div className="text-sm text-secondary">
-                                        ${securdFormatFloor((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0 * impact.toPrice), 0)}
+                                        ${securdFormatFloor(((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0) * impact.toPrice), 0)}
                                     </div>
                                 </div>
                             </div>

@@ -9,13 +9,28 @@ import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { CollateralPipelineState, repayPipelineState } from "./CollateralPipelineState";
 import { CollateralInfos } from "@/lib/types/farm.types";
+import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
+import Image from "next/image";
+import PairIcon from "@/components/farm/PairIcon";
+import { ArrowRight } from "lucide-react";
+import { formatPCTFactor, securdFormat } from "@/lib/helpers/numberFormat.helpers";
+import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 
 export function repay(
     config: Config,
     collateralInfo: CollateralInfos,
     selectedAsset: ReserveInfo,
     amount: bigint,
-    price: number,
+    price: CollateralAmountPrice,
+    proportions: {
+        proportions: {
+            tokenA: bigint;
+            tokenB: bigint;
+        };
+        collateralPrice: bigint;
+    } | undefined,
     coinPrices: Record<keyof Coins, number>,
     userDepositBalance: bigint,
     tokens: ReserveInfo[],
@@ -157,6 +172,24 @@ export function repay(
             })
         }));
 
+        const borrowerLt = useFarmAddressStore.getState().borrowerLt;
+        const leverage = useFarmAddressStore.getState().leverage();
+
+        const tokensUn = getTokensSymbol(collateralInfo);
+
+        const tokensUSDPrices = getPairPrice(coinPrices, tokens, tokensUn);
+
+        const debt0 = parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) - (selectedAsset.symbol === tokens[0].symbol ? amount : 0n);
+        const debt1 = parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) - (selectedAsset.symbol === tokens[1].symbol ? amount : 0n);
+
+        const adjustedPriceA = debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
+        const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
+
+        const newCollateralFactor = (proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n) / (adjustedPriceA + adjustedPriceB);
+
+        const collatPrice = bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0;
+        const newBorrowerLT = debt0 * 10n ** 6n / debt1;
+
         const showImpact = new Promise<void>((resolve) => {
             useImpactStore.setState({
                 open: true,
@@ -164,38 +197,58 @@ export function repay(
                 transactionDetails: {
                     title: "Repay",
                     amount,
-                    symbol: selectedAsset.symbol,
+                    symbol: <Image className="inline" src={selectedAsset.imgSrc} alt={selectedAsset.symbol} width={18} height={18} />,
                     decimals: collateralInfo.decimals,
                     price: coinPrices[selectedAsset.symbol as keyof Coins],
                 },
                 impacts: [{
                     label: "Balance",
-                    symbol: collateralInfo.symbol,
+                    symbol: <PairIcon userCollateralsInfo={collateralInfo} reservesInfo={tokens} size="tiny" symbol={false} className="translate-y-1" />,
                     fromAmount: userDepositBalance,
                     toAmount: userDepositBalance,
                     fromDecimals: collateralInfo.decimals,
                     toDecimals: collateralInfo.decimals,
-                    fromPrice: price,
-                    toPrice: price,
+                    fromPrice: collatPrice,
+                    toPrice: collatPrice,
                 }, {
                     label: tokens[0].symbol,
-                    symbol: tokens[0].symbol,
+                    symbol: <Image className="inline" src={tokens[0].imgSrc} alt={tokens[0].symbol} width={18} height={18} />,
                     fromAmount: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals),
-                    toAmount: parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) - (selectedAsset.symbol === tokens[0].symbol ? amount : 0n),
+                    toAmount: debt0,
                     fromDecimals: tokens[0].decimals,
                     toDecimals: tokens[0].decimals,
                     fromPrice: coinPrices[tokens[0].symbol as keyof Coins],
                     toPrice: coinPrices[tokens[0].symbol as keyof Coins],
                 }, {
                     label: tokens[1].symbol,
-                    symbol: tokens[1].symbol,
+                    symbol: <Image className="inline" src={tokens[1].imgSrc} alt={tokens[1].symbol} width={18} height={18} />,
                     fromAmount: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[0].decimals),
-                    toAmount: parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) - (selectedAsset.symbol === tokens[1].symbol ? amount : 0n),
+                    toAmount: debt1,
                     fromDecimals: tokens[1].decimals,
                     toDecimals: tokens[1].decimals,
                     fromPrice: coinPrices[tokens[1].symbol as keyof Coins],
                     toPrice: coinPrices[tokens[1].symbol as keyof Coins],
                 }],
+                note: <>
+                    <div className="flex justify-between">
+                        <div className="w-36">Collateral Factor</div>
+                        <div className="w-12">{formatPCTFactor(bigIntToDecimal(price.collateralFactor, collateralInfo.decimals - 2) ?? 0)}</div>
+                        <ArrowRight className="w-6 h-6" />
+                        <div className="w-12 text-right">{formatPCTFactor(bigIntToDecimal(newCollateralFactor, collateralInfo.decimals - 8))}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div className="w-36">Liquidation Threshold</div>
+                        <div className="w-12">{formatPCTFactor(bigIntToDecimal(borrowerLt, collateralInfo.decimals - 2) ?? 0)}</div>
+                        <ArrowRight className="w-6 h-6" />
+                        <div className="w-12 text-right">{formatPCTFactor(bigIntToDecimal(newBorrowerLT, 4))}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div className="w-36">Leverage</div>
+                        <div className="w-12">{securdFormat(leverage, 2)}x</div>
+                        <ArrowRight className="w-6 h-6" />
+                        <div className="w-12 text-right">{securdFormat(leverage, 2)}x</div>
+                    </div>
+                </>,
                 action: async () => {
                     await deposit();
                     callback();
