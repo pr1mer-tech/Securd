@@ -144,7 +144,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
             collateralValueDecimal
         )
 
-        return maxDecimals ? BigInt(Math.round(maxDecimals * 1e9)) * 10n ** 9n : 0;
+        return maxDecimals ? BigInt(Math.round(maxDecimals * 1e9)) * 10n ** 9n : 0n;
     },
     leverage: () => {
         const state = get();

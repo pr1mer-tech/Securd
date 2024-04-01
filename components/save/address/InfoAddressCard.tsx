@@ -63,11 +63,11 @@ export default function InfoAddressCard() {
     const userInterest = useMemo(() => {
         const interest = getInterestAmount(
             userDepositBalance,
-            userDeposit?.[reserveInfo?.address]
+            userDeposit
         );
 
         return bigIntToDecimal(interest, reserveInfo?.decimals);
-    }, [userDepositBalance, userDeposit, reserveInfo?.address]);
+    }, [userDepositBalance, userDeposit, reserveInfo?.decimals]);
 
     if (!reserveInfo || !coinPrice || !balanceLDToken) {
         return <Skeleton className="w-full rounded-xl h-56 max-w-screen-xl mx-auto mt-8" />
@@ -79,7 +79,7 @@ export default function InfoAddressCard() {
                 <h2 className="text-2xl font-bold text-primary">My balance</h2>
                 <Separator className="bg-securdWhite" />
                 <div className="text-xl">
-                    <AccountTable userDepositBalance={userDepositBalance} price={coinPrice} userDeposit={userDeposit} userReserveInfo={reserveInfo} userInterest={userInterest} />
+                    <AccountTable userDepositBalance={userDepositBalance} price={coinPrice} userDeposit={userDeposit} userReserveInfo={reserveInfo} userInterest={userInterest ?? 0} />
                 </div>
             </div>
             <div className="flex flex-col gap-2 p-6 w-full md:w-3/5">
