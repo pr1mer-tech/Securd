@@ -536,6 +536,32 @@ export const getBorrowerPoolBalanceLT = (
 };
 
 /**
+ * returns the liquidation for the token (in percentage)
+ * @param blt balanced loan threshold
+ * @param ult unbalanced loan threshold
+ * @param loanUSD loan in USD for the token
+ * @param totalUSD total loan in USD
+ */
+export const getLiquidationThresholdForToken = (
+  blt: number,
+  ult: number,
+  loanUSD: number,
+  totalUSD: number // Total Loan
+): number => {
+  const brt = loanUSD / totalUSD;
+  const balanced = 2 * Math.min(
+    brt,
+    1 - brt
+  ) * blt;
+  const unbalanced = (1 - 2 * Math.min(
+    brt,
+    1 - brt
+  )) * ult;
+
+  return balanced + unbalanced;
+}
+
+/**
  * returns the minimum collateral factor of the pool in percentage
  * @param pool pool to get data from
  * @returns number | undefined
@@ -755,6 +781,7 @@ export const getMaximumBorrow = (
   tokenB_Lprice: number,
   tokenA_price: number,
   tokenB_price: number,
+  collateralA: number,
   collateral: number
 ) => {
   if (blt && ultA && ultB) {
@@ -764,8 +791,8 @@ export const getMaximumBorrow = (
     const loanTotal = loanA + loanB;
     const collateralValue = collateral / (1 + buffer);
 
-    const cr = loanA / loanTotal;
-    const lr = loanB / loanTotal;
+    const lr = loanA / loanTotal;
+    const cr = collateralA / collateralValue;
 
     let maxNewLoanA;
     let maxNewLoanB;

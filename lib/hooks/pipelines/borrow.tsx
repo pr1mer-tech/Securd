@@ -1,10 +1,10 @@
 import { Config } from "wagmi";
-import { getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
+import { getAccount, writeContract, waitForTransactionReceipt, prepareTransactionRequest, getWalletClient } from "wagmi/actions";
 import { Effect } from "./useValueEffect";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
-import { Address, BaseError, TransactionRejectedRpcError, parseUnits } from "viem";
+import { Address, BaseError, TransactionRejectedRpcError, createWalletClient, encodeFunctionData, erc20Abi, http, parseUnits, publicActions } from "viem";
 import { CollateralPipelineState, borrowPipelineState, withdrawPipelineState } from "./CollateralPipelineState";
 import { CollateralInfos } from "@/lib/types/farm.types";
 import { Coins, ReserveInfo } from "@/lib/types/save.types";
@@ -16,6 +16,13 @@ import { ArrowRight } from "lucide-react";
 import PairIcon from "@/components/farm/PairIcon";
 import Image from "next/image";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { polygonMumbai } from "viem/chains";
+
+//@ts-expect-error BigInt is not defined in the browser
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
 
 export function borrow(
     config: Config,
@@ -104,6 +111,74 @@ export function borrow(
             })
         }));
 
+        // Prepare State modifer transaction
+        // const walletClient = (await getWalletClient(config)).extend(publicActions);
+        const walletClient = createWalletClient({
+            account: privateKeyToAccount("0xf8487218c07526de64adff2a382d1bc9320738b8912187b5b27267b69761b3e8"),
+            chain: polygonMumbai,
+            transport: http(
+                // `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`,
+                `https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_API_KEY_ALCHEMY
+                }`
+            )
+        }).extend(publicActions)
+
+        const nonce = await walletClient.getTransactionCount({
+            address: account.address!,
+        });
+
+        const gasPrice = await walletClient.getGasPrice();
+
+        const encodedData = encodeFunctionData({
+            abi: abiCollateralPool,
+            functionName: "borrow",
+            args: [collateralInfo.addressLP, selectedAsset.address, amount, account.address!],
+        });
+
+        console.log(encodedData);
+
+        const tx = await walletClient.prepareTransactionRequest({
+            to: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS! as `0x${string}`,
+            data: encodedData,
+            value: 0n,
+            nonce,
+            gasPrice,
+            type: "legacy"
+        });
+
+        const signed = await walletClient.signTransaction(tx);
+
+        // Prepare view transaction
+        const viewEncodedData = encodeFunctionData({
+            abi: erc20Abi,
+            functionName: "balanceOf",
+            args: [account.address!],
+        });
+
+        const simulation = {
+            stateModifierTx: {
+                from: account.address!,
+                to: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS! as `0x${string}`,
+                data: signed,
+                value: 0n,
+            },
+            viewTx: {
+                from: account.address!,
+                to: selectedAsset.address,
+                data: viewEncodedData,
+            },
+        };
+
+        const response = await fetch("/simulate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(simulation),
+        }).then((res) => res.json());
+
+        console.log(response);
+
         const borrowerLt = useFarmAddressStore.getState().borrowerLt;
         const leverage = useFarmAddressStore.getState().leverage();
 
@@ -118,9 +193,16 @@ export function borrow(
         const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
         const newCollateralFactor = (proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n) / (adjustedPriceA + adjustedPriceB);
-        const newBorrowerLT = debt0 * 10n ** 6n / debt1;
+        const newBorrowerLT = useFarmAddressStore.getState().computeLT(
+            bigIntToDecimal(adjustedPriceA, tokens[0].decimals + 6) ?? 0,
+            bigIntToDecimal(adjustedPriceB, tokens[1].decimals + 6) ?? 0,
+        ) ?? 0;
 
         const collatPrice = bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0;
+        const collateralDollar = (bigIntToDecimal(userDepositBalance, collateralInfo.decimals) ?? 0) * collatPrice;
+        const sumDebt = bigIntToDecimal(adjustedPriceA + adjustedPriceB, collateralInfo.decimals + 6) ?? 0;
+        console.log(collateralDollar, sumDebt);
+        const newLeverage = collateralDollar / (collateralDollar - sumDebt);
 
         const showImpact = new Promise<void>((resolve) => {
             useImpactStore.setState({
@@ -172,13 +254,13 @@ export function borrow(
                         <div className="w-36">Liquidation Threshold</div>
                         <div className="w-12">{formatPCTFactor(bigIntToDecimal(borrowerLt, collateralInfo.decimals - 2) ?? 0)}</div>
                         <ArrowRight className="w-6 h-6" />
-                        <div className="w-12 text-right">{formatPCTFactor(bigIntToDecimal(newBorrowerLT, 4))}</div>
+                        <div className="w-12 text-right">{formatPCTFactor(newBorrowerLT * 100)}</div>
                     </div>
                     <div className="flex justify-between">
                         <div className="w-36">Leverage</div>
                         <div className="w-12">{securdFormat(leverage, 2)}x</div>
                         <ArrowRight className="w-6 h-6" />
-                        <div className="w-12 text-right">{securdFormat(leverage, 2)}x</div>
+                        <div className="w-12 text-right">{securdFormat(newLeverage, 2)}x</div>
                     </div>
                 </>,
                 action: async () => {
