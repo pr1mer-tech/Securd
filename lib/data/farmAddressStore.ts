@@ -5,7 +5,7 @@ import { createSelectors } from './createSelectors'
 import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
 import { CollateralInfos, TokenPrices } from "../types/farm.types"
 import { getLtokenprice, getPoolAPY } from "../helpers/lenderPool.helpers"
-import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getMaxLT, getMaxLpApy, getMaximumBorrow, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
+import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getLiquidationThresholdForToken, getMaxLT, getMaxLpApy, getMaximumBorrow, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
 import { bigIntToDecimal } from "../helpers/main.helpers"
 import getPairBorrowBalances from "../hooks/getPairBorrowBalances"
 
@@ -41,6 +41,7 @@ type Queries = {
     tokensUSDPrices(): TokenPrices;
     accountBalance(): number | undefined;
     collateralFactor(): number | undefined;
+    computeLT(loanA?: number, loanB?: number): number | undefined;
 }
 
 const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
@@ -59,6 +60,31 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
     collateralProportions: undefined,
     userBalance: 0n,
 
+    computeLT: (loanA = 0, loanB = 0) => {
+        const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
+        const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
+
+        const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+        const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+
+        const sumLoan = (loanA ?? loanAUSD) + (loanB ?? loanBUSD);
+
+        const LTA = getLiquidationThresholdForToken(
+            blt,
+            ult,
+            loanA ?? loanAUSD,
+            sumLoan,
+        );
+
+        const LTB = getLiquidationThresholdForToken(
+            blt,
+            ult,
+            loanB ?? loanBUSD,
+            sumLoan,
+        );
+
+        return Math.max(LTA, LTB);
+    },
     totalApy: () => {
         const collateralValueDecimal = bigIntToDecimal(get().collateralAmountPrice?.collateralValue, get().collateralInfo?.decimals || 18);
         const lpApy = get().lpApy();
@@ -120,6 +146,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
 
         const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
         const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+        const buffer = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.buffer, get().collateralInfo?.decimals || 18) ?? 0.1;
 
         const tokensUn = getTokensSymbol(get().collateralInfo);
         const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
@@ -129,6 +156,8 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
 
         const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
 
+        const collateralA = bigIntToDecimal(get().collateralProportions?.proportions.tokenB, pairReservesInfosUn.reserveInfoTokenB?.decimals) ?? 0;
+
         const maxDecimals = getMaximumBorrow(
             token,
             loanAUSD,
@@ -136,13 +165,14 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
             blt,
             ult,
             ult,
-            0.1,
+            buffer,
             ltokenPriceA,
             ltokenPriceB,
             tokensUSDPrices.tokenA ?? 0,
             tokensUSDPrices.tokenB ?? 0,
+            collateralA,
             collateralValueDecimal
-        )
+        );
 
         return maxDecimals ? BigInt(Math.round(maxDecimals * 1e9)) * 10n ** 9n : 0n;
     },

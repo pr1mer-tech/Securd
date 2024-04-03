@@ -4,13 +4,19 @@ import Help from "@/components/ui/Help";
 import { Slider } from "@/components/ui/slider";
 import PercentageFormat from "@/components/utils/PercentageFormat";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
+import { getLiquidationThresholdForToken } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 
 export default function CollateralFactor() {
-    const { collateralFactor, borrowerLt } = useFarmAddressStore((state) => ({
+    const { collateralFactor, borrowerLt, computeLT } = useFarmAddressStore((state) => ({
         collateralFactor: state.collateralFactor(),
-        borrowerLt: bigIntToDecimal(state.borrowerLt, state.collateralInfo?.decimals ?? 0)
+        borrowerLt: bigIntToDecimal(state.borrowerLt, state.collateralInfo?.decimals ?? 0),
+        computeLT: state.computeLT()
     }));
+
+    console.log({
+        computeLT
+    })
 
     const colorRisk = 100 * ((collateralFactor ?? 0) / (borrowerLt ?? 2) - 1);
     let color;
