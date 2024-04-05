@@ -137,6 +137,7 @@ export default function Loan() {
                         className="text-sm inline text-secondary"
                         value={(bigIntToDecimal(maximumBorrow, collateralInfo?.decimals) ?? 0) * (coinsPrices?.[selectedAsset as keyof Coins] ?? 0)}
                         prefix="$"
+                        decimals={0}
                     />
                 </div>
                 {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
@@ -164,6 +165,7 @@ export default function Loan() {
                             selectedAsset === tokens[0] ? 0 : 1
                         ]?.result ?? 0n, collateralInfo?.decimals) ?? 0) * (coinsPrices?.[selectedAsset as keyof Coins] ?? 0)}
                         prefix="$"
+                        decimals={0}
                     />
                 </div>
                 {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
