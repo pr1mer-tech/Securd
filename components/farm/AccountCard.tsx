@@ -122,7 +122,7 @@ export function AccountCard({
                         className="font-bold inline ml-2"
                     />
                     <div className="text-secondary inline ml-2">
-                        ${collateralValueDecimal.toFixed(2)}
+                        ${collateralValueDecimal.toFixed(0)}
                     </div>
                 </div>
                 <Separator className="mt-4" />

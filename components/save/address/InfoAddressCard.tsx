@@ -140,6 +140,7 @@ export default function InfoAddressCard() {
                                 className="text-sm inline text-secondary"
                                 value={(bigIntToDecimal(userDepositBalance, reserveInfo.decimals) ?? 0) * coinPrice}
                                 prefix="$"
+                                decimals={0}
                             />
                         </div>
                     </div>)}

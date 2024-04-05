@@ -81,6 +81,7 @@ export default function Collateral() {
                         className="text-sm inline text-secondary"
                         value={bigIntToDecimal((userBalance ?? 0n) * (collateralAmountPrice?.collateralValue ?? 0n) / (collateralAmountPrice?.collateralAmount ?? 1n), collateralInfo?.decimals)}
                         prefix="$"
+                        decimals={0}
                     />
                 </div>
                 {collateralInfo
@@ -100,6 +101,7 @@ export default function Collateral() {
                         className="text-sm inline text-secondary"
                         value={bigIntToDecimal(collateralAmountPrice?.collateralValue, collateralInfo?.decimals)}
                         prefix="$"
+                        decimals={0}
                     />
                 </div>
                 {collateralInfo
