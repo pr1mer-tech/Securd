@@ -113,21 +113,35 @@ export default function InfoAddressCard() {
                         <Help>
                             Amount of this asset in your wallet
                         </Help>
-                        <SecurdFormat
-                            className="text-xl font-bold inline ml-2"
-                            value={bigIntToDecimal(userBalance, reserveInfo.decimals)}
-                            suffix={reserveInfo.symbol}
-                        />
+                        <div className="inline-flex flex-col items-end">
+                            <SecurdFormat
+                                className="text-xl font-bold inline ml-2"
+                                value={bigIntToDecimal(userBalance, reserveInfo.decimals)}
+                                suffix={reserveInfo.symbol}
+                            />
+                            <SecurdFormat
+                                className="text-sm inline text-secondary"
+                                value={(bigIntToDecimal(userBalance, reserveInfo.decimals) ?? 0) * coinPrice}
+                                prefix="$"
+                            />
+                        </div>
                     </div>) : (<div className="text-md">
                         Account Balance
                         <Help>
                             Amount of this asset in your Savings Account
                         </Help>
-                        <SecurdFormat
-                            className="text-xl font-bold inline ml-2"
-                            value={bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}
-                            suffix={reserveInfo.symbol}
-                        />
+                        <div className="inline-flex flex-col items-end">
+                            <SecurdFormat
+                                className="text-xl font-bold inline ml-2"
+                                value={bigIntToDecimal(userDepositBalance, reserveInfo.decimals)}
+                                suffix={reserveInfo.symbol}
+                            />
+                            <SecurdFormat
+                                className="text-sm inline text-secondary"
+                                value={(bigIntToDecimal(userDepositBalance, reserveInfo.decimals) ?? 0) * coinPrice}
+                                prefix="$"
+                            />
+                        </div>
                     </div>)}
                 </div>
                 <div className="flex flex-row gap-4 mt-4">

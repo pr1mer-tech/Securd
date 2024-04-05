@@ -14,10 +14,6 @@ export default function CollateralFactor() {
         computeLT: state.computeLT()
     }));
 
-    console.log({
-        computeLT
-    })
-
     const colorRisk = 100 * ((collateralFactor ?? 0) / (borrowerLt ?? 2) - 1);
     let color;
     if (colorRisk && colorRisk <= 10) {

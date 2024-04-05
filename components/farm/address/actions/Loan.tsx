@@ -11,10 +11,10 @@ import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { Separator } from "@radix-ui/react-separator";
 import { useEffect, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
+import { erc20Abi, formatUnits, parseUnits } from "viem";
 import PairIcon from "../../PairIcon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useConfig } from "wagmi";
+import { useAccount, useConfig, useReadContracts } from "wagmi";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import { CollateralPipelineState, borrowPipelineState, lockPipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { lock } from "@/lib/hooks/pipelines/lock";
@@ -25,6 +25,7 @@ import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
 import Image from "next/image";
 import { borrow } from "@/lib/hooks/pipelines/borrow";
 import { repay } from "@/lib/hooks/pipelines/repay";
+import { Coins } from "@/lib/types/save.types";
 
 export default function Loan() {
     const collateralInfo = useFarmAddressStore.use.collateralInfo?.();
@@ -44,6 +45,28 @@ export default function Loan() {
         pairReservesInfosUn.reserveInfoTokenB
     );
 
+    const account = useAccount();
+
+    const walletBalances = useReadContracts({
+        contracts: [
+            {
+                abi: erc20Abi,
+                address: pairReservesInfosUn.reserveInfoTokenA?.address,
+                functionName: "balanceOf",
+                args: [account!.address!]
+            }, {
+                abi: erc20Abi,
+                address: pairReservesInfosUn.reserveInfoTokenB?.address,
+                functionName: "balanceOf",
+                args: [account!.address!]
+            }
+        ],
+        query: {
+            enabled: account?.address !== undefined,
+            refetchInterval: 10000
+        }
+    })
+
     const [menu, setMenu] = useState<"borrow" | "repay">("borrow");
     const [selectedAsset, setSelectedAsset] = useState<string>(tokens[0]);
     const [amount, setAmount] = useState<bigint>(0n);
@@ -56,7 +79,7 @@ export default function Loan() {
     const maximumBorrow = useFarmAddressStore((state) => state.maxBorrow(selectedAsset === tokens[0] ? "a" : "b"))
 
     const config = useConfig();
-    const [pipeline, nextStep, resetPipeline, setPipeline] = useValueEffect<CollateralPipelineState>(borrowPipelineState);
+    const [pipeline, nextStep, _resetPipeline, setPipeline] = useValueEffect<CollateralPipelineState>(borrowPipelineState);
 
     useEffect(() => {
         if (borrowBalances && collateralInfo && collateralAmountPrice && pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB) {
@@ -105,10 +128,17 @@ export default function Loan() {
                 <Help>
                     The maximum amount you can borrow of {selectedAsset} in this account
                 </Help>
-                <SecurdFormat
-                    className="text-xl font-bold inline ml-2"
-                    value={bigIntToDecimal(maximumBorrow, 18)}
-                />
+                <div className="inline-flex flex-col items-end">
+                    <SecurdFormat
+                        className="text-xl font-bold inline ml-2"
+                        value={bigIntToDecimal(maximumBorrow, 18)}
+                    />
+                    <SecurdFormat
+                        className="text-sm inline text-secondary"
+                        value={(bigIntToDecimal(maximumBorrow, collateralInfo?.decimals) ?? 0) * (coinsPrices?.[selectedAsset as keyof Coins] ?? 0)}
+                        prefix="$"
+                    />
+                </div>
                 {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
                     src={selectedAsset === tokens[0] ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
                     alt={selectedAsset}
@@ -117,14 +147,25 @@ export default function Loan() {
                     className="inline -mt-1 ml-1"
                 />}
             </div>) : (<div className="text-md">
-                Loan Balance
+                Wallet Balance
                 <Help>
-                    Value of {selectedAsset} loan in this account
+                    Amount of {selectedAsset} in your wallet
                 </Help>
-                <SecurdFormat
-                    className="text-xl font-bold inline ml-2"
-                    value={bigIntToDecimal(sliderBase, collateralInfo?.decimals)}
-                />
+                <div className="inline-flex flex-col items-end">
+                    <SecurdFormat
+                        className="text-xl font-bold inline ml-2"
+                        value={bigIntToDecimal(walletBalances.data?.[
+                            selectedAsset === tokens[0] ? 0 : 1
+                        ]?.result ?? 0n, collateralInfo?.decimals)}
+                    />
+                    <SecurdFormat
+                        className="text-sm inline text-secondary"
+                        value={(bigIntToDecimal(walletBalances.data?.[
+                            selectedAsset === tokens[0] ? 0 : 1
+                        ]?.result ?? 0n, collateralInfo?.decimals) ?? 0) * (coinsPrices?.[selectedAsset as keyof Coins] ?? 0)}
+                        prefix="$"
+                    />
+                </div>
                 {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
                     src={selectedAsset === tokens[0] ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
                     alt={selectedAsset}
@@ -137,9 +178,13 @@ export default function Loan() {
         <div className="flex flex-row gap-4 mt-4">
             <div className="relative flex items-center w-full">
                 <div className="absolute left-0 flex flex-row items-center justify-evenly border w-24 h-full bg-muted rounded-l-md">
-                    {collateralInfo
-                        ? <PairIcon reservesInfo={reservesInfo} userCollateralsInfo={collateralInfo} size="small" symbol={false} />
-                        : <Skeleton className="w-8 h-6" />}
+                    {pairReservesInfosUn.reserveInfoTokenA && pairReservesInfosUn.reserveInfoTokenB && <Image
+                        src={selectedAsset === tokens[0] ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
+                        alt={selectedAsset}
+                        width={24}
+                        height={24}
+                        className="inline"
+                    />}
                 </div>
                 <Input
                     placeholder="Amount"

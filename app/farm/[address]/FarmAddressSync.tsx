@@ -27,9 +27,6 @@ export default function FarmAddressSync({ children, address }: { children: React
     const userBalance = useBalanceCoins(collateralInfo ? [{ address: collateralInfo.addressLP }] : []);
 
     useEffect(() => {
-        console.log({
-            collateralProportions
-        })
         useFarmAddressStore.setState({
             reservesInfo,
             collateralInfo,

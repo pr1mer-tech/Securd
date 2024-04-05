@@ -1,4 +1,4 @@
-export default function SaveLayout({ children }: {
+export default function FarmLayout({ children }: {
     children: React.ReactNode
 }) {
     return <div className="relative">
