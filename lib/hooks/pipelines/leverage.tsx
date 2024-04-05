@@ -98,8 +98,6 @@ export function leverage(
 
         const transactionAmount = parseUnits(_transactionAmount?.toString() ?? "0", collateralInfo.decimals);
 
-        console.log("transactionAmount", _transactionAmount);
-
         const leverage = () => (new Promise<void>((resolve, reject) => {
             toast.promise(async () => {
                 // Deposit the token

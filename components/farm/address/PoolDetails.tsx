@@ -37,11 +37,11 @@ export default function PoolDetails() {
     const lendingPoolA = getDepositBalance(pairReservesInfos.reserveInfoTokenA);
     const liquidityA = getPoolLiquidity(pairReservesInfos.reserveInfoTokenA);
     const loanA = (bigIntToDecimal(lendingPoolA, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0);
-    const utilizationA = getPoolUtilization(pairReservesInfos.reserveInfoTokenA);
+    const utilizationA = loanA / (bigIntToDecimal(lendingPoolA, collateralInfo?.decimals) ?? 0);
     const lendingPoolB = getDepositBalance(pairReservesInfos.reserveInfoTokenB);
     const liquidityB = getPoolLiquidity(pairReservesInfos.reserveInfoTokenB);
     const loanB = (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0);
-    const utilizationB = getPoolUtilization(pairReservesInfos.reserveInfoTokenB);
+    const utilizationB = loanB / (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0);
     const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
         getPairBorrowApy(reservesInfo, tokens);
 

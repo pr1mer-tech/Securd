@@ -72,10 +72,17 @@ export default function Collateral() {
                 <Help>
                     Amount of this asset in your wallet
                 </Help>
-                <SecurdFormat
-                    className="text-xl font-bold inline ml-2"
-                    value={bigIntToDecimal(userBalance, collateralInfo?.decimals)}
-                />
+                <div className="inline-flex flex-col items-end">
+                    <SecurdFormat
+                        className="text-xl font-bold inline ml-2"
+                        value={bigIntToDecimal(userBalance, collateralInfo?.decimals)}
+                    />
+                    <SecurdFormat
+                        className="text-sm inline text-secondary"
+                        value={bigIntToDecimal((userBalance ?? 0n) * (collateralAmountPrice?.collateralValue ?? 0n) / (collateralAmountPrice?.collateralAmount ?? 1n), collateralInfo?.decimals)}
+                        prefix="$"
+                    />
+                </div>
                 {collateralInfo
                     ? <PairIcon reservesInfo={reservesInfo} userCollateralsInfo={collateralInfo} size="small" symbol={false} className="translate-y-[0.375rem] ml-1" />
                     : <Skeleton className="w-8 h-6" />}
@@ -84,10 +91,17 @@ export default function Collateral() {
                 <Help>
                     Value of locked assets backing your loans in this account
                 </Help>
-                <SecurdFormat
-                    className="text-xl font-bold inline ml-2"
-                    value={bigIntToDecimal(collateralAmountPrice?.collateralAmount, collateralInfo?.decimals)}
-                />
+                <div className="inline-flex flex-col items-end">
+                    <SecurdFormat
+                        className="text-xl font-bold inline ml-2"
+                        value={bigIntToDecimal(collateralAmountPrice?.collateralAmount, collateralInfo?.decimals)}
+                    />
+                    <SecurdFormat
+                        className="text-sm inline text-secondary"
+                        value={bigIntToDecimal(collateralAmountPrice?.collateralValue, collateralInfo?.decimals)}
+                        prefix="$"
+                    />
+                </div>
                 {collateralInfo
                     ? <PairIcon reservesInfo={reservesInfo} userCollateralsInfo={collateralInfo} size="small" symbol={false} className="translate-y-[0.375rem] ml-1" />
                     : <Skeleton className="w-8 h-6" />}

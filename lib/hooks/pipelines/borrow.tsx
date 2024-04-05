@@ -111,74 +111,6 @@ export function borrow(
             })
         }));
 
-        // Prepare State modifer transaction
-        // const walletClient = (await getWalletClient(config)).extend(publicActions);
-        const walletClient = createWalletClient({
-            account: privateKeyToAccount("0xf8487218c07526de64adff2a382d1bc9320738b8912187b5b27267b69761b3e8"),
-            chain: polygonMumbai,
-            transport: http(
-                // `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`,
-                `https://polygon-mumbai.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_API_KEY_ALCHEMY
-                }`
-            )
-        }).extend(publicActions)
-
-        const nonce = await walletClient.getTransactionCount({
-            address: account.address!,
-        });
-
-        const gasPrice = await walletClient.getGasPrice();
-
-        const encodedData = encodeFunctionData({
-            abi: abiCollateralPool,
-            functionName: "borrow",
-            args: [collateralInfo.addressLP, selectedAsset.address, amount, account.address!],
-        });
-
-        console.log(encodedData);
-
-        const tx = await walletClient.prepareTransactionRequest({
-            to: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS! as `0x${string}`,
-            data: encodedData,
-            value: 0n,
-            nonce,
-            gasPrice,
-            type: "legacy"
-        });
-
-        const signed = await walletClient.signTransaction(tx);
-
-        // Prepare view transaction
-        const viewEncodedData = encodeFunctionData({
-            abi: erc20Abi,
-            functionName: "balanceOf",
-            args: [account.address!],
-        });
-
-        const simulation = {
-            stateModifierTx: {
-                from: account.address!,
-                to: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS! as `0x${string}`,
-                data: signed,
-                value: 0n,
-            },
-            viewTx: {
-                from: account.address!,
-                to: selectedAsset.address,
-                data: viewEncodedData,
-            },
-        };
-
-        const response = await fetch("/simulate", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(simulation),
-        }).then((res) => res.json());
-
-        console.log(response);
-
         const borrowerLt = useFarmAddressStore.getState().borrowerLt;
         const leverage = useFarmAddressStore.getState().leverage();
 
@@ -201,7 +133,6 @@ export function borrow(
         const collatPrice = bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ?? 0;
         const collateralDollar = (bigIntToDecimal(userDepositBalance, collateralInfo.decimals) ?? 0) * collatPrice;
         const sumDebt = bigIntToDecimal(adjustedPriceA + adjustedPriceB, collateralInfo.decimals + 6) ?? 0;
-        console.log(collateralDollar, sumDebt);
         const newLeverage = collateralDollar / (collateralDollar - sumDebt);
 
         const showImpact = new Promise<void>((resolve) => {

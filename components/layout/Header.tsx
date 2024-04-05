@@ -20,6 +20,8 @@ const Header = () => {
             setActiveTab(0);
         } else if (pathname?.includes("farm")) {
             setActiveTab(1);
+        } else if (pathname?.includes("analytics")) {
+            setActiveTab(2);
         }
     }, [pathname]);
 
@@ -48,6 +50,15 @@ const Header = () => {
                                 }`}
                         >
                             Farm
+                        </Link>
+                        <Link
+                            href="/analytics"
+                            className={`px-4 h-full leading-[72px] font-bold ${activeTab === ActiveTab.ANALYTICS
+                                ? "border-b-4 border-b-securdWhite"
+                                : "text-securdWhite"
+                                }`}
+                        >
+                            Analytics
                         </Link>
                     </div>
                 </div>
