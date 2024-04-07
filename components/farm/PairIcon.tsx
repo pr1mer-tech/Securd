@@ -1,4 +1,5 @@
-import { useFarmStore } from "@/lib/data/farmStore";
+"use client";
+
 import { getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import UniswapLogo from "@/assets/logos/Uniswap-logo.svg";
 import { CollateralInfos, PoolType, poolLink } from "@/lib/types/farm.types";
@@ -73,6 +74,7 @@ export default function PairIcon({
                         alt={pairReservesInfosUn.reserveInfoTokenA?.symbol}
                         width={width}
                         height={height}
+                        onError={(e) => console.error(e)}
                     />
                     <Image
                         className="rounded-full -ml-2 border-2 border-white bg-white"
@@ -80,6 +82,7 @@ export default function PairIcon({
                         alt={pairReservesInfosUn.reserveInfoTokenB?.symbol}
                         width={width}
                         height={height}
+                        onError={(e) => console.error(e)}
                     />
                     <DexIcon
                         className="absolute right-0 bottom-0 translate-x-1 translate-y-1 rounded-full bg-white"

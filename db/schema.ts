@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { serial, varchar, integer, numeric, date, doublePrecision, pgTable } from 'drizzle-orm/pg-core';
+import { uint256 } from './uint256';
 
 export const blockchain = pgTable('blockchain', {
     id_blockchain: serial('id_blockchain').primaryKey(),
@@ -17,6 +18,10 @@ export const token = pgTable('token', {
     token_address: varchar('token_address').notNull(),
     token_decimals: integer('token_decimals').notNull(),
 });
+
+export const tokenRelations = relations(token, ({ many }) => ({
+    prices: many(price),
+}));
 
 export type Token = typeof token.$inferSelect;
 
@@ -52,12 +57,12 @@ export type Pool = typeof pool.$inferSelect;
 export const analytics = pgTable('analytics', {
     id_analytics: serial('id_analytics').primaryKey(),
     id_pool: integer('id_pool').references(() => pool.id_pool),
-    date: date('date'),
-    quantity_token_0: numeric('quantity_token_0', { precision: 78, scale: 0 }),
-    quantity_token_1: numeric('quantity_token_1', { precision: 78, scale: 0 }),
-    quantity_token_lp: numeric('quantity_token_lp', { precision: 78, scale: 0 }),
-    volume_token_0: numeric('volume_token_0', { precision: 78, scale: 0 }),
-    volume_token_1: numeric('volume_token_1', { precision: 78, scale: 0 }),
+    date: date('date', { mode: "date" }),
+    quantity_token_0: doublePrecision('quantity_token_0'),
+    quantity_token_1: doublePrecision('quantity_token_1'),
+    quantity_token_lp: doublePrecision('quantity_token_lp'),
+    volume_token_0: doublePrecision('volume_token_0'),
+    volume_token_1: doublePrecision('volume_token_1'),
     mrm: doublePrecision('mrm'),
     volatility_score: doublePrecision('volatility_score'),
     lrm: doublePrecision('lrm'),
@@ -93,7 +98,7 @@ export type Analytics = typeof analytics.$inferSelect;
 export const price = pgTable('price', {
     id_price: serial('id_price').primaryKey(),
     id_token: integer('id_token').references(() => token.id_token),
-    date: date('date'),
+    date: date('date', { mode: "date" }),
     price: doublePrecision('price'),
     price_currency: varchar('price_currency'),
 });

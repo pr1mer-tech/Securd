@@ -13,7 +13,8 @@ const queryClient = postgres("postgres://username:password@host.com:5432/databas
     port: parseInt(port || "5432"),
     database,
     username: user,
-    password
+    password,
+    ssl: true
 });
 
 export const db = drizzle(queryClient, { schema });
