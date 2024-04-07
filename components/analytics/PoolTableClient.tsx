@@ -1,29 +1,35 @@
 "use client";
 
-import { Analytics, Blockchain, Dex, Pool, Token } from "@/db/schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../layout/DataTable";
 import { Tabs } from "../ui/tabs";
-
-type PoolTableRows = Analytics & {
-    pool: Pool & {
-        blockchain: Blockchain | null;
-        dex: Dex | null;
-        token_0: Token | null;
-        token_1: Token | null;
-    } | null;
-}
+import SecurdFormat from "../utils/SecurdFormat";
+import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import PercentageFormat from "../utils/PercentageFormat";
+import PairIcon from "../farm/PairIcon";
+import { ReserveInfo } from "@/lib/types/save.types";
+import { PoolTableRows, analyticsToCollateralInfo, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
 const columns: ColumnDef<PoolTableRows>[] = [
     {
         id: "pool",
         accessorFn: (row: PoolTableRows) => row.pool?.token_0?.token_symbol + "/" + row.pool?.token_1?.token_symbol,
         header: "Pool",
+        cell: ({ row }) => {
+            const userCollateralInfo = analyticsToCollateralInfo(row.original.pool, row.original);
+
+            return <div className="w-full text-left">
+                <PairIcon userCollateralsInfo={userCollateralInfo} reservesInfo={row.original.pool?.reservesInfo} symbol={true} size="normal" />
+            </div>
+        }
     },
     {
         id: "tvl",
-        accessorFn: (row: PoolTableRows) => Number(row.volume_token_0) + Number(row.volume_token_1),
+        accessorFn: (row: PoolTableRows) => (row.volume_token_0 ?? 0) + (row.volume_token_1 ?? 0),
         header: "TVL",
+        cell: ({ row }) => <div className="w-full text-left">
+            <SecurdFormat value={row.getValue("tvl")} />
+        </div>
     },
     {
         id: "score",
@@ -34,11 +40,18 @@ const columns: ColumnDef<PoolTableRows>[] = [
         id: "apy",
         accessorFn: (row: PoolTableRows) => row.lp_apy_1m,
         header: "APY",
+        cell: ({ row }) => <div className="w-full text-left">
+            <PercentageFormat value={row.getValue("apy")} />
+        </div>
     }
 ]
 
-export default async function PoolsTableClient({ data }: { data: PoolTableRows[] }) {
-    return <Tabs defaultValue="table">
-        <DataTable columns={columns} data={data} />
+export default function PoolsTableClient({ data }: { data: PoolTableRows[] }) {
+    return <Tabs defaultValue="table" className="text-xl font-bold">
+        <DataTable
+            columns={columns}
+            data={data}
+            linkFn={(row) => `/analytics/${row.id_pool}`}
+        />
     </Tabs>
 }

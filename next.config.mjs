@@ -30,6 +30,18 @@ const nextConfig = {
                 port: "",
                 pathname: "/coins/**",
             },
+            {
+                protocol: "https",
+                hostname: "raw.githubusercontent.com",
+                port: "",
+                pathname: "/trustwallet/assets/master/blockchains/**",
+            },
+            {
+                protocol: "https",
+                hostname: "xkqpczltzicnmbqvihbc.supabase.co",
+                port: "",
+                pathname: "/storage/v1/object/public/**",
+            }
         ],
     },
 };
