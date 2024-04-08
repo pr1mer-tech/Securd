@@ -15,8 +15,6 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Rates({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
-    const userCollateralInfo = analyticsToCollateralInfo(poolInfo, poolInfo.analytics?.[0] ?? null);
-
     return <Card className={cn("p-4 w-full", className)}>
         <Table className="text-center">
             <TableHeader>

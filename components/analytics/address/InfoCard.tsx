@@ -12,7 +12,7 @@ import {
 import SecurdFormat from "@/components/utils/SecurdFormat";
 
 export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
-    const userCollateralInfo = analyticsToCollateralInfo(poolInfo, poolInfo.analytics?.[0] ?? null);
+    const userCollateralInfo = analyticsToCollateralInfo(poolInfo, poolInfo?.analytics?.[0] ?? null);
 
     return <Card className={cn("p-4 w-full", className)}>
         <Table className="text-center">
@@ -22,7 +22,7 @@ export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetail
                         Pool
                     </TableHead>
                     <TableCell className="font-bold text-center">
-                        <PairIcon reservesInfo={poolInfo.reservesInfo} userCollateralsInfo={userCollateralInfo} size="small" className="w-36" />
+                        <PairIcon reservesInfo={poolInfo?.reservesInfo} userCollateralsInfo={userCollateralInfo} size="small" className="w-36" />
                     </TableCell>
                 </TableRow>
             </TableHeader>

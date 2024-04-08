@@ -30,20 +30,20 @@ export default function QuickView({ poolInfo, className }: { poolInfo: PoolDetai
         <MenuTabsContent value="pool" className="flex flex-row items-center">
             <div className="flex flex-row justify-evenly items-center w-full mt-8">
                 <div className="text-center">
-                    <h2 className="text-xl font-bold">Price {poolInfo.token_0?.token_symbol} in {poolInfo.token_1?.token_symbol}</h2>
-                    <SecurdFormat value={(poolInfo.analytics?.[0].quantity_token_1 ?? 0) / (poolInfo.analytics?.[0].quantity_token_0 ?? 0)} />
+                    <h2 className="text-xl font-bold">Price {poolInfo?.token_0?.token_symbol} in {poolInfo?.token_1?.token_symbol}</h2>
+                    <SecurdFormat value={(poolInfo?.analytics?.[0].quantity_token_1 ?? 0) / (poolInfo?.analytics?.[0].quantity_token_0 ?? 0)} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">TVL</h2>
-                    <SecurdFormat value={(poolInfo.analytics?.[0].volume_token_0 ?? 0) + (poolInfo.analytics?.[0].volume_token_1 ?? 0)} />
+                    <SecurdFormat value={(poolInfo?.analytics?.[0].volume_token_0 ?? 0) + (poolInfo?.analytics?.[0].volume_token_1 ?? 0)} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Volume (24h)</h2>
-                    <SecurdFormat value={(poolInfo.analytics?.[0].volume_token_0 ?? 0) + (poolInfo.analytics?.[0].volume_token_1 ?? 0)} />
+                    <SecurdFormat value={(poolInfo?.analytics?.[0].volume_token_0 ?? 0) + (poolInfo?.analytics?.[0].volume_token_1 ?? 0)} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Volume (7d)</h2>
-                    <SecurdFormat value={poolInfo.analytics?.slice(0, 7)
+                    <SecurdFormat value={poolInfo?.analytics?.slice(0, 7)
                         .reduce((acc, curr) => acc + (curr.volume_token_0 ?? 0) + (curr.volume_token_1 ?? 0), 0)} />
                 </div>
             </div>
@@ -52,23 +52,23 @@ export default function QuickView({ poolInfo, className }: { poolInfo: PoolDetai
             <div className="flex flex-row justify-evenly items-center w-full mt-8">
                 <div className="text-center">
                     <h2 className="text-xl font-bold">LP APY</h2>
-                    <PercentageFormat value={poolInfo.analytics?.[0]?.[`lp_apy_${timeRange}`] ?? undefined} />
+                    <PercentageFormat value={poolInfo?.analytics?.[0]?.[`lp_apy_${timeRange}`] ?? undefined} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">LP vs Hold APY</h2>
-                    <PercentageFormat value={poolInfo.analytics?.[0]?.[`lp_vs_hold_apy_${timeRange}`] ?? undefined} />
+                    <PercentageFormat value={poolInfo?.analytics?.[0]?.[`lp_vs_hold_apy_${timeRange}`] ?? undefined} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Fee APY</h2>
-                    <PercentageFormat value={poolInfo.analytics?.[0]?.[`fee_apy_${timeRange}`] ?? undefined} />
+                    <PercentageFormat value={poolInfo?.analytics?.[0]?.[`fee_apy_${timeRange}`] ?? undefined} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">IL APY</h2>
-                    <PercentageFormat value={poolInfo.analytics?.[0]?.[`il_apy_${timeRange}`] ?? undefined} />
+                    <PercentageFormat value={poolInfo?.analytics?.[0]?.[`il_apy_${timeRange}`] ?? undefined} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Hold APY</h2>
-                    <PercentageFormat value={poolInfo.analytics?.[0]?.[`hold_apy_${timeRange}`] ?? undefined} />
+                    <PercentageFormat value={poolInfo?.analytics?.[0]?.[`hold_apy_${timeRange}`] ?? undefined} />
                 </div>
             </div>
         </MenuTabsContent>
