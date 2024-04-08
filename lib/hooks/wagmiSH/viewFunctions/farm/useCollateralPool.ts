@@ -1,115 +1,49 @@
+import { Dex, Pool, Token } from "@/db/schema";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { CollateralInfos, PoolType } from "@/lib/types/farm.types";
 import { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
-//@ts-expect-error CollateralInfos is not properly casting
-const useCollateralPool: () => CollateralInfos[] = () => {
+const useCollateralPool: (pools: (Pool & {
+  token_0: Token | null,
+  token_1: Token | null,
+  dex: Dex | null
+})[]) => CollateralInfos[] = (pools) => {
   const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
-    contracts: [
-      {
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        abi: abiCollateralPool,
-        functionName: "collateralInfos",
-        args: [process.env.NEXT_PUBLIC_LPUSDC_USDT_CONTRACT_ADDRESS as Address],
-      },
-      {
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        abi: abiCollateralPool,
-        functionName: "collateralInfos",
-        args: [process.env.NEXT_PUBLIC_LPDAI_USDC_CONTRACT_ADDRESS as Address],
-      },
-      {
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        abi: abiCollateralPool,
-        functionName: "collateralInfos",
-        args: [process.env.NEXT_PUBLIC_LPUSDC_ETH_CONTRACT_ADDRESS as Address],
-      },
-      {
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        abi: abiCollateralPool,
-        functionName: "collateralInfos",
-        args: [process.env.NEXT_PUBLIC_LPWBTC_ETH_CONTRACT_ADDRESS as Address],
-      },
-    ],
+    contracts: pools.map((pool) => ({
+      address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
+      abi: abiCollateralPool,
+      functionName: "collateralInfos",
+      args: [pool.pool_address],
+    })),
     query: {
       // enabled: isConnected,
       refetchInterval: 10000,
     },
   });
 
-  if (!data || data.some((item) => !item.result) || data.length !== 4) {
+  if (!data || data.some((item) => !item.result) || data.length !== pools.length) {
     return [];
   }
 
-  if (
-    data[0].result &&
-    data[1].result &&
-    data[2].result &&
-    data[3].result
-  ) {
-    return [
-      {
-        symbol: "USDT/USDC",
-        poolType: PoolType.UniswapV2,
-        decimals: 18,
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        addressLP: process.env
-          .NEXT_PUBLIC_LPUSDC_USDT_CONTRACT_ADDRESS as Address,
-        tokenInfo: data[0].result[0],
-        liquidationThresholdInfo: data[0].result[1],
-        liquidationPremium: data[0].result[2],
-        isActivated: data[0].result[3],
-      },
-      {
-        symbol: "DAI/USDC",
-        poolType: PoolType.UniswapV2,
-        decimals: 18,
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        addressLP: process.env
-          .NEXT_PUBLIC_LPDAI_USDC_CONTRACT_ADDRESS as Address,
-        tokenInfo: data[1].result[0],
-        liquidationThresholdInfo: data[1].result[1],
-        liquidationPremium: data[1].result[2],
-        isActivated: data[1].result[3],
-      },
-      {
-        symbol: "USDC/ETH",
-        poolType: PoolType.UniswapV2,
-        decimals: 18,
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        addressLP: process.env
-          .NEXT_PUBLIC_LPUSDC_ETH_CONTRACT_ADDRESS as Address,
-        tokenInfo: data[2].result[0],
-        liquidationThresholdInfo: data[2].result[1],
-        liquidationPremium: data[2].result[2],
-        isActivated: data[2].result[3],
-      },
-      {
-        symbol: "WBTC/ETH",
-        poolType: PoolType.UniswapV2,
-        decimals: 18,
-        address: process.env
-          .NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
-        addressLP: process.env
-          .NEXT_PUBLIC_LPWBTC_ETH_CONTRACT_ADDRESS as Address,
-        tokenInfo: data[3].result[0],
-        liquidationThresholdInfo: data[3].result[1],
-        liquidationPremium: data[3].result[2],
-        isActivated: data[3].result[3],
-      },
-    ];
-  }
-
-  return []
+  return data.map((item, index) => ({
+    symbol: pools[index].token_0?.token_symbol + "/" + pools[index].token_1?.token_symbol,
+    token_0: pools[index].token_0?.token_address as Address,
+    token_1: pools[index].token_1?.token_address as Address,
+    poolType: pools[index].dex?.dex_type as PoolType,
+    decimals: pools[index].decimals,
+    address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
+    addressLP: pools[index].pool_address as Address,
+    //@ts-expect-error CollateralInfos is not properly casting
+    tokenInfo: item.result[0],
+    //@ts-expect-error CollateralInfos is not properly casting
+    liquidationThresholdInfo: item.result[1],
+    //@ts-expect-error CollateralInfos is not properly casting
+    liquidationPremium: item.result[2],
+    //@ts-expect-error CollateralInfos is not properly casting
+    isActivated: item.result[3],
+  }));
 };
 export default useCollateralPool;

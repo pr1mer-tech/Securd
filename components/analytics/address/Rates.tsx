@@ -23,9 +23,12 @@ export default function Rates({ poolInfo, className }: { poolInfo: PoolDetails, 
                 <TableRow>
                     <TableHead className="font-bold pl-0 text-center border-r">
                         Borrow Rate {poolInfo?.token_0?.token_symbol}
+                        <Help>
+                            The interest rate paid by borrowers to lenders.
+                        </Help>
                     </TableHead>
                     <TableCell className="font-bold text-center">
-
+                        <PercentageFormat value={undefined} decimals={2} />
                     </TableCell>
                 </TableRow>
             </TableHeader>
@@ -33,17 +36,23 @@ export default function Rates({ poolInfo, className }: { poolInfo: PoolDetails, 
                 <TableRow>
                     <TableHead className="font-bold pl-0 text-center border-r">
                         Borrow Rate {poolInfo?.token_1?.token_symbol}
+                        <Help>
+                            The interest rate paid by borrowers to lenders.
+                        </Help>
                     </TableHead>
                     <TableCell>
-
+                        <PercentageFormat value={undefined} decimals={2} />
                     </TableCell>
                 </TableRow>
                 <TableRow>
                     <TableHead className="font-bold pl-0 text-center border-r">
                         Leverage
+                        <Help>
+                            The ratio of borrowed funds to collateral.
+                        </Help>
                     </TableHead>
                     <TableCell>
-
+                        <SecurdFormat value={undefined} decimals={2} prefix="&times;" />
                     </TableCell>
                 </TableRow>
             </TableBody>

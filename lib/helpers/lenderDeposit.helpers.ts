@@ -2,6 +2,7 @@ import { Address } from "viem";
 import { LENDER_DEPOSIT_ERRORS } from "../errors/lenderDeposit.errors";
 import { MAIN_ERRORS } from "../errors/main.errors";
 import { ReserveInfo } from "../types/save.types";
+import { isEqualAddress } from "./main.helpers";
 
 /**
  * Returns the account balance of the user in a specific pool
@@ -20,7 +21,7 @@ export const getSelectedReserveInfo = (
   try {
     if (reservesInfo && reservesInfo.length !== 0) {
       return reservesInfo.find(
-        (reserveInfo: ReserveInfo) => reserveInfo.address === asset
+        (reserveInfo: ReserveInfo) => isEqualAddress(reserveInfo.address, asset)
       );
     }
   } catch (error) {

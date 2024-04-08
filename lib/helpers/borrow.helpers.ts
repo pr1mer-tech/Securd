@@ -19,7 +19,7 @@ import {
   getPoolUtilization,
 } from "./lenderPool.helpers";
 import { toPercentage } from "./numberFormat.helpers";
-import { bigIntToDecimal } from "./main.helpers";
+import { bigIntToDecimal, isEqualAddress } from "./main.helpers";
 import { Coins, ReserveInfo } from "../types/save.types";
 import { Address } from "viem";
 import { MAIN_ERRORS } from "../errors/main.errors";
@@ -96,13 +96,13 @@ export const getLightLenderPool = (
     } else {
       const lightLenderPoolA = pool.lenderpool_set.find(
         (lightLenderPool: LightLenderPool) =>
-          lightLenderPool.asset.fa12?.address ===
-          pool.dex_info.token_a.fa12?.address
+          lightLenderPool.asset.fa12?.address?.toLowerCase() ===
+          pool.dex_info.token_a.fa12?.address?.toLowerCase()
       );
       const lightLenderPoolB = pool.lenderpool_set.find(
         (lightLenderPool: LightLenderPool) =>
-          lightLenderPool.asset.fa12?.address ===
-          pool.dex_info.token_b.fa12?.address
+          lightLenderPool.asset.fa12?.address?.toLowerCase() ===
+          pool.dex_info.token_b.fa12?.address?.toLowerCase()
       );
       return {
         lenderPoolSetA: lightLenderPoolA,
@@ -256,18 +256,18 @@ export const getBorrowAPYLP = (
 
 export const getPairBorrowApy = (
   reservesInfo: ReserveInfo[] | undefined,
-  tokens: string[] | undefined
+  collateralsInfos: CollateralInfos | undefined
 ): BorrowPoolsApy => {
   try {
-    if (reservesInfo === undefined || tokens === undefined) {
+    if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { apyA: undefined, apyB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
       );
 
       return {
@@ -282,18 +282,18 @@ export const getPairBorrowApy = (
 
 export const getPairPoolSize = (
   reservesInfo: ReserveInfo[] | undefined,
-  tokens: string[] | undefined
+  collateralsInfos: CollateralInfos | undefined
 ): PoolSizes => {
   try {
-    if (reservesInfo === undefined || tokens === undefined) {
+    if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolSizeA: undefined, poolSizeB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
       );
 
       return {
@@ -308,18 +308,18 @@ export const getPairPoolSize = (
 
 export const getPairLiquidities = (
   reservesInfo: ReserveInfo[] | undefined,
-  tokens: string[] | undefined
+  collateralsInfos: CollateralInfos | undefined
 ): PoolLiquidities => {
   try {
-    if (reservesInfo === undefined || tokens === undefined) {
+    if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolLiquiditieA: undefined, poolLiquiditieB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
       );
 
       return {
@@ -335,18 +335,18 @@ export const getPairLiquidities = (
 export const getPairPrice = (
   coinPrices: Coins,
   reservesInfo?: ReserveInfo[],
-  tokens?: string[]
+  userCollateralsInfo?: CollateralInfos
 ): TokenPrices => {
   try {
-    if (!reservesInfo || !tokens || tokens.length < 2) {
+    if (!reservesInfo || !userCollateralsInfo) {
       return { tokenA: undefined, tokenB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_1)
       );
 
       return {
@@ -361,18 +361,18 @@ export const getPairPrice = (
 
 export const getPairReservesInfos = (
   reservesInfo: ReserveInfo[] | undefined,
-  tokens: string[] | undefined
+  collateralsInfos: CollateralInfos | undefined
 ): PairReservesInfos => {
   try {
-    if (reservesInfo === undefined || tokens === undefined) {
+    if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { reserveInfoTokenA: undefined, reserveInfoTokenB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
       );
 
       return {
@@ -387,18 +387,18 @@ export const getPairReservesInfos = (
 
 export const getPairUtilizations = (
   reservesInfo: ReserveInfo[] | undefined,
-  tokens: string[] | undefined
+  collateralsInfos: CollateralInfos | undefined
 ): PoolUtilizations => {
   try {
-    if (reservesInfo === undefined || tokens === undefined) {
+    if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolUtilizationsA: undefined, poolUtilizationsB: undefined };
     } else {
       const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[0]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
 
       const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => reserveInfo.symbol === tokens[1]
+        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
       );
 
       return {

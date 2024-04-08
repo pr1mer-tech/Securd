@@ -150,9 +150,7 @@ export function lock(config: Config, collateralInfo: CollateralInfos, amount: bi
         const borrowBalance = useFarmAddressStore.getState().borrowBalances();
         const leverage = useFarmAddressStore.getState().leverage();
 
-        const tokensUn = getTokensSymbol(collateralInfo);
-
-        const tokensUSDPrices = getPairPrice(coinPrices, tokens, tokensUn);
+        const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
         const debt0 = parseUnits(borrowBalance!.borrowBalanceA.toString(), tokens[0].decimals);
         const debt1 = parseUnits(borrowBalance!.borrowBalanceB.toString(), tokens[1].decimals);

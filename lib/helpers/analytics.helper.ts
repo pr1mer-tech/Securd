@@ -42,6 +42,8 @@ export const analyticsToCollateralInfo = (pool: Pool & {
         },
         poolType: pool?.dex?.dex_type as PoolType,
         symbol: pool?.token_0?.token_symbol + "/" + pool?.token_1?.token_symbol,
+        token_0: pool?.token_0?.token_address as `0x${string}`,
+        token_1: pool?.token_1?.token_address as `0x${string}`,
         tokenInfo: {
             assets: [pool?.token_0?.token_address as `0x${string}`, pool?.token_1?.token_address as `0x${string}`],
             nbAssets: parseUnits(analytics?.quantity_token_lp?.toString() ?? "0", 18),
@@ -53,9 +55,9 @@ export const analyticsToCollateralInfo = (pool: Pool & {
 }
 
 export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchain | null) => {
-    let imgSrc = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${chain?.blockchain_name.toLowerCase()}/assets/${token && getAddress(token.token_address)}/logo.png`;
+    let imgSrc = token?.token_optional_image ?? `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${chain?.blockchain_name.toLowerCase()}/assets/${token && getAddress(token.token_address)}/logo.png`;
 
-    if (!(await fetch(imgSrc).then(res => res.ok).catch(() => false))) {
+    if (!token?.token_optional_image && !(await fetch(imgSrc).then(res => res.ok).catch(() => false))) {
         const infoAPI = `https://cryptofonts-token-icon-api1.p.rapidapi.com/${chain?.chain_id ?? 1}/${token && getAddress(token.token_address)}`;
         const res = await fetch(infoAPI, {
             headers: {
@@ -64,7 +66,7 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
             }
         }).then(res => res.json()).catch(() => null);
 
-        imgSrc = res?.[0].logoURI
+        imgSrc = res?.[0]?.logoURI
     }
 
     return {

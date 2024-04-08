@@ -14,9 +14,7 @@ const getFarmTotalLoan = (
   coinPrices: Record<keyof Coins, number>
 ) => {
   return collateralInfos.reduce((totalLoan, collateralInfo) => {
-    const tokensUn = getTokensSymbol(collateralInfo);
-
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);
 
     const borrowBalances = getPairBorrowBalances(
       collateralAmountPrices[collateralInfo.addressLP]?.debts,

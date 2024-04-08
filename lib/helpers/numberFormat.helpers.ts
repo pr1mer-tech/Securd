@@ -7,7 +7,7 @@ export const securdFormat = (
 ): string => {
   try {
     if (num !== undefined && num !== null && !isNaN(num)) {
-      const isBigNumber = num > 999999;
+      const isBigNumber = num > 9999;
 
       return new Intl.NumberFormat("en-US", {
         notation: isBigNumber ? "compact" : undefined,

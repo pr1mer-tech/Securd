@@ -9,6 +9,10 @@ export const blockchain = pgTable('blockchain', {
     chain_id: integer('chain_id').notNull(),
 });
 
+export const blockchainRelations = relations(blockchain, ({ many }) => ({
+    pools: many(pool)
+}))
+
 export type Blockchain = typeof blockchain.$inferSelect;
 
 export const token = pgTable('token', {
@@ -17,10 +21,13 @@ export const token = pgTable('token', {
     token_symbol: varchar('token_symbol').notNull(),
     token_address: varchar('token_address').notNull(),
     token_decimals: integer('token_decimals').notNull(),
+    token_optional_image: varchar('token_optional_image'),
+    chain_id: integer('chain_id').references(() => blockchain.id_blockchain),
 });
 
-export const tokenRelations = relations(token, ({ many }) => ({
+export const tokenRelations = relations(token, ({ many, one }) => ({
     prices: many(price),
+    blockchain: one(blockchain, { fields: [token.chain_id], references: [blockchain.id_blockchain] }),
 }));
 
 export type Token = typeof token.$inferSelect;
@@ -36,6 +43,7 @@ export type Dex = typeof dex.$inferSelect;
 export const pool = pgTable('pool', {
     id_pool: serial('id_pool').primaryKey(),
     pool_address: varchar('pool_address').notNull(),
+    decimals: integer('decimals').notNull().default(18),
     pool_fee: numeric('pool_fee', { precision: 5, scale: 2 }),
     pool_creation_date: date('pool_creation_date'),
     id_token_0: integer('id_token_0').references(() => token.id_token),

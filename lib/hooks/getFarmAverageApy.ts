@@ -20,9 +20,7 @@ const getFarmAverageApy = (
         const lpApr = 0.089;
         const lpApy = getPoolAPY(undefined, lpApr);
 
-        const tokensUn = getTokensSymbol(collateralInfo);
-
-        const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
+        const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);
 
         const borrowBalances = getPairBorrowBalances(
             collateralAmountPrices[collateralInfo.addressLP]?.debts,
@@ -30,7 +28,7 @@ const getFarmAverageApy = (
             pairReservesInfosUn.reserveInfoTokenB
         );
 
-        const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, tokensUn);
+        const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, collateralInfo);
 
         let loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
         let loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
@@ -38,7 +36,7 @@ const getFarmAverageApy = (
         const priceLoan = loanAUSD + loanBUSD;
 
         const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-            getPairBorrowApy(reservesInfo, tokensUn);
+            getPairBorrowApy(reservesInfo, collateralInfo);
 
         const borrowApy = getBorrowAPY(
             tokensUSDPrices,

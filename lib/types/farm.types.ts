@@ -82,7 +82,7 @@ export type LiquidationThresholdInfo = {
 };
 
 export enum PoolType {
-  UniswapV2 = "UniswapV2",
+  UniswapV2 = "UNIV2",
 };
 
 export function poolLink(poolType: PoolType, address: Address): string {
@@ -94,6 +94,8 @@ export function poolLink(poolType: PoolType, address: Address): string {
 
 export type CollateralInfos = {
   symbol: string;
+  token_0: Address;
+  token_1: Address;
   decimals: number;
   address: Address;
   addressLP: Address;

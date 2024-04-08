@@ -122,9 +122,8 @@ export const columns: ColumnDef<{
         {
             id: "borrowApy",
             accessorFn: (row) => {
-                const tokensUn = getTokensSymbol(row.collateralInfos);
                 const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-                    getPairBorrowApy(row.reservesInfo, tokensUn);
+                    getPairBorrowApy(row.reservesInfo, row.collateralInfos);
 
                 return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
             },
@@ -172,9 +171,8 @@ export const columns: ColumnDef<{
             accessorFn: (row) => {
                 const maxLeverage = getBorrowerPoolMaxLeverage(row.collateralInfos)
 
-                const tokensUn = getTokensSymbol(row.collateralInfos);
                 const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-                    getPairBorrowApy(row.reservesInfo, tokensUn);
+                    getPairBorrowApy(row.reservesInfo, row.collateralInfos);
 
                 const borrowLpApy = getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
                 // MARK: ANTHONY wanted to have this to be fixed for a demo purpose

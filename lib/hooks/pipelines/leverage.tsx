@@ -63,9 +63,7 @@ export function leverage(
             buttonLoading: true,
         }
 
-        const tokensUn = getTokensSymbol(collateralInfo);
-
-        const tokensUSDPrices = getPairPrice(coinPrices, tokens, tokensUn);
+        const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
         const loanAUSD = borrowBalance.borrowBalanceA * (tokensUSDPrices.tokenA ?? 0);
         const loanBUSD = borrowBalance.borrowBalanceB * (tokensUSDPrices.tokenB ?? 0)

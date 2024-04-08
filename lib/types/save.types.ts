@@ -56,6 +56,7 @@ export type ReserveInfo = {
   symbol: string;
   imgSrc: string;
   address: Address;
+  token_address: Address;
   decimals: number;
   supplyCap: bigint;
   supply: bigint;

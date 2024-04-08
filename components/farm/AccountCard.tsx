@@ -54,9 +54,7 @@ export function AccountCard({
     const lpApr = 0.089;
     const lpApy = getPoolAPY(undefined, lpApr);
 
-    const tokensUn = getTokensSymbol(userCollateralsInfo);
-
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, userCollateralsInfo);
 
     const borrowBalances = getPairBorrowBalances(
         collateralPrice?.debts,
@@ -64,7 +62,7 @@ export function AccountCard({
         pairReservesInfosUn.reserveInfoTokenB
     );
 
-    const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, tokensUn);
+    const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, userCollateralsInfo);
 
     let loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
     let loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
@@ -72,7 +70,7 @@ export function AccountCard({
     const priceLoan = loanAUSD + loanBUSD;
 
     const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-        getPairBorrowApy(reservesInfo, tokensUn);
+        getPairBorrowApy(reservesInfo, userCollateralsInfo);
 
     const borrowApy = getBorrowAPY(
         tokensUSDPrices,

@@ -1,0 +1,1 @@
+ALTER TABLE "pool" ADD COLUMN "decimals" integer DEFAULT 18 NOT NULL;

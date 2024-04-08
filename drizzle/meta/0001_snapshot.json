@@ -1,0 +1,505 @@
+{
+  "id": "46c9dd6f-dc29-452b-918e-78a579061a3f",
+  "prevId": "731ebb7b-3c4c-43d0-86cf-773134a3f211",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "analytics": {
+      "name": "analytics",
+      "schema": "",
+      "columns": {
+        "id_analytics": {
+          "name": "id_analytics",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_pool": {
+          "name": "id_pool",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity_token_0": {
+          "name": "quantity_token_0",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity_token_1": {
+          "name": "quantity_token_1",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity_token_lp": {
+          "name": "quantity_token_lp",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_token_0": {
+          "name": "volume_token_0",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_token_1": {
+          "name": "volume_token_1",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mrm": {
+          "name": "mrm",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volatility_score": {
+          "name": "volatility_score",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lrm": {
+          "name": "lrm",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "liquidity_score": {
+          "name": "liquidity_score",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_apy_1d": {
+          "name": "lp_apy_1d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_vs_hold_apy_1d": {
+          "name": "lp_vs_hold_apy_1d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_apy_1d": {
+          "name": "fee_apy_1d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "il_apy_1d": {
+          "name": "il_apy_1d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hold_apy_1d": {
+          "name": "hold_apy_1d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_apy_1m": {
+          "name": "lp_apy_1m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_vs_hold_apy_1m": {
+          "name": "lp_vs_hold_apy_1m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_apy_1m": {
+          "name": "fee_apy_1m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "il_apy_1m": {
+          "name": "il_apy_1m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hold_apy_1m": {
+          "name": "hold_apy_1m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_apy_3m": {
+          "name": "lp_apy_3m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_vs_hold_apy_3m": {
+          "name": "lp_vs_hold_apy_3m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_apy_3m": {
+          "name": "fee_apy_3m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "il_apy_3m": {
+          "name": "il_apy_3m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hold_apy_3m": {
+          "name": "hold_apy_3m",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_apy_1y": {
+          "name": "lp_apy_1y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lp_vs_hold_apy_1y": {
+          "name": "lp_vs_hold_apy_1y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fee_apy_1y": {
+          "name": "fee_apy_1y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "il_apy_1y": {
+          "name": "il_apy_1y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hold_apy_1y": {
+          "name": "hold_apy_1y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "analytics_id_pool_pool_id_pool_fk": {
+          "name": "analytics_id_pool_pool_id_pool_fk",
+          "tableFrom": "analytics",
+          "tableTo": "pool",
+          "columnsFrom": [
+            "id_pool"
+          ],
+          "columnsTo": [
+            "id_pool"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "blockchain": {
+      "name": "blockchain",
+      "schema": "",
+      "columns": {
+        "id_blockchain": {
+          "name": "id_blockchain",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "blockchain_name": {
+          "name": "blockchain_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "blockchain_type": {
+          "name": "blockchain_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_id": {
+          "name": "chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "dex": {
+      "name": "dex",
+      "schema": "",
+      "columns": {
+        "id_dex": {
+          "name": "id_dex",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dex_name": {
+          "name": "dex_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dex_type": {
+          "name": "dex_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "pool": {
+      "name": "pool",
+      "schema": "",
+      "columns": {
+        "id_pool": {
+          "name": "id_pool",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pool_address": {
+          "name": "pool_address",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pool_fee": {
+          "name": "pool_fee",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pool_creation_date": {
+          "name": "pool_creation_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token_0": {
+          "name": "id_token_0",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token_1": {
+          "name": "id_token_1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_dex": {
+          "name": "id_dex",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_blockchain": {
+          "name": "id_blockchain",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pool_id_token_0_token_id_token_fk": {
+          "name": "pool_id_token_0_token_id_token_fk",
+          "tableFrom": "pool",
+          "tableTo": "token",
+          "columnsFrom": [
+            "id_token_0"
+          ],
+          "columnsTo": [
+            "id_token"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pool_id_token_1_token_id_token_fk": {
+          "name": "pool_id_token_1_token_id_token_fk",
+          "tableFrom": "pool",
+          "tableTo": "token",
+          "columnsFrom": [
+            "id_token_1"
+          ],
+          "columnsTo": [
+            "id_token"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pool_id_dex_dex_id_dex_fk": {
+          "name": "pool_id_dex_dex_id_dex_fk",
+          "tableFrom": "pool",
+          "tableTo": "dex",
+          "columnsFrom": [
+            "id_dex"
+          ],
+          "columnsTo": [
+            "id_dex"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pool_id_blockchain_blockchain_id_blockchain_fk": {
+          "name": "pool_id_blockchain_blockchain_id_blockchain_fk",
+          "tableFrom": "pool",
+          "tableTo": "blockchain",
+          "columnsFrom": [
+            "id_blockchain"
+          ],
+          "columnsTo": [
+            "id_blockchain"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "price": {
+      "name": "price",
+      "schema": "",
+      "columns": {
+        "id_price": {
+          "name": "id_price",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price": {
+          "name": "price",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_currency": {
+          "name": "price_currency",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "price_id_token_token_id_token_fk": {
+          "name": "price_id_token_token_id_token_fk",
+          "tableFrom": "price",
+          "tableTo": "token",
+          "columnsFrom": [
+            "id_token"
+          ],
+          "columnsTo": [
+            "id_token"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "token": {
+      "name": "token",
+      "schema": "",
+      "columns": {
+        "id_token": {
+          "name": "id_token",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "token_name": {
+          "name": "token_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_symbol": {
+          "name": "token_symbol",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_address": {
+          "name": "token_address",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_decimals": {
+          "name": "token_decimals",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_id": {
+          "name": "chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

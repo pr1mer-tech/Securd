@@ -33,7 +33,7 @@ export default function PoolDetails() {
 
     const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 
-    const pairReservesInfos = getPairReservesInfos(reservesInfo, tokens);
+    const pairReservesInfos = getPairReservesInfos(reservesInfo, collateralInfo);
     const lendingPoolA = getDepositBalance(pairReservesInfos.reserveInfoTokenA);
     const liquidityA = getPoolLiquidity(pairReservesInfos.reserveInfoTokenA);
     const loanA = (bigIntToDecimal(lendingPoolA, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityA, pairReservesInfos.reserveInfoTokenA?.decimals) ?? 0);
@@ -43,7 +43,7 @@ export default function PoolDetails() {
     const loanB = (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityB, pairReservesInfos.reserveInfoTokenB?.decimals) ?? 0);
     const utilizationB = loanB / (bigIntToDecimal(lendingPoolB, collateralInfo?.decimals) ?? 0);
     const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-        getPairBorrowApy(reservesInfo, tokens);
+        getPairBorrowApy(reservesInfo, collateralInfo);
 
     return <>
         <h2 className="text-2xl font-bold text-primary mt-4">Pool Details</h2>

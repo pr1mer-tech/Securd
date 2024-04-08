@@ -1,5 +1,5 @@
 import { MAIN_ERRORS } from "../errors/main.errors";
-import { Address, formatEther } from "viem";
+import { Address, formatEther, isAddressEqual } from "viem";
 import { toast } from "sonner"
 
 
@@ -115,3 +115,15 @@ export const getDepositAmountBigInt = (
     throw new Error("bigIntToDecimal failed : " + error);
   }
 };
+
+
+export const isEqualAddress = (address1?: Address, address2?: Address) => {
+  if (
+    typeof address1 === "string"
+    && typeof address2 === "string"
+    && address1.length === address2.length
+    && address1.length === 42) {
+    return isAddressEqual(address1, address2);
+  }
+  return false;
+}

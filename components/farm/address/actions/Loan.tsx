@@ -37,7 +37,7 @@ export default function Loan() {
 
     const tokens = getTokensSymbol(collateralInfo);
 
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokens);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);
 
     const borrowBalances = getPairBorrowBalances(
         collateralAmountPrice?.debts,

@@ -8,6 +8,27 @@
       "when": 1712364179401,
       "tag": "0000_windy_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1712533596169,
+      "tag": "0001_aspiring_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1712548673468,
+      "tag": "0002_numerous_lord_hawal",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1712550684136,
+      "tag": "0003_gifted_mad_thinker",
+      "breakpoints": true
     }
   ]
 }
