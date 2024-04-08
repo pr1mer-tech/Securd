@@ -37,6 +37,8 @@ export default function Collateral() {
     const config = useConfig();
     const [pipeline, nextStep, resetPipeline, setPipeline] = useValueEffect<CollateralPipelineState>(lockPipelineState);
 
+    const max = (a: bigint, b: bigint) => a > b ? a : b;
+
     useEffect(() => {
         if (collateralInfo && collateralAmountPrice) {
             const price = bigIntToDecimal(collateralAmountPrice.collateralAmount, collateralInfo.decimals);
@@ -79,7 +81,8 @@ export default function Collateral() {
                     />
                     <SecurdFormat
                         className="text-sm inline text-secondary"
-                        value={bigIntToDecimal((userBalance ?? 0n) * (collateralAmountPrice?.collateralValue ?? 0n) / (collateralAmountPrice?.collateralAmount ?? 1n), collateralInfo?.decimals)}
+                        value={bigIntToDecimal((userBalance ?? 0n) * (collateralAmountPrice?.collateralValue ?? 0n)
+                            / max((collateralAmountPrice?.collateralAmount ?? 1n), 1n), collateralInfo?.decimals)}
                         prefix="$"
                         decimals={0}
                     />
