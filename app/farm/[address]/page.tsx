@@ -5,9 +5,27 @@ import FarmAddressTitle from "./FarmAddressTitle";
 import InfoAddressCard from "@/components/farm/address/InfoAddressCard";
 import { Address } from "viem";
 import PoolDetails from "@/components/farm/address/PoolDetails";
+import { db } from "@/db/db";
+import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
-export default function FarmAddress({ params }: { params: { address: Address } }) {
-    return <FarmAddressSync address={params.address}>
+export default async function FarmAddress({ params, searchParams }: { params: { address: Address }; searchParams: { [key: string]: string | string[] | undefined } }) {
+    const chain = typeof searchParams["chain"] === "string" ? searchParams["chain"] : "1"
+    const token = await db.query.pool.findFirst({
+        where: (row, { eq }) => eq(row.pool_address, params.address),
+        with: {
+            token_0: true,
+            token_1: true,
+            dex: true,
+            blockchain: true
+        }
+    });
+
+    const reservesInfo = await Promise.all([
+        tokenToReserveInfo(token?.token_0, token?.blockchain),
+        tokenToReserveInfo(token?.token_1, token?.blockchain)
+    ]);
+
+    return <FarmAddressSync address={params.address} pool={token} preReservesInfo={reservesInfo} chainId={chain}>
         <Link href="/farm" className="absolute left-5 top-5 text-white text-lg flex flex-row gap-2 items-center font-poppins hover:scale-110">
             <ArrowLeft className="w-6 h-6" />
             Back

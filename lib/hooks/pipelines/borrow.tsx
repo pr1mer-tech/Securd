@@ -10,7 +10,7 @@ import { CollateralInfos } from "@/lib/types/farm.types";
 import { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
-import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import { bigIntToDecimal, isEqualAddress } from "@/lib/helpers/main.helpers";
 import { formatPCTFactor, securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import { ArrowRight } from "lucide-react";
 import PairIcon from "@/components/farm/PairIcon";
@@ -114,12 +114,10 @@ export function borrow(
         const borrowerLt = useFarmAddressStore.getState().borrowerLt;
         const leverage = useFarmAddressStore.getState().leverage();
 
-        const tokensUn = getTokensSymbol(collateralInfo);
+        const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
-        const tokensUSDPrices = getPairPrice(coinPrices, tokens, tokensUn);
-
-        const debt0 = parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) + (selectedAsset.symbol === tokens[0].symbol ? amount : 0n);
-        const debt1 = parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) + (selectedAsset.symbol === tokens[1].symbol ? amount : 0n);
+        const debt0 = parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) + (isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n);
+        const debt1 = parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) + (isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n);
 
         const adjustedPriceA = debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
         const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));

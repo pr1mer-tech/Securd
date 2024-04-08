@@ -115,9 +115,8 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         return getMaxLpApy(maxLeverage, borrowLpApy, lpApy);
     },
     borrowApy: () => {
-        const tokensUn = getTokensSymbol(get().collateralInfo);
         const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-            getPairBorrowApy(get().reservesInfo, tokensUn);
+            getPairBorrowApy(get().reservesInfo, get().collateralInfo);
 
         const borrowBalances = get().borrowBalances();
         const tokensUSDPrices = get().tokensUSDPrices();
@@ -133,9 +132,8 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         return borrowApy;
     },
     totalBorrowApy: () => {
-        const tokensUn = getTokensSymbol(get().collateralInfo);
         const { apyA: borrowPoolAPYA, apyB: borrowPoolAPYB } =
-            getPairBorrowApy(get().reservesInfo, tokensUn);
+            getPairBorrowApy(get().reservesInfo, get().collateralInfo);
 
         return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
     },
@@ -148,13 +146,12 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
         const buffer = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.buffer, get().collateralInfo?.decimals || 18) ?? 0.1;
 
-        const tokensUn = getTokensSymbol(get().collateralInfo);
-        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
+        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, get().collateralInfo);
 
         const ltokenPriceA = getLtokenprice(pairReservesInfosUn.reserveInfoTokenA) ?? 0;
         const ltokenPriceB = getLtokenprice(pairReservesInfosUn.reserveInfoTokenB) ?? 0;
 
-        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
+        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, get().collateralInfo);
 
         const collateralA = bigIntToDecimal(get().collateralProportions?.proportions.tokenB, pairReservesInfosUn.reserveInfoTokenB?.decimals) ?? 0;
 
@@ -181,8 +178,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         return bigIntToDecimal(state.collateralAmountPrice?.leverageFactor, state.collateralInfo?.decimals || 18);
     },
     borrowBalances: () => {
-        const tokensUn = getTokensSymbol(get().collateralInfo);
-        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, tokensUn);
+        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, get().collateralInfo);
 
         const borrowBalances = getPairBorrowBalances(
             get().collateralAmountPrice?.debts,
@@ -194,7 +190,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
     },
     tokensUSDPrices: () => {
         const tokensUn = getTokensSymbol(get().collateralInfo);
-        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, tokensUn);
+        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, get().collateralInfo);
         return tokensUSDPrices;
     },
     accountBalance: () => {

@@ -29,7 +29,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
             break;
     }
 
-    return <Card className="w-full">
+    return <Card className="w-full pl-1 pr-4">
         <MenuTabsContent value="pool">
             <AreaChart
                 className="h-60"
@@ -44,7 +44,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                 index="date"
                 categories={["Price in USD"]}
                 valueFormatter={dataFormatter}
-                yAxisWidth={60}
+                yAxisWidth={90}
             />
             <AreaChart
                 className="h-60"
@@ -59,7 +59,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                 index="date"
                 categories={["Volume"]}
                 valueFormatter={dataFormatter}
-                yAxisWidth={60}
+                yAxisWidth={90}
             />
         </MenuTabsContent>
         <MenuTabsContent value="apy">
@@ -75,7 +75,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                         const quantity = 100 / (poolInfo.token_0?.prices?.[0].price ?? 0);
                         acc.push({
                             date: info.date?.toDateString() ?? "",
-                            LP: acc[acc.length - 1]?.lp ?? 0 * (1 + (info.lp_apy_1d ?? 0) / 100),
+                            LP: acc[acc.length - 1]?.LP ?? 0 * (1 + (info.lp_apy_1d ?? 0) / 100),
                             HODL: price ? quantity * price : 0
                         });
                         return acc;
@@ -87,7 +87,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                 index="date"
                 categories={['LP', 'HODL']}
                 valueFormatter={dataFormatter}
-                yAxisWidth={60}
+                yAxisWidth={90}
             />
             <AreaChart
                 className="h-60"
@@ -106,7 +106,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                 index="date"
                 categories={["Fee", "IL", "Interest"]}
                 valueFormatter={dataFormatter}
-                yAxisWidth={60}
+                yAxisWidth={90}
             />
         </MenuTabsContent>
     </Card>

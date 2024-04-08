@@ -5,9 +5,21 @@ import SaveAddressTitle from "./SaveAddressTitle";
 import InfoAddressCard from "@/components/save/address/InfoAddressCard";
 import { Address } from "viem";
 import PoolDetails from "@/components/save/address/PoolDetails";
+import { db } from "@/db/db";
+import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
-export default function SaveAddress({ params }: { params: { address: Address } }) {
-    return <SaveAddressSync address={params.address}>
+export default async function SaveAddress({ params, searchParams }: { params: { address: Address }; searchParams: { [key: string]: string | string[] | undefined } }) {
+    const chain = typeof searchParams["chain"] === "string" ? searchParams["chain"] : "1"
+    const token = await db.query.token.findFirst({
+        where: (row, { eq }) => eq(row.token_address, params.address),
+        with: {
+            blockchain: true
+        }
+    });
+
+    const reservesInfo = await tokenToReserveInfo(token, token?.blockchain);
+
+    return <SaveAddressSync address={params.address} preReservesInfo={[reservesInfo]} chainId={chain}>
         <Link href="/save" className="absolute left-5 top-5 text-white text-lg flex flex-row gap-2 items-center font-poppins hover:scale-110">
             <ArrowLeft className="w-6 h-6" />
             Back

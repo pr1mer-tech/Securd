@@ -22,9 +22,8 @@ export default function AccountBalance() {
     const reservesInfo = useFarmAddressStore.use.reservesInfo?.();
     const coinPrices = useFarmAddressStore.use.coinPrices?.();
     const collateralProportions = useFarmAddressStore.use.collateralProportions?.();
-    const tokensUn = getTokensSymbol(collateralInfo);
 
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);
 
     const borrowBalances = getPairBorrowBalances(
         collateralAmountPrice?.debts,
@@ -32,7 +31,7 @@ export default function AccountBalance() {
         pairReservesInfosUn.reserveInfoTokenB
     );
 
-    const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, tokensUn);
+    const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, collateralInfo);
 
     let loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
     let loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;

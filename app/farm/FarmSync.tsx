@@ -1,6 +1,8 @@
 "use client";
 
+import { Blockchain, Dex, Pool, Token } from "@/db/schema";
 import { useFarmStore } from "@/lib/data/farmStore";
+import useChainURL from "@/lib/hooks/useChain";
 import useBorrowerLt from "@/lib/hooks/wagmiSH/viewFunctions/farm/useBorrowerLt";
 import useCollateralAmountPrice from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import useCollateralPool from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralPool";
@@ -8,13 +10,29 @@ import useCollateralPoolBalances from "@/lib/hooks/wagmiSH/viewFunctions/farm/us
 import useGetCollateralProportions from "@/lib/hooks/wagmiSH/viewFunctions/farm/useGetCollateralProportions";
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
+import { ReserveInfo } from "@/lib/types/save.types";
 import { useEffect } from "react";
 
-export default function FarmSync({ children }: { children: React.ReactNode }) {
-    const { reservesInfo } = useLendingPool();
+export default function FarmSync({
+    children,
+    preReservesInfo,
+    pools,
+    chainId
+}: {
+    children: React.ReactNode,
+    preReservesInfo: ReserveInfo[],
+    pools: (Pool & {
+        token_0: Token | null,
+        token_1: Token | null,
+        dex: Dex | null
+    })[],
+    chainId: string | undefined,
+}) {
+    useChainURL(chainId)
+    const { reservesInfo } = useLendingPool(preReservesInfo);
     const coinPrices = useAssetPriceOracle(reservesInfo);
 
-    const collateralsInfos = useCollateralPool();
+    const collateralsInfos = useCollateralPool(pools);
     const collateralAmountPrice = useCollateralAmountPrice(collateralsInfos);
     const borrowerLt = useBorrowerLt(collateralsInfos, collateralAmountPrice);
 

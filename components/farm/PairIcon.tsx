@@ -46,11 +46,11 @@ export default function PairIcon({
     symbol?: boolean;
     size?: "tiny" | "small" | "normal" | "large";
 }) {
-    const tokensUn = getTokensSymbol(userCollateralsInfo);
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokensUn);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, userCollateralsInfo);
 
     if (!pairReservesInfosUn.reserveInfoTokenA || !pairReservesInfosUn.reserveInfoTokenB) {
-        return <Skeleton className="w-8 h-6" />
+        return userCollateralsInfo?.token_0
+        //<Skeleton className="w-8 h-6" />
     }
 
     // Define size mappings for width and height

@@ -23,9 +23,7 @@ export default function Leverage() {
     const userBalance = useFarmAddressStore.use.userBalance?.();
     const coinsPrices = useFarmAddressStore.use.coinPrices?.();
 
-    const tokens = getTokensSymbol(collateralInfo);
-
-    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, tokens);
+    const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);
 
     const borrowBalances = getPairBorrowBalances(
         collateralAmountPrice?.debts,

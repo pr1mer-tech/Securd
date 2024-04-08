@@ -3,14 +3,13 @@ import { BaseError, erc20Abi, parseUnits } from "viem";
 import { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
 import { Effect } from "./useValueEffect";
-import { SavePipelineState, savePipelineState } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { CollateralPipelineState, repayPipelineState } from "./CollateralPipelineState";
 import { CollateralInfos } from "@/lib/types/farm.types";
 import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
-import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import { bigIntToDecimal, isEqualAddress } from "@/lib/helpers/main.helpers";
 import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import Image from "next/image";
 import PairIcon from "@/components/farm/PairIcon";
@@ -49,7 +48,7 @@ export function repay(
 
         // Check if we need to approve the token
         const account = getAccount(config);
-        const userBalance = tokens[0].address === selectedAsset.address ? borrowBalance.borrowBalanceA : borrowBalance.borrowBalanceB;
+        const userBalance = isEqualAddress(tokens[0].address, selectedAsset.address) ? borrowBalance.borrowBalanceA : borrowBalance.borrowBalanceB;
         if (!account.address || amount <= 0n || parseUnits(userBalance.toString(), selectedAsset.decimals) < amount) {
             yield repayPipelineState;
             return // Restart the pipeline
@@ -177,10 +176,10 @@ export function repay(
 
         const tokensUn = getTokensSymbol(collateralInfo);
 
-        const tokensUSDPrices = getPairPrice(coinPrices, tokens, tokensUn);
+        const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
-        const debt0 = parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) - (selectedAsset.symbol === tokens[0].symbol ? amount : 0n);
-        const debt1 = parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) - (selectedAsset.symbol === tokens[1].symbol ? amount : 0n);
+        const debt0 = parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) - (isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n);
+        const debt1 = parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) - (isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n);
 
         const adjustedPriceA = debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
         const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
