@@ -12,6 +12,10 @@ import { AreaChart, Color } from '@tremor/react';
 const dataFormatter = (number: number) =>
     `$${securdFormat(number, 2)}`;
 
+// toReverse Polyfill
+Array.prototype.toReversed = function () {
+    return this.slice().reverse();
+};
 
 export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
     const timeRange = useAnalyticsAddressStore.use.timeRange();
