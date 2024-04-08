@@ -36,7 +36,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                 colors={[
                     "#E8A029",
                 ]}
-                data={poolInfo.token_0?.prices?.filter((price) => price.date && price.date >= limitDate)
+                data={poolInfo?.token_0?.prices?.filter((price) => price.date && price.date >= limitDate)
                     .map((info) => ({
                         date: info.date?.toDateString(),
                         "Price in USD": info.price
@@ -48,7 +48,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
             />
             <AreaChart
                 className="h-60"
-                data={poolInfo.analytics?.filter((info) => info.date && info.date >= limitDate)
+                data={poolInfo?.analytics?.filter((info) => info.date && info.date >= limitDate)
                     .map((info) => ({
                         date: info.date?.toDateString(),
                         Volume: (info.volume_token_0 ?? 0) + (info.volume_token_1 ?? 0)
@@ -69,7 +69,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                     "#0B4B48",
                     "#E95A4C"
                 ]}
-                data={poolInfo.analytics?.filter((info) => info.date && info.date >= limitDate)
+                data={poolInfo?.analytics?.filter((info) => info.date && info.date >= limitDate)
                     .reduce((acc, info) => {
                         const price = poolInfo.token_0?.prices?.find((price) => price.date?.toDateString() === info.date?.toDateString())?.price;
                         const quantity = 100 / (poolInfo.token_0?.prices?.[0].price ?? 0);
@@ -96,7 +96,7 @@ export default function Graphs({ poolInfo, className }: { poolInfo: PoolDetails,
                     "#0B4B48",
                     "#E8A029"
                 ]}
-                data={poolInfo.analytics?.filter((info) => info.date && info.date >= limitDate)
+                data={poolInfo?.analytics?.filter((info) => info.date && info.date >= limitDate)
                     .map((info) => ({
                         date: info.date?.toDateString(),
                         Fee: info.fee_apy_1d,
