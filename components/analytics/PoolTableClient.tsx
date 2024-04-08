@@ -9,6 +9,7 @@ import PercentageFormat from "../utils/PercentageFormat";
 import PairIcon from "../farm/PairIcon";
 import { ReserveInfo } from "@/lib/types/save.types";
 import { PoolTableRows, analyticsToCollateralInfo, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import { ColorCircle } from "../farm/AccountCard";
 
 const columns: ColumnDef<PoolTableRows>[] = [
     {
@@ -35,6 +36,7 @@ const columns: ColumnDef<PoolTableRows>[] = [
         id: "score",
         accessorFn: (row: PoolTableRows) => row.liquidity_score,
         header: "Score",
+        cell: ({ row }) => <ColorCircle colorRisk={row.getValue("score") ?? 0} />
     },
     {
         id: "apy",
