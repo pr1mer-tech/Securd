@@ -35,7 +35,7 @@ export function AccountTable({
                 </TableCell>
                 <TableCell className="font-bold">
                     <Tooltip>
-                        <TooltipTrigger>{securdFormat(userDepositBalanceNumber, 3)}</TooltipTrigger>
+                        <TooltipTrigger>{securdFormat(userDepositBalanceNumber, 2)}</TooltipTrigger>
                         <TooltipContent>
                             {userDepositBalanceNumber}
                         </TooltipContent>
@@ -52,7 +52,7 @@ export function AccountTable({
                 </TableCell>
                 <TableCell>
                     <Tooltip>
-                        <TooltipTrigger>{securdFormat(userDepositNumber, 3)}</TooltipTrigger>
+                        <TooltipTrigger>{securdFormat(userDepositNumber, 2)}</TooltipTrigger>
                         <TooltipContent>
                             {userDepositNumber}
                         </TooltipContent>
@@ -69,7 +69,7 @@ export function AccountTable({
                 </TableCell>
                 <TableCell>
                     <Tooltip>
-                        <TooltipTrigger>{securdFormat(userInterest, 3)}</TooltipTrigger>
+                        <TooltipTrigger>{securdFormat(userInterest, 2)}</TooltipTrigger>
                         <TooltipContent>
                             {userInterest}
                         </TooltipContent>
