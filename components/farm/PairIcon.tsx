@@ -39,12 +39,14 @@ export default function PairIcon({
     reservesInfo,
     symbol = true,
     size = "normal", // Default size is set to "normal" if not provided
+    swapDirection = false,
 }: {
     className?: string;
     userCollateralsInfo: CollateralInfos;
     reservesInfo?: ReserveInfo[];
     symbol?: boolean;
     size?: "tiny" | "small" | "normal" | "large";
+    swapDirection?: boolean;
 }) {
     const pairReservesInfosUn = getPairReservesInfos(reservesInfo, userCollateralsInfo);
 
@@ -69,16 +71,16 @@ export default function PairIcon({
                 <div className="relative flex items-center">
                     <Image
                         className="rounded-full"
-                        src={pairReservesInfosUn.reserveInfoTokenA?.imgSrc}
-                        alt={pairReservesInfosUn.reserveInfoTokenA?.symbol}
+                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.imgSrc : pairReservesInfosUn.reserveInfoTokenA?.imgSrc}
+                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.symbol : pairReservesInfosUn.reserveInfoTokenA?.symbol}
                         width={width}
                         height={height}
                         onError={(e) => console.error(e)}
                     />
                     <Image
                         className="rounded-full -ml-2 border-2 border-white bg-white"
-                        src={pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
-                        alt={pairReservesInfosUn.reserveInfoTokenB?.symbol}
+                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
+                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.symbol : pairReservesInfosUn.reserveInfoTokenB?.symbol}
                         width={width}
                         height={height}
                         onError={(e) => console.error(e)}
@@ -90,7 +92,7 @@ export default function PairIcon({
                         height={height / 2} // Adjust DexIcon size based on the parent size
                     />
                 </div>
-                {symbol && userCollateralsInfo.symbol}
+                {symbol && swapDirection ? userCollateralsInfo.symbol : userCollateralsInfo.symbol.split("/").reverse().join("/")}
             </div>
         </TooltipTrigger>
         <TooltipContent className="font-bold">

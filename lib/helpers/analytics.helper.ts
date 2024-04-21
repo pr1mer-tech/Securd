@@ -21,7 +21,9 @@ export type PoolDetails = Pool & {
     token_0: Token & {
         prices: Price[] | null;
     } | null;
-    token_1: Token | null;
+    token_1: Token & {
+        prices: Price[] | null;
+    } | null;
 } | null;
 
 export const analyticsToCollateralInfo = (pool: Pool & {

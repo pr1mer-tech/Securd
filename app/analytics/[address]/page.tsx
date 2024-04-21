@@ -39,7 +39,14 @@ export default async function AnalyticsAddress({ params }: { params: { address: 
                     }
                 }
             },
-            token_1: true,
+            token_1: {
+                with: {
+                    prices: {
+                        orderBy: (row, { desc }) => [desc(row.date)],
+                        where: (row, { gte }) => gte(row.date, limitDate),
+                    }
+                }
+            }
         }
     });
 
@@ -61,16 +68,16 @@ export default async function AnalyticsAddress({ params }: { params: { address: 
         <div className="max-w-7xl mx-auto pt-8 px-4">
             <h1 className="font-poppins text-4xl text-white mt-8">Pool Details</h1>
             <Card className="mt-4 p-4">
-                <div className="text-center flex flex-row justify-center gap-4">
+                <MenuTabs defaultValue="pool" className="text-center flex flex-row justify-center gap-4">
                     <div className="flex flex-col basis-1/3 gap-4">
                         <InfoCard poolInfo={poolInfo} className="" />
                         <Rates poolInfo={poolInfo} className="" />
                     </div>
-                    <MenuTabs defaultValue="pool" className="flex flex-col gap-4 basis-2/3">
+                    <div className="flex flex-col gap-4 basis-2/3">
                         <QuickView poolInfo={poolInfo} />
                         <Graphs poolInfo={poolInfo} />
-                    </MenuTabs>
-                </div>
+                    </div>
+                </MenuTabs>
             </Card>
         </div>
     </>

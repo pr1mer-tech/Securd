@@ -10,10 +10,12 @@ import {
     TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import SecurdFormat from "@/components/utils/SecurdFormat";
+import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
+import { ArrowRightLeft } from "lucide-react";
 
 export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
     const userCollateralInfo = analyticsToCollateralInfo(poolInfo, poolInfo?.analytics?.[0] ?? null);
-
+    const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
     return <Card className={cn("p-4 w-full", className)}>
         <Table className="text-center">
             <TableHeader>
@@ -21,8 +23,9 @@ export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetail
                     <TableHead className="font-bold pl-0 text-center border-r">
                         Pool
                     </TableHead>
-                    <TableCell className="font-bold text-center">
-                        <PairIcon reservesInfo={poolInfo?.reservesInfo} userCollateralsInfo={userCollateralInfo} size="small" className="w-36" />
+                    <TableCell className="font-bold text-center flex items-center" onClick={() => useAnalyticsAddressStore.setState((state) => ({ tokenDirection: !state.tokenDirection }))}>
+                        <PairIcon reservesInfo={poolInfo?.reservesInfo} userCollateralsInfo={userCollateralInfo} size="small" className="w-36" swapDirection={tokenDirection} />
+                        <ArrowRightLeft className="ml-1 w-4 h-4 text-gray-400 cursor-pointer" />
                     </TableCell>
                 </TableRow>
             </TableHeader>
