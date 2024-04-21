@@ -1,3 +1,5 @@
+export const revalidate = 3600 // revalidate at most every hour
+
 export default function AnalyticsLayout({ children }: {
     children: React.ReactNode
 }) {

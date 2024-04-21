@@ -12,6 +12,17 @@ import { useState } from "react";
 
 export default function QuickView({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
     const timeRange = useAnalyticsAddressStore.use.timeRange();
+    const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
+
+    const handlePriceClick = () => {
+        useAnalyticsAddressStore.setState({ tokenDirection: !tokenDirection });
+    };
+
+    const qToken0 = (poolInfo?.analytics?.[0]?.quantity_token_0 ?? 0) / (poolInfo?.analytics?.[0]?.quantity_token_lp ?? 0);
+    const qToken1 = (poolInfo?.analytics?.[0]?.quantity_token_1 ?? 0) / (poolInfo?.analytics?.[0]?.quantity_token_lp ?? 0);
+
+    const tvl = qToken0 * (poolInfo?.token_0?.prices?.[0]?.price ?? 0) ?? 0 + qToken1 * (poolInfo?.token_1?.prices?.[0]?.price ?? 0) ?? 0;
+
     return <Card className="p-4">
         <div className="flex justify-between">
             <MenuTabsList className="h-[3.25rem]">
@@ -21,21 +32,21 @@ export default function QuickView({ poolInfo, className }: { poolInfo: PoolDetai
 
             <Tabs value={timeRange} onValueChange={(value) => useAnalyticsAddressStore.setState({ timeRange: (value as "1m" | "3m" | "1y") })}>
                 <TabsList>
-                    <TabsTrigger value="1m">1M</TabsTrigger>
-                    <TabsTrigger value="3m">3M</TabsTrigger>
+                    <TabsTrigger value="1m">1m</TabsTrigger>
+                    <TabsTrigger value="3m">3m</TabsTrigger>
                     <TabsTrigger value="1y">1y</TabsTrigger>
                 </TabsList>
             </Tabs>
         </div>
         <MenuTabsContent value="pool" className="flex flex-row items-center">
             <div className="flex flex-row justify-evenly items-center w-full mt-8">
-                <div className="text-center">
-                    <h2 className="text-xl font-bold">Price {poolInfo?.token_0?.token_symbol} in {poolInfo?.token_1?.token_symbol}</h2>
-                    <SecurdFormat value={(poolInfo?.analytics?.[0].quantity_token_1 ?? 0) / (poolInfo?.analytics?.[0].quantity_token_0 ?? 0)} />
+                <div className="text-center cursor-pointer select-none" onClick={handlePriceClick}>
+                    <h2 className="text-xl font-bold">Price {tokenDirection ? poolInfo?.token_0?.token_symbol : poolInfo?.token_1?.token_symbol} / {tokenDirection ? poolInfo?.token_1?.token_symbol : poolInfo?.token_0?.token_symbol}</h2>
+                    <SecurdFormat value={tokenDirection ? (poolInfo?.analytics?.[0].quantity_token_1 ?? 0) / (poolInfo?.analytics?.[0].quantity_token_0 ?? 0) : (poolInfo?.analytics?.[0].quantity_token_0 ?? 0) / (poolInfo?.analytics?.[0].quantity_token_1 ?? 0)} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">TVL</h2>
-                    <SecurdFormat value={(poolInfo?.analytics?.[0].volume_token_0 ?? 0) + (poolInfo?.analytics?.[0].volume_token_1 ?? 0)} />
+                    <SecurdFormat value={tvl} />
                 </div>
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Volume (24h)</h2>

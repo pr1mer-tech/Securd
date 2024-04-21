@@ -1,6 +1,5 @@
 import { relations } from 'drizzle-orm';
 import { serial, varchar, integer, numeric, date, doublePrecision, pgTable } from 'drizzle-orm/pg-core';
-import { uint256 } from './uint256';
 
 export const blockchain = pgTable('blockchain', {
     id_blockchain: serial('id_blockchain').primaryKey(),
