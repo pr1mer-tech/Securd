@@ -8,8 +8,12 @@ export type PoolTableRows = Analytics & {
         reservesInfo: ReserveInfo[];
         blockchain: Blockchain | null;
         dex: Dex | null;
-        token_0: Token | null;
-        token_1: Token | null;
+        token_0: Token & {
+            prices: Price[] | null;
+        } | null;
+        token_1: Token & {
+            prices: Price[] | null;
+        } | null;
     } | null;
 };
 
@@ -42,7 +46,7 @@ export const analyticsToCollateralInfo = (pool: Pool & {
             buffer: 0n,
             unBalancedLoanThreshold: 0n
         },
-        poolType: pool?.dex?.dex_type as PoolType,
+        poolType: pool?.dex?.dex_name as PoolType,
         symbol: pool?.token_0?.token_symbol + "/" + pool?.token_1?.token_symbol,
         token_0: pool?.token_0?.token_address as `0x${string}`,
         token_1: pool?.token_1?.token_address as `0x${string}`,

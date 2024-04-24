@@ -6,11 +6,11 @@ export const customTooltip = (props: CustomTooltipProps) => {
     const { payload, active, label } = props;
     if (!active || !payload) return null;
     const payloadObj = Object.fromEntries(payload.map((category) => [category.dataKey, category.value]));
-    const lpVsHold = payloadObj["LP"] / payloadObj["HOLD"];
+    const lpVsHold = payloadObj["LP"] - payloadObj["HOLD"];
 
     if (payload.length !== 3) {
         payload.push({
-            dataKey: "LP/HOLD",
+            dataKey: "LP vs HOLD",
             value: lpVsHold,
             color: "#fcd34d"
         });
@@ -44,13 +44,11 @@ export const customTooltip = (props: CustomTooltipProps) => {
                         <p
                             className="font-medium tabular-nums text-right whitespace-nowrap text-tremor-content-emphasis"
                         >
-                            {category.dataKey === "LP/HOLD"
-                                ? <PercentageFormat value={lpVsHold} />
-                                : <SecurdFormat
-                                    value={category.value as number}
-                                    decimals={2}
-                                    prefix="$"
-                                />}
+                            <SecurdFormat
+                                value={category.value as number}
+                                decimals={2}
+                                prefix="$"
+                            />
                         </p>
                     </div>
                 ))}
