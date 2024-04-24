@@ -1,12 +1,37 @@
 import { PERCENTAGE_FACTOR } from "./constants";
 import { getFloor } from "./main.helpers";
 
+function toSuperscript(str: string) {
+  const superscriptMap = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '+': '⁺', '-': '⁻'
+  };
+
+  //@ts-expect-error - Dumb stuff
+  return str.split('').map(char => superscriptMap[char] || char).join('');
+}
+
+
 export const securdFormat = (
   num: number | undefined,
   decimals?: number
 ): string => {
   try {
     if (num !== undefined && num !== null && !isNaN(num)) {
+      if ((num < 1e-3 && num > 0) || (num > -1e-3 && num < 0)) {
+        // Use scientific notation for very small numbers
+        return new Intl.NumberFormat("en-US", {
+          notation: "scientific",
+          minimumFractionDigits: decimals || 0,
+          maximumFractionDigits: decimals || 0,
+        }).format(num)
+          .toLowerCase()
+          .split("e")
+          // Superscript notation
+          .map((v, i) => (i === 0 ? v : toSuperscript(v)))
+          .join("×10");
+      }
       const isBigNumber = num > 9999;
 
       return new Intl.NumberFormat("en-US", {

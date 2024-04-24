@@ -2,6 +2,7 @@ import { db } from "@/db/db";
 import PoolsTableClient from "./PoolTableClient";
 import { PoolTableRows, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 import { ReserveInfo } from "@/lib/types/save.types";
+import { pool, price } from "@/db/schema";
 
 export default async function PoolsTable() {
     const analytics = await db.query.analytics.findMany({
@@ -22,8 +23,22 @@ export default async function PoolsTable() {
                 with: {
                     blockchain: true,
                     dex: true,
-                    token_0: true,
-                    token_1: true,
+                    token_0: {
+                        with: {
+                            prices: {
+                                orderBy: (row, { desc }) => [desc(row.date)],
+                                limit: 1,
+                            }
+                        }
+                    },
+                    token_1: {
+                        with: {
+                            prices: {
+                                orderBy: (row, { desc }) => [desc(row.date)],
+                                limit: 1,
+                            }
+                        }
+                    }
                 }
             }
         }

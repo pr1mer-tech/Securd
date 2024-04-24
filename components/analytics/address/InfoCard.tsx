@@ -12,6 +12,8 @@ import {
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
 import { ArrowRightLeft } from "lucide-react";
+import PercentageFormat from "@/components/utils/PercentageFormat";
+import MrmScore from "../score";
 
 export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetails, className?: string }) {
     const userCollateralInfo = analyticsToCollateralInfo(poolInfo, poolInfo?.analytics?.[0] ?? null);
@@ -38,7 +40,7 @@ export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetail
                         </Help>
                     </TableHead>
                     <TableCell>
-                        <SecurdFormat
+                        <PercentageFormat
                             value={poolInfo?.analytics?.[0]?.volatility_score ?? undefined}
                             decimals={2}
                             className="font-bold ml-2"
@@ -47,17 +49,13 @@ export default function InfoCard({ poolInfo, className }: { poolInfo: PoolDetail
                 </TableRow>
                 <TableRow>
                     <TableHead className="font-bold pl-0 text-center border-r">
-                        Liquidity Score
+                        Volatility Grade
                         <Help>
-                            Liquidity score of the pool
+                            Volatility grade of the pool
                         </Help>
                     </TableHead>
                     <TableCell>
-                        <SecurdFormat
-                            value={poolInfo?.analytics?.[0]?.liquidity_score ?? undefined}
-                            decimals={2}
-                            className="font-bold ml-2"
-                        />
+                        <MrmScore score={poolInfo?.analytics?.[0]?.mrm ?? 0} />
                     </TableCell>
                 </TableRow>
             </TableBody>

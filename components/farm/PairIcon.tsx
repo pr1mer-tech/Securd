@@ -71,16 +71,16 @@ export default function PairIcon({
                 <div className="relative flex items-center">
                     <Image
                         className="rounded-full"
-                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.imgSrc : pairReservesInfosUn.reserveInfoTokenA?.imgSrc}
-                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.symbol : pairReservesInfosUn.reserveInfoTokenA?.symbol}
+                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
+                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.symbol : pairReservesInfosUn.reserveInfoTokenB?.symbol}
                         width={width}
                         height={height}
                         onError={(e) => console.error(e)}
                     />
                     <Image
                         className="rounded-full -ml-2 border-2 border-white bg-white"
-                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.imgSrc : pairReservesInfosUn.reserveInfoTokenB?.imgSrc}
-                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenA?.symbol : pairReservesInfosUn.reserveInfoTokenB?.symbol}
+                        src={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.imgSrc : pairReservesInfosUn.reserveInfoTokenA?.imgSrc}
+                        alt={swapDirection ? pairReservesInfosUn.reserveInfoTokenB?.symbol : pairReservesInfosUn.reserveInfoTokenA?.symbol}
                         width={width}
                         height={height}
                         onError={(e) => console.error(e)}
