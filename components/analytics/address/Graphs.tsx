@@ -3,7 +3,10 @@
 import { Card } from "@/components/ui/card";
 import { MenuTabsContent } from "@/components/ui/menu-tabs";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
-import { type PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
+import {
+	type PoolDetails,
+	PoolTableRows,
+} from "@/lib/helpers/analytics.helper";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import { AreaChart, Color } from "@tremor/react";
@@ -111,8 +114,7 @@ export default function Graphs({
 								[`Price in ${symbol}`]: tokenDirection
 									? (info.quantity_token_1 ?? 0) / (info.quantity_token_0 ?? 0)
 									: (info.quantity_token_0 ?? 0) / (info.quantity_token_1 ?? 0),
-							}))
-							.toReversed() ?? []
+							})) ?? []
 					}
 					index="date"
 					categories={[
@@ -182,8 +184,7 @@ export default function Graphs({
 										: poolInfo?.token_0?.prices?.find(
 												(price) => price.date?.toDateString() === info.date,
 											)?.price ?? 0),
-							}))
-							.toReversed() ?? []
+							})) ?? []
 					}
 					colors={["#0B4B48"]}
 					index="date"
@@ -219,7 +220,7 @@ export default function Graphs({
 					data={LP_HODL({ poolInfo, limitDate, leverage })}
 					index="date"
 					categories={["Fee", "IL", "Interest"]}
-					valueFormatter={(number) => `${securdFormat(number, 2)}$`}
+					valueFormatter={(number) => `$${securdFormat(number, 2)}`}
 					yAxisWidth={90}
 				/>
 			</MenuTabsContent>
@@ -233,11 +234,7 @@ function LP_HODL({
 	leverage,
 }: { poolInfo: PoolDetails; limitDate: Date; leverage: number }) {
 	// Delay is in days
-	const delay = Math.max(
-		(new Date(limitDate).getTime() - new Date().getTime()) /
-			(1000 * 60 * 60 * 24),
-		poolInfo?.analytics?.length ?? 1,
-	);
+	const delay = poolInfo?.analytics?.length ?? 30;
 	// Pour l'instant on suppose que le taux est constant pendant toute la période
 	// ce qui pourra évoluer si on souhaite considerer l'évolution du taux pendant la période
 	const r_0 = 5 / 100;
@@ -250,48 +247,37 @@ function LP_HODL({
 	const amount = 100;
 
 	// fees du dex
-	const fees = Number(poolInfo?.pool_fee ?? "0.003");
+	const fees = Number(poolInfo?.pool_fee ?? "0.3");
 	// les liquidity providers ne récupère que 2 / 3 des fees, le reste est pour le protocole
 	const adj_fees = 2 / 3;
 	// donc il faut faire fees * adj_fees(il faut que j'intègre adj_fees dans la db,
 	// pour l'instant nous n'avons que fees)
 
-	const lastAnalytics = (poolInfo?.analytics?.length ?? 1) - 1;
+	let plp: number[] =
+		poolInfo?.analytics?.map((analytic, i) => {
+			const qToken0 =
+				(analytic?.quantity_token_0 ?? 0) / (analytic?.quantity_token_lp ?? 0);
+			const qToken1 =
+				(analytic?.quantity_token_1 ?? 0) / (analytic?.quantity_token_lp ?? 0);
 
-	const qToken0 =
-		(poolInfo?.analytics?.[lastAnalytics]?.quantity_token_0 ?? 0) /
-		(poolInfo?.analytics?.[lastAnalytics]?.quantity_token_lp ?? 0);
-	const qToken1 =
-		(poolInfo?.analytics?.[lastAnalytics]?.quantity_token_1 ?? 0) /
-		(poolInfo?.analytics?.[lastAnalytics]?.quantity_token_lp ?? 0);
+			const price0 = poolInfo?.token_0?.prices?.[i]?.price ?? 0;
+			const price1 = poolInfo?.token_1?.prices?.[i]?.price ?? 0;
 
-	const lastPrice0 =
-		poolInfo?.token_0?.prices?.find(
-			(price) =>
-				price.date?.toDateString() ===
-				poolInfo?.analytics?.[lastAnalytics]?.date?.toDateString(),
-		)?.price ?? 0;
-	const lastPrice1 =
-		poolInfo?.token_1?.prices?.find(
-			(price) =>
-				price.date?.toDateString() ===
-				poolInfo?.analytics?.[lastAnalytics]?.date?.toDateString(),
-		)?.price ?? 0;
+			const plp = qToken0 * price0 + qToken1 * price1;
+			return plp;
+		}) ?? [];
 
-	const plp = qToken0 * lastPrice0 + qToken1 * lastPrice1;
-	const qty = amount / plp;
-	const clp = qty * plp;
+	const qty = amount / plp[0];
+	plp = plp.map((val) => qty * val);
 
 	const totalVolume =
-		poolInfo?.analytics?.toReversed().map((info) => {
-			const price0 = poolInfo.token_0?.prices?.find(
-				(price) => price.date?.toDateString() === info.date?.toDateString(),
-			)?.price;
+		poolInfo?.analytics?.map((info, i) => {
+			const price0 = poolInfo.token_0?.prices?.[i]?.price;
 
 			return (info.volume_token_0 ?? 0) * (price0 ?? 0);
 		}) ?? [];
 
-	let _fees = totalVolume
+	let _fees: number[] = totalVolume
 		.slice(1)
 		.map(
 			(val, i) =>
@@ -305,28 +291,33 @@ function LP_HODL({
 		return acc;
 	}, [] as number[]);
 
-	const hold =
-		poolInfo?.analytics?.toReversed().map((info) => {
-			const price0 = poolInfo.token_0?.prices?.find(
-				(price) => price.date?.toDateString() === info.date?.toDateString(),
-			)?.price;
-			const price1 = poolInfo.token_1?.prices?.find(
-				(price) => price.date?.toDateString() === info.date?.toDateString(),
-			)?.price;
+	const hold: number[] =
+		poolInfo?.analytics?.map((info, i) => {
+			const qToken0 =
+				(poolInfo?.analytics?.[0]?.quantity_token_0 ?? 0) /
+				(poolInfo?.analytics?.[0]?.quantity_token_lp ?? 0);
+			const qToken1 =
+				(poolInfo?.analytics?.[0]?.quantity_token_1 ?? 0) /
+				(poolInfo?.analytics?.[0]?.quantity_token_lp ?? 0);
+
+			const price0 = poolInfo.token_0?.prices?.[i]?.price;
+			const price1 = poolInfo.token_1?.prices?.[i]?.price;
 
 			return qty * (qToken0 * (price0 ?? 0) + qToken1 * (price1 ?? 0));
 		}) ?? [];
 
-	const il = hold.map((val) => Math.min(-(clp - fees - val), 0)).toReversed();
+	const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
+
+	// console.log(plp, _fees, hold);
 
 	const interest = Array.from(
 		{ length: delay },
 		(_, i) => (-amount * r * i) / 365,
 	);
 	const infos =
-		poolInfo?.analytics
-			?.filter((info) => info.date && info.date >= limitDate)
-			?.toReversed() ?? [];
+		poolInfo?.analytics?.filter(
+			(info) => info.date && info.date >= limitDate,
+		) ?? [];
 
 	const L = leverage ?? 1;
 
@@ -335,7 +326,7 @@ function LP_HODL({
 		LP: hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
 		HOLD: hold[i],
 		// Inverse all the values
-		IL: il[i],
+		IL: L * il[i],
 		Interest: (L - 1) * interest[i],
 		Fee: L * _fees[i],
 	}));

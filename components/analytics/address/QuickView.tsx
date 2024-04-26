@@ -11,7 +11,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
-import { type PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
+import {
+	type PoolDetails,
+	PoolTableRows,
+} from "@/lib/helpers/analytics.helper";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useState } from "react";
 
@@ -22,16 +25,24 @@ export default function QuickView({
 	const timeRange = useAnalyticsAddressStore.use.timeRange();
 	const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
 
+	const lastAnalytics =
+		poolInfo?.analytics?.[poolInfo?.analytics?.length - 1] ?? null;
+
 	const handlePriceClick = () => {
 		useAnalyticsAddressStore.setState({ tokenDirection: !tokenDirection });
 	};
 
-	const qToken0 = poolInfo?.analytics?.[0]?.quantity_token_0 ?? 0;
-	const qToken1 = poolInfo?.analytics?.[0]?.quantity_token_1 ?? 0;
+	const qToken0 = lastAnalytics?.quantity_token_0 ?? 0;
+	const qToken1 = lastAnalytics?.quantity_token_1 ?? 0;
 
 	const tvl =
-		qToken0 * (poolInfo?.token_0?.prices?.[0]?.price ?? 0) ??
-		0 + qToken1 * (poolInfo?.token_1?.prices?.[0]?.price ?? 0) ??
+		qToken0 *
+			(poolInfo?.token_0?.prices?.[poolInfo?.token_0?.prices?.length - 1]
+				?.price ?? 0) ??
+		0 +
+			qToken1 *
+				(poolInfo?.token_1?.prices?.[poolInfo?.token_1?.prices?.length - 1]
+					?.price ?? 0) ??
 		0;
 
 	return (
@@ -80,10 +91,10 @@ export default function QuickView({
 						<SecurdFormat
 							value={
 								tokenDirection
-									? (poolInfo?.analytics?.[0].quantity_token_1 ?? 0) /
-										(poolInfo?.analytics?.[0].quantity_token_0 ?? 0)
-									: (poolInfo?.analytics?.[0].quantity_token_0 ?? 0) /
-										(poolInfo?.analytics?.[0].quantity_token_1 ?? 0)
+									? (lastAnalytics?.quantity_token_1 ?? 0) /
+										(lastAnalytics?.quantity_token_0 ?? 0)
+									: (lastAnalytics?.quantity_token_0 ?? 0) /
+										(lastAnalytics?.quantity_token_1 ?? 0)
 							}
 						/>
 					</div>
@@ -97,11 +108,15 @@ export default function QuickView({
 							prefix="$"
 							value={
 								((tokenDirection
-									? poolInfo?.analytics?.[0].volume_token_1
-									: poolInfo?.analytics?.[0].volume_token_0) ?? 0) *
-								((tokenDirection
-									? poolInfo?.token_1?.prices?.[0]?.price
-									: poolInfo?.token_0?.prices?.[0]?.price) ?? 0)
+									? lastAnalytics?.volume_token_1
+									: lastAnalytics?.volume_token_0) ?? 0) *
+								(tokenDirection
+									? poolInfo?.token_1?.prices?.[
+											poolInfo?.token_1?.prices?.length - 1
+										]?.price ?? 0
+									: poolInfo?.token_0?.prices?.[
+											poolInfo?.token_0?.prices?.length - 1
+										]?.price ?? 0)
 							}
 						/>
 					</div>
@@ -111,7 +126,10 @@ export default function QuickView({
 							prefix="$"
 							value={
 								(poolInfo?.analytics
-									?.slice(0, 7)
+									?.slice(
+										poolInfo?.analytics?.length - 8,
+										poolInfo?.analytics?.length - 1,
+									)
 									.reduce(
 										(acc, curr) =>
 											acc +
@@ -121,8 +139,12 @@ export default function QuickView({
 										0,
 									) ?? 0) *
 								(tokenDirection
-									? poolInfo?.token_1?.prices?.[0]?.price ?? 0
-									: poolInfo?.token_0?.prices?.[0]?.price ?? 0)
+									? poolInfo?.token_1?.prices?.[
+											poolInfo?.token_1?.prices?.length - 1
+										]?.price ?? 0
+									: poolInfo?.token_0?.prices?.[
+											poolInfo?.token_0?.prices?.length - 1
+										]?.price ?? 0)
 							}
 						/>
 					</div>
@@ -133,42 +155,33 @@ export default function QuickView({
 					<div className="text-center">
 						<h2 className="text-xl font-bold">LP APY</h2>
 						<PercentageFormat
-							value={
-								poolInfo?.analytics?.[0]?.[`lp_apy_${timeRange}`] ?? undefined
-							}
+							value={lastAnalytics?.[`lp_apy_${timeRange}`] ?? undefined}
 						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">LP vs Hold APY</h2>
 						<PercentageFormat
 							value={
-								poolInfo?.analytics?.[0]?.[`lp_vs_hold_apy_${timeRange}`] ??
-								undefined
+								lastAnalytics?.[`lp_vs_hold_apy_${timeRange}`] ?? undefined
 							}
 						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">Fee APY</h2>
 						<PercentageFormat
-							value={
-								poolInfo?.analytics?.[0]?.[`fee_apy_${timeRange}`] ?? undefined
-							}
+							value={lastAnalytics?.[`fee_apy_${timeRange}`] ?? undefined}
 						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">IL APY</h2>
 						<PercentageFormat
-							value={
-								poolInfo?.analytics?.[0]?.[`il_apy_${timeRange}`] ?? undefined
-							}
+							value={lastAnalytics?.[`il_apy_${timeRange}`] ?? undefined}
 						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">Hold APY</h2>
 						<PercentageFormat
-							value={
-								poolInfo?.analytics?.[0]?.[`hold_apy_${timeRange}`] ?? undefined
-							}
+							value={lastAnalytics?.[`hold_apy_${timeRange}`] ?? undefined}
 						/>
 					</div>
 				</div>
