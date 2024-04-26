@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Address, useAccount, useContractReads } from "wagmi";
+import { type Address, useAccount, useContractReads } from "wagmi";
 import { abiUSDT } from "../../../constants/abi/abi";
 
 const useBalanceDtoken = (addressDToken: Address) => {

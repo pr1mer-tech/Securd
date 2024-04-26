@@ -1,15 +1,15 @@
-import { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import { collateralPriceContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import { useAccount, useReadContracts } from "wagmi";
-import { CollateralAmountPrice } from "./useCollateralAmountPrice";
-import { Address } from "viem";
+import type { CollateralAmountPrice } from "./useCollateralAmountPrice";
+import type { Address } from "viem";
 import { Proportions } from "lucide-react";
 
 const useGetCollateralProportions = (collateralInfos: CollateralInfos[], collateralAmountPrice: Record<Address, CollateralAmountPrice>) => {
   const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
-    contracts: collateralInfos.map((info) => ([
+    contracts: collateralInfos.flatMap((info) => ([
       {
         ...collateralPriceContract,
         functionName: "getCollateralAmount",
@@ -20,7 +20,7 @@ const useGetCollateralProportions = (collateralInfos: CollateralInfos[], collate
         functionName: "getCollateralPrice",
         args: [info.addressLP],
       }
-    ])).flat() as any,
+    ])) as any,
     query: {
       // enabled: isConnected,
       refetchInterval: 10000,

@@ -3,13 +3,13 @@ import SaveAddressSync from "./SaveAddressSync";
 import { ArrowLeft } from "lucide-react";
 import SaveAddressTitle from "./SaveAddressTitle";
 import InfoAddressCard from "@/components/save/address/InfoAddressCard";
-import { Address } from "viem";
+import type { Address } from "viem";
 import PoolDetails from "@/components/save/address/PoolDetails";
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
 export default async function SaveAddress({ params, searchParams }: { params: { address: Address }; searchParams: { [key: string]: string | string[] | undefined } }) {
-    const chain = typeof searchParams["chain"] === "string" ? searchParams["chain"] : "1"
+    const chain = typeof searchParams.chain === "string" ? searchParams.chain : "1"
     const token = await db.query.token.findFirst({
         where: (row, { eq }) => eq(row.token_address, params.address),
         with: {

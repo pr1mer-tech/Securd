@@ -3,7 +3,7 @@ import { useAccount, useReadContracts } from "wagmi";
 import { assetPriceOracleContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import { weiToEth } from "@/lib/helpers/main.helpers";
 import { AddressZero } from "@/lib/constants/constants";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 
 const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, number> = (reservesInfo) => {
   const { isConnected } = useAccount();
@@ -23,7 +23,7 @@ const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, 
   if (!data) return {} as Record<keyof Coins, number>;
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
-    if (typeof data[index].result != "string" && typeof data[index].result != "bigint") return acc;
+    if (typeof data[index].result !== "string" && typeof data[index].result !== "bigint") return acc;
     const price = weiToEth(BigInt(data[index].result as string | bigint));
     acc[reserve.symbol as keyof Coins] = price;
     return acc;

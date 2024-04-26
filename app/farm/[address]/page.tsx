@@ -3,13 +3,13 @@ import FarmAddressSync from "./FarmAddressSync";
 import { ArrowLeft } from "lucide-react";
 import FarmAddressTitle from "./FarmAddressTitle";
 import InfoAddressCard from "@/components/farm/address/InfoAddressCard";
-import { Address } from "viem";
+import type { Address } from "viem";
 import PoolDetails from "@/components/farm/address/PoolDetails";
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
 export default async function FarmAddress({ params, searchParams }: { params: { address: Address }; searchParams: { [key: string]: string | string[] | undefined } }) {
-    const chain = typeof searchParams["chain"] === "string" ? searchParams["chain"] : "1"
+    const chain = typeof searchParams.chain === "string" ? searchParams.chain : "1"
     const token = await db.query.pool.findFirst({
         where: (row, { eq }) => eq(row.pool_address, params.address),
         with: {

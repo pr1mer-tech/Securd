@@ -16,7 +16,7 @@ import PairIcon from "../../PairIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAccount, useConfig, useReadContracts } from "wagmi";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
-import { CollateralPipelineState, borrowPipelineState, lockPipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
+import { type CollateralPipelineState, borrowPipelineState, lockPipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { lock } from "@/lib/hooks/pipelines/lock";
 import { withdraw } from "@/lib/hooks/pipelines/withdrawFarm";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,7 +25,7 @@ import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
 import Image from "next/image";
 import { borrow } from "@/lib/hooks/pipelines/borrow";
 import { repay } from "@/lib/hooks/pipelines/repay";
-import { Coins } from "@/lib/types/save.types";
+import type { Coins } from "@/lib/types/save.types";
 
 export default function Loan() {
     const collateralInfo = useFarmAddressStore.use.collateralInfo?.();
@@ -53,12 +53,12 @@ export default function Loan() {
                 abi: erc20Abi,
                 address: pairReservesInfosUn.reserveInfoTokenA?.address,
                 functionName: "balanceOf",
-                args: [account!.address!]
+                args: [account?.address!]
             }, {
                 abi: erc20Abi,
                 address: pairReservesInfosUn.reserveInfoTokenB?.address,
                 functionName: "balanceOf",
-                args: [account!.address!]
+                args: [account?.address!]
             }
         ],
         query: {

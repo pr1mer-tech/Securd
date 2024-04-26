@@ -1,7 +1,7 @@
-import { Address } from "viem";
+import type { Address } from "viem";
 import { LENDER_DEPOSIT_ERRORS } from "../errors/lenderDeposit.errors";
 import { MAIN_ERRORS } from "../errors/main.errors";
-import { ReserveInfo } from "../types/save.types";
+import type { ReserveInfo } from "../types/save.types";
 import { isEqualAddress } from "./main.helpers";
 
 /**
@@ -42,9 +42,8 @@ export const getInterestAmount = (
   try {
     if (accountBalance !== undefined && userDeposit !== undefined) {
       return accountBalance - userDeposit;
-    } else {
-      return 0n;
     }
+      return 0n;
   } catch (error) {
     throw new Error(LENDER_DEPOSIT_ERRORS.INTEREST_AMOUNT);
   }

@@ -1,13 +1,13 @@
 import { ReserveInfo } from "@/lib/types/save.types";
 import { BaseError, erc20Abi, parseUnits } from "viem";
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
-import { CollateralPipelineState, lockPipelineState } from "./CollateralPipelineState";
+import type { Effect } from "./useValueEffect";
+import { type CollateralPipelineState, lockPipelineState } from "./CollateralPipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
-import { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import PairIcon from "@/components/farm/PairIcon";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { formatPCTFactor, securdFormat } from "@/lib/helpers/numberFormat.helpers";
@@ -68,9 +68,8 @@ export function lock(config: Config, collateralInfo: CollateralInfos, amount: bi
 
                     if (receipt.status === "success") {
                         return receipt;
-                    } else {
-                        throw new Error("Transaction reverted");
                     }
+                        throw new Error("Transaction reverted");
                 }, {
                     loading: "Approving...",
                     success: (data) => {
@@ -120,9 +119,8 @@ export function lock(config: Config, collateralInfo: CollateralInfos, amount: bi
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Locking...",
                 success: (data) => {
@@ -152,8 +150,8 @@ export function lock(config: Config, collateralInfo: CollateralInfos, amount: bi
 
         const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
-        const debt0 = parseUnits(borrowBalance!.borrowBalanceA.toString(), tokens[0].decimals);
-        const debt1 = parseUnits(borrowBalance!.borrowBalanceB.toString(), tokens[1].decimals);
+        const debt0 = parseUnits(borrowBalance?.borrowBalanceA.toString(), tokens[0].decimals);
+        const debt1 = parseUnits(borrowBalance?.borrowBalanceB.toString(), tokens[1].decimals);
 
         const adjustedPriceA = debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
         const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));

@@ -1,14 +1,14 @@
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { BaseError, erc20Abi, parseUnits } from "viem";
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
+import type { Effect } from "./useValueEffect";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
-import { CollateralPipelineState, repayPipelineState } from "./CollateralPipelineState";
-import { CollateralInfos } from "@/lib/types/farm.types";
-import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import { type CollateralPipelineState, repayPipelineState } from "./CollateralPipelineState";
+import type { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import { bigIntToDecimal, isEqualAddress } from "@/lib/helpers/main.helpers";
 import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import Image from "next/image";
@@ -92,9 +92,8 @@ export function repay(
 
                     if (receipt.status === "success") {
                         return receipt;
-                    } else {
-                        throw new Error("Transaction reverted");
                     }
+                        throw new Error("Transaction reverted");
                 }, {
                     loading: "Approving...",
                     success: (data) => {
@@ -149,9 +148,8 @@ export function repay(
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Repaying...",
                 success: (data) => {

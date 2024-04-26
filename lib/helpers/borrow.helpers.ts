@@ -1,5 +1,5 @@
-import { BorrowerPool, LightLenderPool } from "../api/generated/schemas";
-import {
+import type { BorrowerPool, LightLenderPool } from "../api/generated/schemas";
+import type {
   BorrowPoolsApy,
   CollateralInfos,
   DecimalTokens,
@@ -20,8 +20,8 @@ import {
 } from "./lenderPool.helpers";
 import { toPercentage } from "./numberFormat.helpers";
 import { bigIntToDecimal, isEqualAddress } from "./main.helpers";
-import { Coins, ReserveInfo } from "../types/save.types";
-import { Address } from "viem";
+import type { Coins, ReserveInfo } from "../types/save.types";
+import type { Address } from "viem";
 import { MAIN_ERRORS } from "../errors/main.errors";
 
 export const getSaveRate = (
@@ -43,7 +43,7 @@ export const getUserLeverage = (farmerCF: number | undefined) => {
       }
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -54,8 +54,8 @@ export const getUserLeverage = (farmerCF: number | undefined) => {
  */
 export const getBorrowAssetIcons = (pool?: BorrowerPool) => {
   try {
-    let borrowPoolAssets = pool?.lenderpool_set;
-    var assetIcons: string[] = [];
+    const borrowPoolAssets = pool?.lenderpool_set;
+    const assetIcons: string[] = [];
 
     borrowPoolAssets?.forEach((set) => {
       const thumbnail_uri = set?.asset.fa12?.thumbnail_uri;
@@ -64,7 +64,7 @@ export const getBorrowAssetIcons = (pool?: BorrowerPool) => {
 
     return assetIcons;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -77,11 +77,11 @@ export const getBorrowerPoolLpAddress = (
   pool?: BorrowerPool
 ): string | undefined => {
   try {
-    let address = pool?.dex_info.lp.lp_address;
+    const address = pool?.dex_info.lp.lp_address;
 
     return address;
   } catch (error) {
-    throw Error("Error : " + error);
+    throw Error(`Error : ${error}`);
   }
 };
 export const getLightLenderPool = (
@@ -93,7 +93,7 @@ export const getLightLenderPool = (
         lenderPoolSetA: undefined,
         lenderPoolSetB: undefined,
       };
-    } else {
+    }
       const lightLenderPoolA = pool.lenderpool_set.find(
         (lightLenderPool: LightLenderPool) =>
           lightLenderPool.asset.fa12?.address?.toLowerCase() ===
@@ -108,15 +108,14 @@ export const getLightLenderPool = (
         lenderPoolSetA: lightLenderPoolA,
         lenderPoolSetB: lightLenderPoolB,
       };
-    }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
 export const getBorrowerPoolTokens = (pool?: BorrowerPool): string[] => {
   try {
-    var tokens: string[] = [];
+    const tokens: string[] = [];
 
     const { lenderPoolSetA, lenderPoolSetB } = getLightLenderPool(pool);
     const symbolA = getAssetSymbol(lenderPoolSetA?.asset);
@@ -127,7 +126,7 @@ export const getBorrowerPoolTokens = (pool?: BorrowerPool): string[] => {
 
     return tokens;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -142,7 +141,7 @@ export const getFormattedPoolName = (
   try {
     return collateralInfos?.symbol;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -171,7 +170,7 @@ export const getTokensSymbol = (
     }
     return [];
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -196,7 +195,7 @@ export const getCollateralPriceToken = (
       );
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -208,13 +207,13 @@ export const getPricePairTokens = (
       tokenA: undefined,
       tokenB: undefined,
     };
-  } else {
+  }
     // modify source of price TokenA
     const priceTokenA = 1;
 
     const amountA = pool.dex_info.token_a_dex_supply;
     const amountB = pool.dex_info.token_b_dex_supply;
-    var priceTokenB = 0;
+    let priceTokenB = 0;
     const { decimalTokenA, decimalTokenB }: DecimalTokens =
       getPairAssetDecimals(pool);
     if (
@@ -238,7 +237,6 @@ export const getPricePairTokens = (
           ? priceTokenB * 10 ** -decimalTokenB
           : undefined,
     };
-  }
 };
 
 export const getBorrowAPYLP = (
@@ -246,11 +244,11 @@ export const getBorrowAPYLP = (
   borrowApyB: number | undefined
 ) => {
   try {
-    if (borrowApyA !== undefined && borrowApyB != undefined) {
+    if (borrowApyA !== undefined && borrowApyB !== undefined) {
       return (borrowApyA + borrowApyB) / 2;
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -261,7 +259,7 @@ export const getPairBorrowApy = (
   try {
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { apyA: undefined, apyB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
@@ -274,9 +272,8 @@ export const getPairBorrowApy = (
         apyA: getBorrowApy(reserveInfoTokenUn),
         apyB: getBorrowApy(reserveInfoTokenDeux),
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -287,7 +284,7 @@ export const getPairPoolSize = (
   try {
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolSizeA: undefined, poolSizeB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
@@ -300,9 +297,8 @@ export const getPairPoolSize = (
         poolSizeA: bigIntToDecimal(getDepositBalance(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
         poolSizeB: bigIntToDecimal(getDepositBalance(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -313,7 +309,7 @@ export const getPairLiquidities = (
   try {
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolLiquiditieA: undefined, poolLiquiditieB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
@@ -326,9 +322,8 @@ export const getPairLiquidities = (
         poolLiquiditieA: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
         poolLiquiditieB: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -340,7 +335,7 @@ export const getPairPrice = (
   try {
     if (!reservesInfo || !userCollateralsInfo) {
       return { tokenA: undefined, tokenB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_0)
       );
@@ -353,9 +348,8 @@ export const getPairPrice = (
         tokenA: coinPrices[reserveInfoTokenUn?.symbol as keyof Coins],
         tokenB: coinPrices[reserveInfoTokenDeux?.symbol as keyof Coins],
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -366,7 +360,7 @@ export const getPairReservesInfos = (
   try {
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { reserveInfoTokenA: undefined, reserveInfoTokenB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
@@ -379,9 +373,8 @@ export const getPairReservesInfos = (
         reserveInfoTokenA: reserveInfoTokenUn,
         reserveInfoTokenB: reserveInfoTokenDeux,
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -392,7 +385,7 @@ export const getPairUtilizations = (
   try {
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolUtilizationsA: undefined, poolUtilizationsB: undefined };
-    } else {
+    }
       const reserveInfoTokenUn = reservesInfo.find(
         (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
       );
@@ -405,9 +398,8 @@ export const getPairUtilizations = (
         poolUtilizationsA: getPoolUtilization(reserveInfoTokenUn),
         poolUtilizationsB: getPoolUtilization(reserveInfoTokenDeux),
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -418,7 +410,7 @@ export const getBorrowApy = (reserveInfo: ReserveInfo | undefined) => {
       return aprToApy(interestRate);
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -441,7 +433,7 @@ export const getTotalApy = (
       return (collateral * lpApy - loan * borrowAPY) / (collateral - loan);
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -463,16 +455,15 @@ export const getBorrowAPY = (
     ) {
       if (loanA === 0 && loanB === 0) {
         return 0;
-      } else {
+      }
         return (
           (loanA * tokenPrices.tokenA * borrowApyA +
             loanB * tokenPrices.tokenA * borrowApyB) /
           (loanA * tokenPrices.tokenA + loanB * tokenPrices.tokenB)
         );
-      }
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -480,7 +471,7 @@ export const getTotalLpLocked = (borrowerPool: BorrowerPool) => {
   try {
     return borrowerPool.data_contract.supply || 0;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -498,7 +489,7 @@ export const getMaxLpApy = (
       return maxLeverage * lpAPy - (maxLeverage - 1) * borrowAPY;
     }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -511,7 +502,7 @@ export const getMaxLT = (collateralInfos: CollateralInfos | undefined) => {
       );
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -531,7 +522,7 @@ export const getBorrowerPoolBalanceLT = (
       );
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -570,11 +561,11 @@ export const getBorrowerPoolMinCF = (
   collateralInfos: CollateralInfos
 ): number | undefined => {
   try {
-    let balance = getBorrowerPoolBalanceLT(collateralInfos);
+    const balance = getBorrowerPoolBalanceLT(collateralInfos);
 
     return balance !== undefined ? balance * 1.1 : undefined;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -583,14 +574,14 @@ export const getBorrowerPoolMaxLeverage = (
 ): number | undefined => {
   try {
     if (collateralInfos !== undefined) {
-      let minCF = getBorrowerPoolMinCF(collateralInfos);
+      const minCF = getBorrowerPoolMinCF(collateralInfos);
 
       if (minCF !== undefined && minCF !== 1) {
         return minCF / (minCF - 1);
       }
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -622,7 +613,7 @@ export const getBorrowerMaxLeverage = (
               (loanA - loanB) * ult)) /
           collateralPrice
         );
-      } else {
+      }
         return (
           ((1 / (blt - 1 / (1 + buffer))) *
             (collateralValue / (1 + buffer) -
@@ -630,10 +621,9 @@ export const getBorrowerMaxLeverage = (
               (loanB - loanA) * ult)) /
           collateralPrice
         );
-      }
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -659,14 +649,13 @@ export const lpToLeverage = (
             (borrowerMaxLeverageLP + collateralAmount)) *
           maxLeverageFactor
         );
-      } else {
+      }
         if (collateralAmount) {
           return amount / collateralAmount + 1;
         }
-      }
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -693,7 +682,7 @@ export const getMaxRelease = (
       );
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -730,14 +719,13 @@ export const getTokenUnit = (
         numberA: numberA * 10 ** -decimalTokenA,
         numberB: numberB * 10 ** -decimalTokenB,
       };
-    } else {
+    }
       return {
         numberA: undefined,
         numberB: undefined,
       };
-    }
   } catch (error) {
-    throw new Error("Error" + error);
+    throw new Error(`Error${error}`);
   }
 };
 
@@ -750,11 +738,11 @@ export const getBorrowerPoolAddress = (
   pool?: BorrowerPool
 ): string | undefined => {
   try {
-    let address = pool?.data_contract?.address as string | undefined;
+    const address = pool?.data_contract?.address as string | undefined;
 
     return address;
   } catch (error) {
-    throw Error("Error : " + error);
+    throw Error(`Error : ${error}`);
   }
 };
 
@@ -765,7 +753,7 @@ export const getMaximumRepayToken = (
   try {
     return Math.min(amountLoan, walletBalance);
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -828,9 +816,8 @@ export const getMaximumBorrow = (
 
     if (token === "a") {
       return maxNewLoanA / tokenA_price;
-    } else {
-      return maxNewLoanB / tokenB_price;
     }
+      return maxNewLoanB / tokenB_price;
   }
 };
 

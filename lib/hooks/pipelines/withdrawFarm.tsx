@@ -1,14 +1,14 @@
 import { ReserveInfo } from "@/lib/types/save.types";
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
+import type { Effect } from "./useValueEffect";
 import { SavePipelineState, savePipelineState2 } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { BaseError, TransactionRejectedRpcError, parseUnits } from "viem";
-import { CollateralPipelineState, releasePipelineState, withdrawPipelineState } from "./CollateralPipelineState";
-import { CollateralInfos } from "@/lib/types/farm.types";
+import { type CollateralPipelineState, releasePipelineState, withdrawPipelineState } from "./CollateralPipelineState";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import PairIcon from "@/components/farm/PairIcon";
 import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
@@ -59,9 +59,8 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Releasing...",
                 success: (data) => {
@@ -91,8 +90,8 @@ export function withdraw(config: Config, collateralInfo: CollateralInfos, amount
 
         const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
-        const debt0 = parseUnits(borrowBalance!.borrowBalanceA.toString(), tokens[0].decimals);
-        const debt1 = parseUnits(borrowBalance!.borrowBalanceB.toString(), tokens[1].decimals);
+        const debt0 = parseUnits(borrowBalance?.borrowBalanceA.toString(), tokens[0].decimals);
+        const debt1 = parseUnits(borrowBalance?.borrowBalanceB.toString(), tokens[1].decimals);
 
         const adjustedPriceA = debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
         const adjustedPriceB = debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLendingPool } from "./wagmiSH/viewFunctions/useLendingPool";
-import { ReserveInfo } from "../types/save.types";
+import type { ReserveInfo } from "../types/save.types";
 import getUserDToken from "./getUserDToken";
-import { BalanceLDToken } from "../types/global.types";
-import { Address } from "viem";
+import type { BalanceLDToken } from "../types/global.types";
+import type { Address } from "viem";
 
 const getUserReservesInfo = (reserveInfos: ReserveInfo[], balanceLDToken: Record<Address, BalanceLDToken>) => {
   return reserveInfos.filter((reserveInfo) => {

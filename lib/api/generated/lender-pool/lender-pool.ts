@@ -22,10 +22,10 @@ import type { LenderPool, LenderDeposit } from ".././schemas";
 export const lenderPoolList = (
   options?: AxiosRequestConfig
 ): Promise<AxiosResponse<LenderPool[]>> => {
-  return axios.get(`/lender_pool/`, options);
+  return axios.get("/lender_pool/", options);
 };
 
-export const getLenderPoolListQueryKey = () => [`/lender_pool/`] as const;
+export const getLenderPoolListQueryKey = () => ["/lender_pool/"] as const;
 
 export const getLenderPoolListQueryOptions = <
   TData = Awaited<ReturnType<typeof lenderPoolList>>,

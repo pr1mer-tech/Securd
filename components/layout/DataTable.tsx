@@ -1,11 +1,11 @@
 "use client"
 
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    OnChangeFn,
-    SortingState,
-    VisibilityState,
+    type ColumnDef,
+    type ColumnFiltersState,
+    type OnChangeFn,
+    type SortingState,
+    type VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => linkFn && router.push(linkFn(row.original))}
-                                    className={linkFn && linkFn(row.original) && "cursor-pointer"}
+                                    className={linkFn?.(row.original) && "cursor-pointer"}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -120,7 +120,7 @@ export function DataTable<TData, TValue>({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     {table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
-                            <Card key={row.id} onClick={() => linkFn && router.push(linkFn(row.original))} className={linkFn && linkFn(row.original) && "cursor-pointer"}>
+                            <Card key={row.id} onClick={() => linkFn && router.push(linkFn(row.original))} className={linkFn?.(row.original) && "cursor-pointer"}>
                                 <CardContent className="flex flex-row gap-4 flex-wrap pt-4">
                                     {row.getVisibleCells().map((cell, i) => (
                                         <div key={cell.id} className={i === 0 ? "w-full" : ""}>

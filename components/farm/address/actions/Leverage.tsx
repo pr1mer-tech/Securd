@@ -9,7 +9,7 @@ import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { getBorrowerPoolMaxLeverage, getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
-import { CollateralPipelineState, leveragePipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
+import { type CollateralPipelineState, leveragePipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import { useEffect, useState } from "react";
 import { useConfig } from "wagmi";

@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Coins, ReserveInfo } from "../types/save.types"
+import type { Coins, ReserveInfo } from "../types/save.types"
 import { create } from 'zustand'
 import { createSelectors } from './createSelectors'
-import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
-import { CollateralInfos, TokenPrices } from "../types/farm.types"
+import type { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
+import type { CollateralInfos, TokenPrices } from "../types/farm.types"
 import { getLtokenprice, getPoolAPY } from "../helpers/lenderPool.helpers"
 import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getLiquidationThresholdForToken, getMaxLT, getMaxLpApy, getMaximumBorrow, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
 import { bigIntToDecimal } from "../helpers/main.helpers"

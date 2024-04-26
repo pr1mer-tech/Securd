@@ -4,7 +4,7 @@ import {
 } from "@/components/ui/table";
 import Help from "../ui/Help";
 import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { Address } from "viem";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";

@@ -12,7 +12,7 @@ export default function useChainURL(chainId: string | undefined) {
 
     useEffect(() => {
         if (hydrated) return;
-        if (typeof chain == "undefined") return;
+        if (typeof chain === "undefined") return;
         if (chainId !== chain.id.toString()) {
             switchChain({ chainId: Number(chainId) });
         }

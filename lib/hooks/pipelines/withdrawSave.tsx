@@ -1,8 +1,8 @@
-import { ReserveInfo } from "@/lib/types/save.types";
-import { Config } from "wagmi";
+import type { ReserveInfo } from "@/lib/types/save.types";
+import type { Config } from "wagmi";
 import { getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
-import { SavePipelineState, savePipelineState2 } from "./SavePipelineState";
+import type { Effect } from "./useValueEffect";
+import { type SavePipelineState, savePipelineState2 } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
@@ -52,9 +52,8 @@ export function withdraw(config: Config, reserveInfo: ReserveInfo, amount: bigin
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Withdrawing...",
                 success: (data) => {

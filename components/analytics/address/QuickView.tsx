@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
-import { PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
+import { type PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useState } from "react";
 

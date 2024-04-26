@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent } from "../ui/card";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { useSaveStore } from "@/lib/data/saveStore";
 import { toFormattedPercentage } from "@/lib/helpers/numberFormat.helpers";

@@ -1,7 +1,7 @@
-import { Coins, ReserveInfo } from "../types/save.types";
+import type { Coins, ReserveInfo } from "../types/save.types";
 import getUserDepositBalance from "./getUserDepositBalance";
-import { BalanceLDToken } from "../types/global.types";
-import { Address } from "viem";
+import type { BalanceLDToken } from "../types/global.types";
+import type { Address } from "viem";
 import { bigIntToDecimal } from "../helpers/main.helpers";
 
 const getUserTotalBalanceUSD = (reservesInfo: ReserveInfo[], coinPrices: Record<keyof Coins, number>, balanceLDToken: Record<Address, BalanceLDToken>) => {

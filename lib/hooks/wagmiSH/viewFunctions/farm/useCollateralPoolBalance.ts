@@ -1,6 +1,6 @@
 import { collateralPriceContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { CollateralInfos } from "@/lib/types/farm.types";
-import { Address, erc20Abi } from "viem";
+import type { CollateralInfos } from "@/lib/types/farm.types";
+import { type Address, erc20Abi } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
 const useCollateralPoolBalances: (collateralInfos: CollateralInfos[]) => Record<Address, bigint> = (collateralInfos) => {

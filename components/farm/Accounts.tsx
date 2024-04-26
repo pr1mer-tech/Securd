@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useFarmStore } from "@/lib/data/farmStore";
 import getUserCollateralsInfos from "@/lib/hooks/getUserCollateralsInfos";
-import { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import { AccountCard } from "./AccountCard";
 
 

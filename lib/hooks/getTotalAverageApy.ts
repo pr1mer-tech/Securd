@@ -1,8 +1,8 @@
-import { Coins, ReserveInfo } from "../types/save.types";
+import type { Coins, ReserveInfo } from "../types/save.types";
 import getUserDepositBalance from "./getUserDepositBalance";
 import { getSavingApy } from "../helpers/lenderPool.helpers";
-import { Address } from "viem";
-import { BalanceLDToken } from "../types/global.types";
+import type { Address } from "viem";
+import type { BalanceLDToken } from "../types/global.types";
 import { bigIntToDecimal } from "../helpers/main.helpers";
 
 const getTotalAverageApy = (reservesInfo: ReserveInfo[], balanceLDTokens: Record<Address, BalanceLDToken>, coinPrices: Record<keyof Coins, number>) => {

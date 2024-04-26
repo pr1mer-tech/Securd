@@ -2,7 +2,7 @@
 
 import PairIcon from "@/components/farm/PairIcon";
 import { Card } from "@/components/ui/card";
-import { PoolDetails, PoolTableRows, analyticsToCollateralInfo, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import { type PoolDetails, PoolTableRows, analyticsToCollateralInfo, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 import { cn } from "@/lib/utils";
 import Help from "@/components/ui/Help";
 import {

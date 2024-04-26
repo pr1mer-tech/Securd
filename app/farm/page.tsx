@@ -4,7 +4,7 @@ import InfoCard from "@/components/farm/InfoCard";
 import FarmSync from "./FarmSync";
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
-import { Pool, Token } from "@/db/schema";
+import type { Pool, Token } from "@/db/schema";
 
 export const metadata = {
     title: "Secur·d - Farm",
@@ -12,7 +12,7 @@ export const metadata = {
 }
 
 export default async function Farm({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-    const chain = typeof searchParams["chain"] === "string" ? searchParams["chain"] : "1"
+    const chain = typeof searchParams.chain === "string" ? searchParams.chain : "1"
     const pools = await db.query.blockchain.findFirst({
         where: (row, { eq }) => eq(row.chain_id, Number(chain)),
         with: {

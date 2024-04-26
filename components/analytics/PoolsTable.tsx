@@ -1,7 +1,7 @@
 import { db } from "@/db/db";
 import PoolsTableClient from "./PoolTableClient";
-import { PoolTableRows, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
-import { ReserveInfo } from "@/lib/types/save.types";
+import { type PoolTableRows, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { pool, price } from "@/db/schema";
 
 export default async function PoolsTable() {

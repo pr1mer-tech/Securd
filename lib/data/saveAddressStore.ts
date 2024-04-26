@@ -1,7 +1,7 @@
-import { Coins, ReserveInfo } from "../types/save.types"
+import { Coins, type ReserveInfo } from "../types/save.types"
 import { create } from 'zustand'
 import { createSelectors } from './createSelectors'
-import { BalanceLDToken } from "../types/global.types"
+import type { BalanceLDToken } from "../types/global.types"
 import { Address } from "viem"
 
 type State = {

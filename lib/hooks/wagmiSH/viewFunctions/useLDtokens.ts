@@ -1,8 +1,8 @@
 import { abiUSDT } from "@/lib/constants/abi/abi";
-import { BalanceLDToken } from "@/lib/types/global.types";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { BalanceLDToken } from "@/lib/types/global.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { useState } from "react";
-import { Address } from "viem";
+import type { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
 const useLDtokens = (
@@ -14,7 +14,7 @@ const useLDtokens = (
   const { isConnected, address } = useAccount();
 
   const { data } = useReadContracts({
-    contracts: reserveInfos.map((reserve) => [
+    contracts: reserveInfos.flatMap((reserve) => [
       {
         address: reserve.tokenInfo.dToken,
         abi: abiUSDT as any,
@@ -27,7 +27,7 @@ const useLDtokens = (
         functionName: "balanceOf",
         args: [address as Address],
       },
-    ]).flat(),
+    ]),
     query: {
       enabled: isConnected,
       refetchInterval: 10000,

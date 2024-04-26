@@ -10,7 +10,7 @@ import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
 import { MenuTabs, MenuTabsContent, MenuTabsList, MenuTabsTrigger } from "@/components/ui/menu-tabs";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getMaxLT, getPairBorrowApy, getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
-import { Coins } from "@/lib/types/save.types";
+import type { Coins } from "@/lib/types/save.types";
 import { parseUnits } from "viem";
 
 export default function PoolDetails() {

@@ -1,6 +1,6 @@
-import { Address } from "viem";
-import { LightLenderPool } from "../api/generated/schemas";
-import { ReserveInfo } from "./save.types";
+import type { Address } from "viem";
+import type { LightLenderPool } from "../api/generated/schemas";
+import type { ReserveInfo } from "./save.types";
 
 export type BorrowSortsProps = {
   apy: boolean;

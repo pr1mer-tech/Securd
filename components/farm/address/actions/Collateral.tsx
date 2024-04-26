@@ -16,7 +16,7 @@ import PairIcon from "../../PairIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConfig } from "wagmi";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
-import { CollateralPipelineState, lockPipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
+import { type CollateralPipelineState, lockPipelineState } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { lock } from "@/lib/hooks/pipelines/lock";
 import { withdraw } from "@/lib/hooks/pipelines/withdrawFarm";
 
@@ -42,7 +42,7 @@ export default function Collateral() {
     useEffect(() => {
         if (collateralInfo && collateralAmountPrice) {
             const price = bigIntToDecimal(collateralAmountPrice.collateralAmount, collateralInfo.decimals);
-            setPipeline(menu == "lock"
+            setPipeline(menu === "lock"
                 ? lock(config, collateralInfo, amount, price ?? 0, collateralAmountPrice.collateralAmount ?? 0n, userBalance ?? 0n, resetInput)
                 : withdraw(config, collateralInfo, amount, price ?? 0, collateralAmountPrice.collateralAmount ?? 0n, userBalance ?? 0n, resetInput)
             );

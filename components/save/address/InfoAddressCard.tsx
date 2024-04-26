@@ -21,7 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import { deposit } from "@/lib/hooks/pipelines/deposit";
 import { useConfig } from "wagmi";
-import { SavePipelineState, savePipelineState } from "@/lib/hooks/pipelines/SavePipelineState";
+import { type SavePipelineState, savePipelineState } from "@/lib/hooks/pipelines/SavePipelineState";
 import { withdraw } from "@/lib/hooks/pipelines/withdrawSave";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Impact from "@/components/layout/Impact";

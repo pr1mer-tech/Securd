@@ -10,7 +10,7 @@ const database = process.env.POSTGRES_DATABASE;
 
 const queryClient = postgres("postgres://username:password@host.com:5432/database", {
     host,
-    port: parseInt(port || "5432"),
+    port: Number.parseInt(port || "5432"),
     database,
     username: user,
     password,

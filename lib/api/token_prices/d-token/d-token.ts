@@ -22,10 +22,10 @@ import type { DToken, DTokenBalance } from ".././schemas";
 export const dTokenList = (
   options?: AxiosRequestConfig
 ): Promise<AxiosResponse<DToken[]>> => {
-  return axios.get(`/d_token/`, options);
+  return axios.get("/d_token/", options);
 };
 
-export const getDTokenListQueryKey = () => [`/d_token/`] as const;
+export const getDTokenListQueryKey = () => ["/d_token/"] as const;
 
 export const getDTokenListQueryOptions = <
   TData = Awaited<ReturnType<typeof dTokenList>>,

@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import type { Address } from "viem";
 import { abiLendingPool } from "../abi/abiLendingPool";
 import { abiCollateralPool } from "../abi/abiCollateralPool";
 import { abiCollateralPrice } from "../abi/abiCollateralPrice";
