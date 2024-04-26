@@ -1,6 +1,6 @@
-import { Asset, BorrowerPool } from "../api/generated/schemas";
+import type { Asset, BorrowerPool } from "../api/generated/schemas";
 import { ASSET_ERRORS } from "../errors/asset.errors";
-import { DecimalTokens } from "../types/farm.types";
+import type { DecimalTokens } from "../types/farm.types";
 import { getLightLenderPool } from "./borrow.helpers";
 
 /**
@@ -27,7 +27,7 @@ export const getAssetSymbol = (asset?: Asset) => {
   try {
     return asset?.fa12?.symbol;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -40,14 +40,13 @@ export const getPairAssetDecimals = (
         decimalTokenA: undefined,
         decimalTokenB: undefined,
       };
-    } else {
+    }
       const { lenderPoolSetA, lenderPoolSetB } = getLightLenderPool(pool);
       return {
         decimalTokenA: lenderPoolSetA?.asset.fa12?.decimals,
         decimalTokenB: lenderPoolSetB?.asset.fa12?.decimals,
       };
-    }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };

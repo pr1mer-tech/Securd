@@ -1,14 +1,14 @@
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { getAccount, writeContract, waitForTransactionReceipt, prepareTransactionRequest, getWalletClient } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
+import type { Effect } from "./useValueEffect";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { Address, BaseError, TransactionRejectedRpcError, createWalletClient, encodeFunctionData, erc20Abi, http, parseUnits, publicActions } from "viem";
-import { CollateralPipelineState, borrowPipelineState, withdrawPipelineState } from "./CollateralPipelineState";
-import { CollateralInfos } from "@/lib/types/farm.types";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
-import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import { type CollateralPipelineState, borrowPipelineState, withdrawPipelineState } from "./CollateralPipelineState";
+import type { CollateralInfos } from "@/lib/types/farm.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import { getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal, isEqualAddress } from "@/lib/helpers/main.helpers";
 import { formatPCTFactor, securdFormat } from "@/lib/helpers/numberFormat.helpers";
@@ -89,9 +89,8 @@ export function borrow(
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Borrowing...",
                 success: (data) => {

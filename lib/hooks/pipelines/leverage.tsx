@@ -1,15 +1,15 @@
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { getAccount, writeContract, waitForTransactionReceipt, readContract } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
+import type { Effect } from "./useValueEffect";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
 import { Address, BaseError, TransactionRejectedRpcError, parseUnits } from "viem";
-import { CollateralPipelineState, borrowPipelineState, leveragePipelineState, withdrawPipelineState } from "./CollateralPipelineState";
-import { CollateralInfos } from "@/lib/types/farm.types";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import { type CollateralPipelineState, borrowPipelineState, leveragePipelineState, withdrawPipelineState } from "./CollateralPipelineState";
+import type { CollateralInfos } from "@/lib/types/farm.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { getBorrowerMaxLeverage, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getMaxLT, getPairPrice, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
-import { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import type { CollateralAmountPrice } from "../wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { leverageToLp } from "@/lib/helpers/borrower.helpers";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
@@ -112,9 +112,8 @@ export function leverage(
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Applying Leverage...",
                 success: (data) => {
@@ -154,9 +153,8 @@ export function leverage(
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Deleveraging...",
                 success: (data) => {

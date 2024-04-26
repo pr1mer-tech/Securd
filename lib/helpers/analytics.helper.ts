@@ -1,6 +1,6 @@
-import { Analytics, Blockchain, Dex, Pool, Price, Token } from "@/db/schema";
-import { CollateralInfos, PoolType } from "../types/farm.types";
-import { ReserveInfo } from "../types/save.types";
+import type { Analytics, Blockchain, Dex, Pool, Price, Token } from "@/db/schema";
+import type { CollateralInfos, PoolType } from "../types/farm.types";
+import type { ReserveInfo } from "../types/save.types";
 import { getAddress, parseUnits } from "viem";
 
 export type PoolTableRows = Analytics & {
@@ -47,7 +47,7 @@ export const analyticsToCollateralInfo = (pool: Pool & {
             unBalancedLoanThreshold: 0n
         },
         poolType: pool?.dex?.dex_name as PoolType,
-        symbol: pool?.token_0?.token_symbol + "/" + pool?.token_1?.token_symbol,
+        symbol: `${pool?.token_0?.token_symbol}/${pool?.token_1?.token_symbol}`,
         token_0: pool?.token_0?.token_address as `0x${string}`,
         token_1: pool?.token_1?.token_address as `0x${string}`,
         tokenInfo: {

@@ -1,6 +1,6 @@
 import { useAccount, useBalance, useReadContracts } from "wagmi";
-import { BalanceCoins } from "@/lib/types/save.types";
-import { Address, erc20Abi, zeroAddress } from "viem";
+import type { BalanceCoins } from "@/lib/types/save.types";
+import { type Address, erc20Abi, zeroAddress } from "viem";
 
 const useBalanceCoins = (reservesInfo: { address: Address }[]) => {
   const { isConnected, address } = useAccount();
@@ -10,7 +10,7 @@ const useBalanceCoins = (reservesInfo: { address: Address }[]) => {
 
   const { data } = useReadContracts({
     contracts: reservesInfo
-      .filter(info => info.address != zeroAddress)
+      .filter(info => info.address !== zeroAddress)
       .map((reserve) => ({
         address: reserve.address,
         abi: erc20Abi,
@@ -26,7 +26,7 @@ const useBalanceCoins = (reservesInfo: { address: Address }[]) => {
   if (!data && !balance.data) return {} as BalanceCoins;
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
-    if (reserve.address == zeroAddress && balance.data) {
+    if (reserve.address === zeroAddress && balance.data) {
       acc[reserve.address] = balance.data.value
       return acc;
     }

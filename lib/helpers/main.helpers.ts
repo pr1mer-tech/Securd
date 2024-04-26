@@ -1,5 +1,5 @@
 import { MAIN_ERRORS } from "../errors/main.errors";
-import { Address, formatEther, isAddressEqual } from "viem";
+import { type Address, formatEther, isAddressEqual } from "viem";
 import { toast } from "sonner"
 
 
@@ -24,7 +24,7 @@ export const copyToClipboard = async (text?: string): Promise<void> => {
     if (text) {
       toast.promise(() => navigator.clipboard.writeText(text), {
         success: "Copied !",
-        error: "Error while copying address : " + text,
+        error: `Error while copying address : ${text}`,
       });
     }
   } catch (error) {
@@ -68,7 +68,7 @@ export const getRounded = (
  * @returns num converted from wei to eth units
  */
 export const weiToEth = (num: bigint) => {
-  return parseFloat(formatEther(num));
+  return Number.parseFloat(formatEther(num));
 };
 
 /**
@@ -94,10 +94,7 @@ export const bigIntToDecimal = (
     const leadingZerosAfterDecimal =
       decimals - Number(countDigits(decimalPart));
     return Number(
-      String(wholePart) +
-      "." +
-      "0".repeat(Math.max(leadingZerosAfterDecimal, 0)) +
-      String(decimalPart)
+      `${String(wholePart)}.${"0".repeat(Math.max(leadingZerosAfterDecimal, 0))}${String(decimalPart)}`
     );
   }
 };
@@ -112,7 +109,7 @@ export const getDepositAmountBigInt = (
       return (amountNotDecimal * BigInt(10 ** decimal)) / BigInt(10 ** 18);
     }
   } catch (error) {
-    throw new Error("bigIntToDecimal failed : " + error);
+    throw new Error(`bigIntToDecimal failed : ${error}`);
   }
 };
 

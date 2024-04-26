@@ -1,7 +1,7 @@
-import { Dex, Pool, Token } from "@/db/schema";
+import type { Dex, Pool, Token } from "@/db/schema";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
-import { CollateralInfos, PoolType } from "@/lib/types/farm.types";
-import { Address } from "viem";
+import type { CollateralInfos, PoolType } from "@/lib/types/farm.types";
+import type { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
 const useCollateralPool: (pools: (Pool & {
@@ -29,7 +29,7 @@ const useCollateralPool: (pools: (Pool & {
   }
 
   return data.map((item, index) => ({
-    symbol: pools[index].token_0?.token_symbol + "/" + pools[index].token_1?.token_symbol,
+    symbol: `${pools[index].token_0?.token_symbol}/${pools[index].token_1?.token_symbol}`,
     token_0: pools[index].token_0?.token_address as Address,
     token_1: pools[index].token_1?.token_address as Address,
     poolType: pools[index].dex?.dex_type as PoolType,

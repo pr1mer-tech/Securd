@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ReserveInfo } from "../types/save.types";
+import type { ReserveInfo } from "../types/save.types";
 import { getDtokenprice } from "../helpers/lenderPool.helpers";
 import getUserDToken from "./getUserDToken";
 

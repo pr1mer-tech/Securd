@@ -1,11 +1,11 @@
-import { CollateralInfos } from "../types/farm.types";
+import type { CollateralInfos } from "../types/farm.types";
 import {
   getPairReservesInfos,
   getTokensSymbol,
 } from "../helpers/borrow.helpers";
-import { Coins, ReserveInfo } from "../types/save.types";
+import type { Coins, ReserveInfo } from "../types/save.types";
 import getPairBorrowBalances from "./getPairBorrowBalances";
-import { CollateralAmountPrice } from "./wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import type { CollateralAmountPrice } from "./wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 
 const getFarmTotalLoan = (
   collateralInfos: CollateralInfos[],

@@ -14,7 +14,7 @@ const config = createConfig(
         transports: {
             // RPC URL for each chain
             [polygonMumbai.id]: http(
-                `https://rpc.ankr.com/polygon_mumbai`
+                "https://rpc.ankr.com/polygon_mumbai"
             ),
         },
 

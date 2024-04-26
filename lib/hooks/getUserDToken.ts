@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { bigIntToDecimal } from "../helpers/main.helpers";
-import { ReserveInfo } from "../types/save.types";
+import type { ReserveInfo } from "../types/save.types";
 import getLDtoken from "./wagmiSH/viewFunctions/useLDtokens";
 
 const getUserDToken = (reserveInfo: ReserveInfo | undefined, balanceLDToken: {

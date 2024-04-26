@@ -18,7 +18,7 @@ export const securdFormat = (
   decimals?: number
 ): string => {
   try {
-    if (num !== undefined && num !== null && !isNaN(num)) {
+    if (num !== undefined && num !== null && !Number.isNaN(num)) {
       if ((num < 1e-3 && num > 0) || (num > -1e-3 && num < 0)) {
         // Use scientific notation for very small numbers
         return new Intl.NumberFormat("en-US", {
@@ -39,11 +39,10 @@ export const securdFormat = (
         minimumFractionDigits: decimals || 0,
         maximumFractionDigits: decimals || 0,
       }).format(num);
-    } else {
-      return "--";
     }
+      return "--";
   } catch (error) {
-    throw new Error("securdFormat failed : " + error);
+    throw new Error(`securdFormat failed : ${error}`);
   }
 };
 
@@ -65,12 +64,10 @@ export const toAsset = (num: number, decimals: number): number => {
  * @param decimals asset decimals
  * @returns formatted number
  */
-export const toAssetDecimals = function (
+export const toAssetDecimals = (
   num: number,
   decimals: number
-): number {
-  return num * 10 ** decimals;
-};
+): number => num * 10 ** decimals;
 
 /**
  * Converts a number to its corresponding percentage format in string
@@ -84,13 +81,12 @@ export const toFormattedPercentage = (
   decimals: number | undefined
 ): string => {
   try {
-    if (num !== undefined && num !== null && !isNaN(num.valueOf())) {
+    if (num !== undefined && num !== null && !Number.isNaN(num.valueOf())) {
       return `${(num * 100).toFixed(decimals || 0)}%`;
-    } else {
-      return "--";
     }
+      return "--";
   } catch (error) {
-    throw new Error("toLeverage failed : " + error);
+    throw new Error(`toLeverage failed : ${error}`);
   }
 };
 
@@ -102,29 +98,27 @@ export const toFormattedPercentage = (
  */
 export const toLeverage = (num: number | undefined): string => {
   try {
-    if (num !== undefined && num !== null && !isNaN(num)) {
+    if (num !== undefined && num !== null && !Number.isNaN(num)) {
       return `x${num.toFixed(1)}`;
-    } else {
-      return "--";
     }
+      return "--";
   } catch (error) {
-    throw new Error("toLeverage failed : " + error);
+    throw new Error(`toLeverage failed : ${error}`);
   }
 };
 
 export const toNoDecimal = (num: number | undefined): string => {
   try {
-    if (num !== undefined && num !== null && !isNaN(num)) {
+    if (num !== undefined && num !== null && !Number.isNaN(num)) {
       return new Intl.NumberFormat("en-US", {
         notation: undefined,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(num);
-    } else {
-      return "--";
     }
+      return "--";
   } catch (error) {
-    throw new Error("toNoDecimal failed : " + error);
+    throw new Error(`toNoDecimal failed : ${error}`);
   }
 };
 
@@ -151,7 +145,7 @@ export const toSmartContractPercentage = (num: number): number => {
 };
 
 export const securdFormatFloor = (num?: number, decimals?: number): string => {
-  if (num !== undefined && num !== null && !isNaN(num)) {
+  if (num !== undefined && num !== null && !Number.isNaN(num)) {
     const isBigNumber = num > 999999;
 
     return new Intl.NumberFormat("en-US", {
@@ -159,15 +153,13 @@ export const securdFormatFloor = (num?: number, decimals?: number): string => {
       minimumFractionDigits: decimals || 0,
       maximumFractionDigits: decimals || 0,
     }).format(getFloor(num, decimals) || 0);
-  } else {
-    return "--";
   }
+    return "--";
 };
 
 export const formatPCTFactor = (factor?: number): string => {
-  if (factor && !isNaN(factor)) {
+  if (factor && !Number.isNaN(factor)) {
     return factor < 1000 ? `${factor.toFixed(0)}%` : "∞";
-  } else {
-    return "--";
   }
+    return "--";
 };

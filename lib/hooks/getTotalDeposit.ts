@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { Coins, ReserveInfo } from "../types/save.types";
+import type { Coins, ReserveInfo } from "../types/save.types";
 import useGetLenderSupply from "./wagmiSH/viewFunctions/useGetLenderSupply";
-import { Address } from "viem";
+import type { Address } from "viem";
 import { bigIntToDecimal } from "../helpers/main.helpers";
 
 const getTotalDeposit = (reserveInfo: ReserveInfo[], userDeposit: Record<Address, bigint>, coinPrices: Record<keyof Coins, number>) => {

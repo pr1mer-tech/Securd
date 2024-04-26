@@ -1,12 +1,12 @@
 import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
-import { CustomTooltipProps } from "@tremor/react";
+import type { CustomTooltipProps } from "@tremor/react";
 
 export const customTooltip = (props: CustomTooltipProps) => {
     const { payload, active, label } = props;
     if (!active || !payload) return null;
     const payloadObj = Object.fromEntries(payload.map((category) => [category.dataKey, category.value]));
-    const lpVsHold = payloadObj["LP"] - payloadObj["HOLD"];
+    const lpVsHold = payloadObj.LP - payloadObj.HOLD;
 
     if (payload.length !== 3) {
         payload.push({

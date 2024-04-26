@@ -1,6 +1,6 @@
-import { ReserveInfo } from "../types/save.types";
+import type { ReserveInfo } from "../types/save.types";
 import { getLtokenprice } from "../helpers/lenderPool.helpers";
-import { Debts } from "../types/farm.types";
+import type { Debts } from "../types/farm.types";
 import { bigIntToDecimal } from "../helpers/main.helpers";
 
 const getPairBorrowBalances = (

@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card";
 import { MenuTabs, MenuTabsList, MenuTabsTrigger } from "@/components/ui/menu-tabs";
 import { db } from "@/db/db";
 import { pool } from "@/db/schema";
-import { PoolDetails, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
-import { ReserveInfo } from "@/lib/types/save.types";
+import { type PoolDetails, tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 

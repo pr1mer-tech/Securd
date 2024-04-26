@@ -1,9 +1,9 @@
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { BaseError, erc20Abi, zeroAddress } from "viem";
-import { Config } from "wagmi";
+import type { Config } from "wagmi";
 import { readContract, getAccount, writeContract, waitForTransactionReceipt } from "wagmi/actions";
-import { Effect } from "./useValueEffect";
-import { SavePipelineState, savePipelineState } from "./SavePipelineState";
+import type { Effect } from "./useValueEffect";
+import { type SavePipelineState, savePipelineState } from "./SavePipelineState";
 import { toast } from "sonner";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import { useImpactStore } from "@/components/layout/Impact";
@@ -13,12 +13,12 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
     return async function* depositPipeline() {
         yield {
             buttonEnabled: amount > 0n,
-            buttonLabel: reserveInfo.address == zeroAddress ? "Deposit" : "Approve",
+            buttonLabel: reserveInfo.address === zeroAddress ? "Deposit" : "Approve",
             buttonLoading: false,
         }
         // Check if we need to approve the token
         const account = getAccount(config);
-        if (reserveInfo.address != zeroAddress) {
+        if (reserveInfo.address !== zeroAddress) {
             if (!account.address || amount <= 0n || userBalance < amount) {
                 yield savePipelineState;
                 return // Restart the pipeline
@@ -62,9 +62,8 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
 
                         if (receipt.status === "success") {
                             return receipt;
-                        } else {
-                            throw new Error("Transaction reverted");
                         }
+                            throw new Error("Transaction reverted");
                     }, {
                         loading: "Approving...",
                         success: (data) => {
@@ -115,9 +114,8 @@ export function deposit(config: Config, reserveInfo: ReserveInfo, amount: bigint
 
                 if (receipt.status === "success") {
                     return receipt;
-                } else {
-                    throw new Error("Transaction reverted");
                 }
+                    throw new Error("Transaction reverted");
             }, {
                 loading: "Depositing...",
                 success: (data) => {

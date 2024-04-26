@@ -10,9 +10,9 @@ import useBalanceCoins from "@/lib/hooks/wagmiSH/viewFunctions/useBalanceCoins";
 import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSupply";
 import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { useEffect } from "react";
-import { Address } from "viem";
+import type { Address } from "viem";
 
 export default function SaveAddressSync({
     children,

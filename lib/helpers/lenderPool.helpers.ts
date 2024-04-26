@@ -1,12 +1,12 @@
-import { LenderPool, LightLenderPool } from "../api/generated/schemas";
+import type { LenderPool, LightLenderPool } from "../api/generated/schemas";
 import { LENDER_POOL_ERRORS } from "../errors/lenderPool.errors";
-import { Coins, ReserveInfo, GraphData } from "../types/save.types";
+import type { Coins, ReserveInfo, GraphData } from "../types/save.types";
 import { getAssetDecimals } from "./asset.helper";
 import { getSaveRate } from "./borrow.helpers";
 import { BLOCKS_IN_YEAR } from "./dates.helpers";
 import { bigIntToDecimal } from "./main.helpers";
 import { MAIN_ERRORS } from "../errors/main.errors";
-import { Address } from "viem";
+import type { Address } from "viem";
 
 /**
  * Returns the asset address of a lender pool
@@ -40,7 +40,7 @@ export const getFormattedInterestRate = (
   pool: LenderPool | LightLenderPool
 ) => {
   try {
-    let rate = pool.model_contract.interest_rate;
+    const rate = pool.model_contract.interest_rate;
 
     return rate / 100;
   } catch (error) {
@@ -133,7 +133,7 @@ export const getPoolUtilization = (
  */
 export const getSaveAssetIcons = (lenderPools: LenderPool[]): string[] => {
   try {
-    let assetIcons: string[] = [];
+    const assetIcons: string[] = [];
 
     lenderPools.forEach((set) => {
       const icon_uri = set?.asset.fa12?.thumbnail_uri;
@@ -297,7 +297,7 @@ export const getAverageMinMaxApy = (interestHistory: GraphData[]) => {
         0
       ) / interestHistory.length;
 
-    return average !== undefined && !isNaN(average)
+    return average !== undefined && !Number.isNaN(average)
       ? [average, max, min]
       : [undefined, undefined, undefined];
   } catch (error) {

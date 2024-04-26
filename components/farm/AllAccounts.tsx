@@ -1,8 +1,8 @@
 "use client";
 
 import Help from "@/components/ui/Help";
-import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import { type ColumnDef, type ColumnFiltersState, type SortingState, VisibilityState } from "@tanstack/react-table"
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { DataTable } from "../layout/DataTable";
 import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
@@ -16,10 +16,10 @@ import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useFarmStore } from "@/lib/data/farmStore";
-import { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import PairIcon from "./PairIcon";
 import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
-import { CollateralAmountPrice } from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import type { CollateralAmountPrice } from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import { Skeleton } from "../ui/skeleton";
 import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getMaxLT, getMaxLpApy, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import PercentageFormat from "../utils/PercentageFormat";
@@ -238,9 +238,8 @@ export default function AllAccounts() {
             const isAlreadySorted = prev.some((s) => s.id === id);
             if (isAlreadySorted) {
                 return [];
-            } else {
-                return [{ id, desc: true }];
             }
+                return [{ id, desc: true }];
         });
     }
 
@@ -323,10 +322,10 @@ export default function AllAccounts() {
             <DataTable
                 columns={columns}
                 columnVisibility={mode === "grid" ? {
-                    "minLT": false,
-                    "maxLT": false,
-                    "maxLeverage": false,
-                    "lpApy": false,
+                    minLT: false,
+                    maxLT: false,
+                    maxLeverage: false,
+                    lpApy: false,
                 } : {}}
                 data={data}
                 sorting={sorting}

@@ -1,7 +1,7 @@
 export enum ActiveTab {
-  SAVE,
-  FARM,
-  ANALYTICS,
+  SAVE = 0,
+  FARM = 1,
+  ANALYTICS = 2,
 }
 
 export enum ButtonType {
@@ -10,14 +10,14 @@ export enum ButtonType {
 }
 
 export enum IconPostion {
-  BEFORE,
-  AFTER,
+  BEFORE = 0,
+  AFTER = 1,
 }
 
 export enum PriorityLevel {
-  PRIMARY,
-  SECONDARY,
-  TERTIARY,
+  PRIMARY = 0,
+  SECONDARY = 1,
+  TERTIARY = 2,
 }
 
 export enum TooltipPosition {
@@ -39,10 +39,10 @@ export enum LockOptions {
 }
 
 export enum TableTextType {
-  BODY,
-  EMPHASIS,
-  TITLE,
-  WALLET_TABLE_TEXT,
+  BODY = 0,
+  EMPHASIS = 1,
+  TITLE = 2,
+  WALLET_TABLE_TEXT = 3,
 }
 
 export enum TextAlignment {
@@ -53,8 +53,8 @@ export enum TextAlignment {
 }
 
 export enum ScreenDisplay {
-  TABLE,
-  GRID,
+  TABLE = 0,
+  GRID = 1,
 }
 
 export enum GraphPeriod {

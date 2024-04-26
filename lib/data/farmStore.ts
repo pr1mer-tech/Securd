@@ -1,9 +1,9 @@
-import { Coins, ReserveInfo } from "../types/save.types"
+import type { Coins, ReserveInfo } from "../types/save.types"
 import { create } from 'zustand'
 import { createSelectors } from './createSelectors'
-import { Address } from "viem"
-import { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
-import { CollateralInfos } from "../types/farm.types"
+import type { Address } from "viem"
+import type { CollateralAmountPrice } from "../hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice"
+import type { CollateralInfos } from "../types/farm.types"
 
 type State = {
     coinPrices: Record<keyof Coins, number>,

@@ -1,7 +1,7 @@
 "use client";
 
 import getUserReservesInfo from "@/lib/hooks/getUserReservesInfo";
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import QuestionMark from "@/assets/icons/question-mark.svg";
 import { useSaveStore } from "@/lib/data/saveStore";

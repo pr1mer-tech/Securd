@@ -25,7 +25,7 @@ export const leverageToLp = (
       return result;
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -34,12 +34,11 @@ export const getLeverage = (borrowerCF: number | undefined) => {
     if (borrowerCF !== undefined) {
       if (borrowerCF !== 1) {
         return borrowerCF / (borrowerCF - 1);
-      } else {
-        return 1;
       }
+        return 1;
     }
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };
 
@@ -51,6 +50,6 @@ export const getFloor = (
     if (num !== undefined && decimal !== undefined)
       return Math.floor(num * 10 ** decimal) / 10 ** decimal;
   } catch (error) {
-    throw new Error("Error : " + error);
+    throw new Error(`Error : ${error}`);
   }
 };

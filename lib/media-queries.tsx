@@ -33,7 +33,7 @@ function useMediaQuery(query: string): boolean {
 }
 
 import resolveConfig from "tailwindcss/resolveConfig";
-import { Config, ScreensConfig } from "tailwindcss/types/config";
+import type { Config, ScreensConfig } from "tailwindcss/types/config";
 
 import tailwindConfig from "@/tailwind.config"; // Your tailwind config
 

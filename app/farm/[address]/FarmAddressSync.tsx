@@ -1,6 +1,6 @@
 "use client";
 
-import { Dex, Pool, Token } from "@/db/schema";
+import type { Dex, Pool, Token } from "@/db/schema";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import useChainURL from "@/lib/hooks/useChain";
 import useBorrowerLt from "@/lib/hooks/wagmiSH/viewFunctions/farm/useBorrowerLt";
@@ -11,9 +11,9 @@ import useGetCollateralProportions from "@/lib/hooks/wagmiSH/viewFunctions/farm/
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
 import useBalanceCoins from "@/lib/hooks/wagmiSH/viewFunctions/useBalanceCoins";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { useEffect } from "react";
-import { Address } from "viem";
+import type { Address } from "viem";
 
 export default function FarmAddressSync({
     children,

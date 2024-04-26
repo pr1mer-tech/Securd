@@ -1,6 +1,6 @@
-import { LenderPool, BorrowerPool } from "../api/generated/schemas";
+import type { LenderPool, BorrowerPool } from "../api/generated/schemas";
 import { CollateralInfos } from "../types/farm.types";
-import { Coins, ReserveInfo, SaveSortsProps } from "../types/save.types";
+import type { Coins, ReserveInfo, SaveSortsProps } from "../types/save.types";
 import { getPoolSize, getSavingApy } from "./lenderPool.helpers";
 
 export const filterSearch = (

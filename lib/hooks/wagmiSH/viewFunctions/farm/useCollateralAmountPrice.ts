@@ -1,6 +1,6 @@
 import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { CollateralInfos, Debts } from "@/lib/types/farm.types";
-import { Address } from "viem";
+import type { CollateralInfos, Debts } from "@/lib/types/farm.types";
+import type { Address } from "viem";
 import { useAccount, useReadContracts } from "wagmi";
 
 export type CollateralAmountPrice = {
@@ -15,7 +15,7 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
   const { isConnected, address } = useAccount();
 
   const { data } = useReadContracts({
-    contracts: collateralInfos.map(info => ([
+    contracts: collateralInfos.flatMap(info => ([
       {
         ...collateralPoolContract,
         functionName: "borrowerBalances",
@@ -36,7 +36,7 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
         functionName: "getLeverageFactor",
         args: [address, info.addressLP],
       },
-    ])).flat(),
+    ])),
     query: {
       enabled: isConnected,
       refetchInterval: 10000,

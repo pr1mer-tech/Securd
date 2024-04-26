@@ -7,7 +7,7 @@ import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPrice
 import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSupply";
 import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";

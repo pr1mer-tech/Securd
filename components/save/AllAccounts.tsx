@@ -1,8 +1,8 @@
 "use client";
 
 import Help from "@/components/ui/Help";
-import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import { Coins, ReserveInfo } from "@/lib/types/save.types";
+import { type ColumnDef, type ColumnFiltersState, type SortingState, VisibilityState } from "@tanstack/react-table"
+import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { getDepositBalance, getDeposit, getPoolLiquidity, getPoolUtilization, getSavingApy } from "@/lib/helpers/lenderPool.helpers";
 import { securdFormat, toFormattedPercentage } from "@/lib/helpers/numberFormat.helpers";
@@ -243,10 +243,10 @@ export default function AllAccounts() {
             <DataTable
                 columns={columns}
                 columnVisibility={mode === "grid" ? {
-                    "deposit": false,
-                    "interest": false,
-                    "liquidity": false,
-                    "utilization": false,
+                    deposit: false,
+                    interest: false,
+                    liquidity: false,
+                    utilization: false,
                 } : {}}
                 data={reservesInfo}
                 sorting={sorting}

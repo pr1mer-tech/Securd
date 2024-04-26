@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { lendingPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { ReserveInfo } from "@/lib/types/save.types";
-import { Address } from "viem";
+import type { ReserveInfo } from "@/lib/types/save.types";
+import type { Address } from "viem";
 import { useReadContracts } from "wagmi";
 
 export const useLendingPool = (preReservesInfo: ReserveInfo[]) => {

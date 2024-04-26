@@ -9,10 +9,10 @@ import { Separator } from "../ui/separator";
 import Help from "../ui/Help";
 import Link from "next/link";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
-import { CollateralInfos } from "@/lib/types/farm.types";
+import type { CollateralInfos } from "@/lib/types/farm.types";
 import { getBorrowAPY, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "@/lib/helpers/borrow.helpers";
 import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
-import { CollateralAmountPrice } from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import type { CollateralAmountPrice } from "@/lib/hooks/wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 import PairIcon from "./PairIcon";
 import SecurdFormat from "../utils/SecurdFormat";
 import { Skeleton } from "../ui/skeleton";
@@ -64,8 +64,8 @@ export function AccountCard({
 
     const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, userCollateralsInfo);
 
-    let loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
-    let loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
+    const loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
+    const loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
 
     const priceLoan = loanAUSD + loanBUSD;
 

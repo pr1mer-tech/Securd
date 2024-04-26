@@ -22,10 +22,10 @@ import type { BorrowerPool, Borrower } from ".././schemas";
 export const borrowerPoolList = (
   options?: AxiosRequestConfig
 ): Promise<AxiosResponse<BorrowerPool[]>> => {
-  return axios.get(`/borrower_pool/`, options);
+  return axios.get("/borrower_pool/", options);
 };
 
-export const getBorrowerPoolListQueryKey = () => [`/borrower_pool/`] as const;
+export const getBorrowerPoolListQueryKey = () => ["/borrower_pool/"] as const;
 
 export const getBorrowerPoolListQueryOptions = <
   TData = Awaited<ReturnType<typeof borrowerPoolList>>,

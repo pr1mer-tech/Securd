@@ -1,10 +1,10 @@
 import { getBorrowAPY, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers";
 import { getPoolAPY } from "../helpers/lenderPool.helpers";
 import { bigIntToDecimal } from "../helpers/main.helpers";
-import { CollateralInfos } from "../types/farm.types";
-import { Coins, ReserveInfo } from "../types/save.types";
+import type { CollateralInfos } from "../types/farm.types";
+import type { Coins, ReserveInfo } from "../types/save.types";
 import getPairBorrowBalances from "./getPairBorrowBalances";
-import { CollateralAmountPrice } from "./wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
+import type { CollateralAmountPrice } from "./wagmiSH/viewFunctions/farm/useCollateralAmountPrice";
 
 const getFarmAverageApy = (
     collateralInfos: CollateralInfos[],
@@ -30,8 +30,8 @@ const getFarmAverageApy = (
 
         const tokensUSDPrices = getPairPrice(coinPrices, reservesInfo, collateralInfo);
 
-        let loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
-        let loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
+        const loanAUSD = borrowBalances?.borrowBalanceA && tokensUSDPrices.tokenA ? borrowBalances.borrowBalanceA * tokensUSDPrices.tokenA : 0;
+        const loanBUSD = borrowBalances?.borrowBalanceB && tokensUSDPrices.tokenB ? borrowBalances.borrowBalanceB * tokensUSDPrices.tokenB : 0;
 
         const priceLoan = loanAUSD + loanBUSD;
 

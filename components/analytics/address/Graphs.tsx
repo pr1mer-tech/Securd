@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { MenuTabsContent } from "@/components/ui/menu-tabs";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
-import { PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
+import { type PoolDetails, PoolTableRows } from "@/lib/helpers/analytics.helper";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import { AreaChart, Color } from "@tremor/react";
@@ -59,7 +59,7 @@ export default function Graphs({
 			<MenuTabsContent value="pool">
 				<div className="flex items-center justify-end py-2">
 					<ol className="tremor-Legend-root relative overflow-hidden">
-						<div tabIndex={0} className="h-full flex flex-wrap">
+						<div className="h-full flex flex-wrap">
 							<li className="tremor-Legend-legendItem group inline-flex items-center px-2 py-0.5 rounded-tremor-small transition whitespace-nowrap cursor-default text-tremor-content dark:text-dark-tremor-content">
 								<svg
 									className="flex-none h-2 w-2 mr-1.5 text-[#E8A029] opacity-100"
@@ -97,7 +97,7 @@ export default function Graphs({
 							?.filter((info) => info.date && info.date >= limitDate)
 							.map((info) => ({
 								date: formatDate(info.date),
-								[`Price in $`]: tokenDirection
+								"Price in $": tokenDirection
 									? poolInfo?.token_0?.prices?.find(
 											(price) =>
 												price.date?.toDateString() ===
@@ -116,7 +116,7 @@ export default function Graphs({
 					}
 					index="date"
 					categories={[
-						selected === "symbol" ? `Price in ${symbol}` : `Price in $`,
+						selected === "symbol" ? `Price in ${symbol}` : "Price in $",
 					]}
 					valueFormatter={(number: number) =>
 						`${selected === "dollar" ? "$" : ""}${securdFormat(number, 2)}${
@@ -190,7 +190,7 @@ export default function Graphs({
 					categories={[
 						selected === "symbol"
 							? `Volume in ${symbol.split("/")[1]}`
-							: `Volume in $`,
+							: "Volume in $",
 					]}
 					valueFormatter={(number: number) =>
 						`${selected === "dollar" ? "$" : ""}${securdFormat(number, 2)}${

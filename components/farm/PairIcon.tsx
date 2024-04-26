@@ -2,12 +2,12 @@
 
 import { getPairReservesInfos, getTokensSymbol } from "@/lib/helpers/borrow.helpers";
 import UniswapLogo from "@/assets/logos/Uniswap-logo.svg";
-import { CollateralInfos, PoolType, poolLink } from "@/lib/types/farm.types";
+import { type CollateralInfos, PoolType, poolLink } from "@/lib/types/farm.types";
 import Image from "next/image";
 import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 
 export function DexIcon({
     userCollateralsInfo,
