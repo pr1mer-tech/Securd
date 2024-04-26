@@ -67,7 +67,7 @@ export default function Rates({
 								Borrow Rate {poolInfo?.token_1?.token_symbol}
 								<Help>The interest rate paid by borrowers to lenders.</Help>
 							</TableHead>
-							<TableCell>
+							<TableCell className="font-bold text-center">
 								<PercentageFormat value={0.01} decimals={2} />
 							</TableCell>
 						</TableRow>
