@@ -173,17 +173,13 @@ export default function Graphs({
 									? info.volume_token_1 ?? 0
 									: info.volume_token_0 ?? 0,
 							}))
-							.map((info) => ({
+							.map((info, idx) => ({
 								...info,
 								"Volume in $":
 									((info[`Volume in ${symbol.split("/")[1]}`] as number) ?? 0) *
 									(tokenDirection
-										? poolInfo?.token_1?.prices?.find(
-												(price) => price.date?.toDateString() === info.date,
-											)?.price ?? 0
-										: poolInfo?.token_0?.prices?.find(
-												(price) => price.date?.toDateString() === info.date,
-											)?.price ?? 0),
+										? poolInfo?.token_1?.prices?.[idx]?.price ?? 0
+										: poolInfo?.token_0?.prices?.[idx]?.price ?? 0),
 							})) ?? []
 					}
 					colors={["#0B4B48"]}

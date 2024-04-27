@@ -35,7 +35,7 @@ export default function QuickView({
 	const qToken0 = lastAnalytics?.quantity_token_0 ?? 0;
 	const qToken1 = lastAnalytics?.quantity_token_1 ?? 0;
 
-	const tvl =
+	const tvlDollars =
 		qToken0 *
 			(poolInfo?.token_0?.prices?.[poolInfo?.token_0?.prices?.length - 1]
 				?.price ?? 0) ??
@@ -89,6 +89,7 @@ export default function QuickView({
 								: poolInfo?.token_0?.token_symbol}
 						</h2>
 						<SecurdFormat
+							className="font-semibold"
 							value={
 								tokenDirection
 									? (lastAnalytics?.quantity_token_1 ?? 0) /
@@ -97,14 +98,54 @@ export default function QuickView({
 										(lastAnalytics?.quantity_token_1 ?? 0)
 							}
 						/>
+						<SecurdFormat
+							prefix="$"
+							className="block mx-auto text-sm text-secondary"
+							value={
+								tokenDirection
+									? poolInfo?.token_0?.prices?.[
+											poolInfo?.token_0?.prices?.length - 1
+										]?.price ?? 0
+									: poolInfo?.token_1?.prices?.[
+											poolInfo?.token_1?.prices?.length - 1
+										]?.price ?? 0
+							}
+						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">TVL</h2>
-						<SecurdFormat value={tvl} prefix="$" />
+						<SecurdFormat
+							className="font-semibold"
+							value={tokenDirection ? qToken0 : qToken1}
+							suffix={
+								tokenDirection
+									? poolInfo?.token_0?.token_symbol
+									: poolInfo?.token_1?.token_symbol
+							}
+						/>
+						<SecurdFormat
+							className="block mx-auto text-sm text-secondary"
+							value={tvlDollars}
+							prefix="$"
+						/>
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">Volume (24h)</h2>
 						<SecurdFormat
+							className="font-semibold"
+							value={
+								(tokenDirection
+									? lastAnalytics?.volume_token_1
+									: lastAnalytics?.volume_token_0) ?? undefined
+							}
+							suffix={
+								tokenDirection
+									? poolInfo?.token_0?.token_symbol
+									: poolInfo?.token_1?.token_symbol
+							}
+						/>
+						<SecurdFormat
+							className="block mx-auto text-sm text-secondary"
 							prefix="$"
 							value={
 								((tokenDirection
@@ -123,6 +164,30 @@ export default function QuickView({
 					<div className="text-center">
 						<h2 className="text-xl font-bold">Volume (7d)</h2>
 						<SecurdFormat
+							className="font-semibold"
+							value={
+								poolInfo?.analytics
+									?.slice(
+										poolInfo?.analytics?.length - 8,
+										poolInfo?.analytics?.length - 1,
+									)
+									.reduce(
+										(acc, curr) =>
+											acc +
+											((tokenDirection
+												? curr.volume_token_0
+												: curr.volume_token_1) ?? 0),
+										0,
+									) ?? 0
+							}
+							suffix={
+								tokenDirection
+									? poolInfo?.token_0?.token_symbol
+									: poolInfo?.token_1?.token_symbol
+							}
+						/>
+						<SecurdFormat
+							className="block mx-auto text-sm text-secondary"
 							prefix="$"
 							value={
 								(poolInfo?.analytics
