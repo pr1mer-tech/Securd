@@ -95,6 +95,7 @@ export default function Graphs({
 				<AreaChart
 					className="h-60"
 					colors={["#E8A029"]}
+					autoMinValue
 					data={
 						poolInfo?.analytics
 							?.filter((info) => info.date && info.date >= limitDate)
@@ -203,6 +204,7 @@ export default function Graphs({
 				<AreaChart
 					className="h-60"
 					colors={["#0B4B48", "#E95A4C"]}
+					autoMinValue
 					data={LP_HODL({ poolInfo, limitDate, leverage })}
 					index="date"
 					categories={["LP", "HOLD"]}
@@ -213,6 +215,7 @@ export default function Graphs({
 				<AreaChart
 					className="h-60"
 					colors={["#E95A4C", "#0B4B48", "#E8A029"]}
+					autoMinValue
 					data={LP_HODL({ poolInfo, limitDate, leverage })}
 					index="date"
 					categories={["Fee", "IL", "Interest"]}
