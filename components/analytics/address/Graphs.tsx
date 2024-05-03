@@ -39,6 +39,7 @@ export default function Graphs({
 	const leverage = useAnalyticsAddressStore.use.leverage();
 	const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
 	const [selected, setSelected] = useState<string>("symbol");
+	const [selected2, setSelected2] = useState<string>("lp");
 	// Compute date from timeRange
 	const limitDate = new Date();
 	switch (timeRange) {
@@ -56,6 +57,13 @@ export default function Graphs({
 	const symbol = !tokenDirection
 		? `${poolInfo?.token_1?.token_symbol} / ${poolInfo?.token_0?.token_symbol}`
 		: `${poolInfo?.token_0?.token_symbol} / ${poolInfo?.token_1?.token_symbol}`;
+
+	const symbol0 = !tokenDirection
+		? poolInfo?.token_1?.token_symbol
+		: poolInfo?.token_0?.token_symbol;
+	const symbol1 = !tokenDirection
+		? poolInfo?.token_0?.token_symbol
+		: poolInfo?.token_1?.token_symbol;
 
 	return (
 		<Card className="w-full pl-1 pr-4">
@@ -84,8 +92,10 @@ export default function Graphs({
 										</span>
 									</SelectPrimitive.Trigger>
 									<SelectContent>
-										<SelectItem value="symbol">Price in {symbol}</SelectItem>
-										<SelectItem value="dollar">Price in $</SelectItem>
+										<SelectItem value="symbol">
+											{symbol0} price in {symbol1}
+										</SelectItem>
+										<SelectItem value="dollar">{symbol0} price in $</SelectItem>
 									</SelectContent>
 								</Select>
 							</li>
@@ -101,7 +111,7 @@ export default function Graphs({
 							?.filter((info) => info.date && info.date >= limitDate)
 							.map((info) => ({
 								date: formatDate(info.date),
-								"Price in $": tokenDirection
+								[`${symbol0} price in $`]: tokenDirection
 									? poolInfo?.token_0?.prices?.find(
 											(price) =>
 												price.date?.toDateString() ===
@@ -112,21 +122,23 @@ export default function Graphs({
 												price.date?.toDateString() ===
 												info.date?.toDateString(),
 										)?.price ?? 0,
-								[`Price in ${symbol}`]: tokenDirection
+								[`${symbol0} price in ${symbol1}`]: tokenDirection
 									? (info.quantity_token_1 ?? 0) / (info.quantity_token_0 ?? 0)
 									: (info.quantity_token_0 ?? 0) / (info.quantity_token_1 ?? 0),
 							})) ?? []
 					}
 					index="date"
 					categories={[
-						selected === "symbol" ? `Price in ${symbol}` : "Price in $",
+						selected === "symbol"
+							? `${symbol0} price in ${symbol1}`
+							: `${symbol0} price in $`,
 					]}
 					valueFormatter={(number: number) =>
 						`${selected === "dollar" ? "$" : ""}${securdFormat(number, 2)}${
 							selected === "symbol" ? symbol.split("/")[1] : ""
 						}`
 					}
-					yAxisWidth={selected === "symbol" ? 120 : 90}
+					yAxisWidth={selected === "symbol" ? 130 : 90}
 					showLegend={false}
 				/>
 				<div className="flex items-center justify-end py-2">
@@ -195,22 +207,77 @@ export default function Graphs({
 							selected === "symbol" ? symbol.split("/")[1] : ""
 						}`
 					}
-					yAxisWidth={selected === "symbol" ? 120 : 90}
+					yAxisWidth={selected === "symbol" ? 130 : 90}
 					curveType="step"
 					showLegend={false}
 				/>
 			</MenuTabsContent>
 			<MenuTabsContent value="apy">
+				<div className="flex items-center justify-end py-2">
+					<ol className="tremor-Legend-root relative overflow-hidden">
+						<div className="h-full flex flex-wrap">
+							<li className="tremor-Legend-legendItem group inline-flex items-center px-2 py-0.5 rounded-tremor-small transition whitespace-nowrap cursor-default text-tremor-content dark:text-dark-tremor-content">
+								<Select
+									value={selected2}
+									onValueChange={(v) => setSelected2(v)}
+								>
+									<SelectPrimitive.Trigger asChild>
+										<span className="cursor-pointer">
+											<SelectValue
+												placeholder="Price"
+												className="whitespace-nowrap truncate text-tremor-default text-tremor-content dark:text-dark-tremor-content opacity-100"
+											/>
+											<SelectPrimitive.Icon asChild>
+												<ChevronDown className="h-4 w-4 ml-1 opacity-50 inline" />
+											</SelectPrimitive.Icon>
+										</span>
+									</SelectPrimitive.Trigger>
+									<SelectContent>
+										<SelectItem value="lp">
+											<svg
+												className="flex-none inline h-2 w-2 mr-1.5 text-[#0B4B48] opacity-100"
+												fill="currentColor"
+												viewBox="0 0 8 8"
+											>
+												<circle cx="4" cy="4" r="4" />
+											</svg>
+											LP
+											<svg
+												className="flex-none inline h-2 w-2 mr-1.5 ml-2 text-[#E95A4C] opacity-100"
+												fill="currentColor"
+												viewBox="0 0 8 8"
+											>
+												<circle cx="4" cy="4" r="4" />
+											</svg>
+											Hold
+										</SelectItem>
+										<SelectItem value="hold">
+											<svg
+												className="flex-none inline h-2 w-2 mr-1.5 text-[#fcd34d] opacity-100"
+												fill="currentColor"
+												viewBox="0 0 8 8"
+											>
+												<circle cx="4" cy="4" r="4" />
+											</svg>
+											LP vs Hold
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</li>
+						</div>
+					</ol>
+				</div>
 				<AreaChart
 					className="h-60"
-					colors={["#0B4B48", "#E95A4C"]}
+					showLegend={false}
+					colors={selected2 === "lp" ? ["#0B4B48", "#E95A4C"] : ["#FCD34D"]}
 					autoMinValue
 					data={LP_HODL({ poolInfo, limitDate, leverage })}
 					index="date"
-					categories={["LP", "HOLD"]}
+					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold"]}
 					valueFormatter={dataFormatter}
 					yAxisWidth={90}
-					customTooltip={customTooltip}
+					customTooltip={selected2 === "lp" ? customTooltip : undefined}
 				/>
 				<AreaChart
 					className="h-60"
@@ -324,6 +391,7 @@ function LP_HODL({
 		date: formatDate(info.date),
 		LP: hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
 		HOLD: hold[i],
+		"LP vs Hold": L * _fees[i] + L * il[i] - (L - 1) * interest[i],
 		// Inverse all the values
 		IL: L * il[i],
 		Interest: (L - 1) * interest[i],

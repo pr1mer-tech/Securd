@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
 	MenuTabs,
@@ -24,6 +25,7 @@ export default function QuickView({
 }: { poolInfo: PoolDetails; className?: string }) {
 	const timeRange = useAnalyticsAddressStore.use.timeRange();
 	const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
+	const leverage = useAnalyticsAddressStore.use.leverage();
 
 	const lastAnalytics =
 		poolInfo?.analytics?.[poolInfo?.analytics?.length - 1] ?? null;
@@ -44,6 +46,54 @@ export default function QuickView({
 				(poolInfo?.token_1?.prices?.[poolInfo?.token_1?.prices?.length - 1]
 					?.price ?? 0) ??
 		0;
+
+	let lpApy = lastAnalytics?.[`lp_apy_${timeRange}`] ?? 0;
+	let holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
+	let feeApy = lastAnalytics?.[`fee_apy_${timeRange}`] ?? 0;
+	let ilApy = lastAnalytics?.[`il_apy_${timeRange}`] ?? 0;
+
+	const delay = (() => {
+		switch (timeRange) {
+			case "1m":
+				return 30;
+			case "3m":
+				return 90;
+			case "1y":
+				return 365;
+			default:
+				return 0;
+		}
+	})();
+
+	const annualization = 365 / delay;
+
+	const perfHold = (1 + holdApy) ** (1 / annualization) - 1;
+	const perfFee = (1 + feeApy) ** (1 / annualization) - 1;
+	const perfIl = (1 + ilApy) ** (1 / annualization) - 1;
+
+	const r_0 = 5 / 100;
+	const r_1 = 1 / 100;
+
+	const r = 0.5 * (r_0 + r_1);
+	const perfIR = (-r * delay) / 365;
+
+	lpApy =
+		(1 +
+			perfHold +
+			leverage * perfFee +
+			leverage * perfIl +
+			(leverage - 1) * perfIR) **
+			annualization -
+		1;
+
+	const lpVsHoldApy =
+		(1 + leverage * perfFee + leverage * perfIl + (leverage - 1) * perfIR) **
+			annualization -
+		1;
+
+	feeApy = (1 + leverage * perfFee) ** annualization - 1;
+	ilApy = (1 + leverage * perfIl) ** annualization - 1;
+	holdApy = (1 + leverage * perfHold) ** annualization - 1;
 
 	return (
 		<Card className="p-4">
@@ -79,7 +129,6 @@ export default function QuickView({
 						onClick={handlePriceClick}
 					>
 						<h2 className="text-xl font-bold">
-							Price{" "}
 							{tokenDirection
 								? poolInfo?.token_0?.token_symbol
 								: poolInfo?.token_1?.token_symbol}{" "}
@@ -116,9 +165,9 @@ export default function QuickView({
 						<h2 className="text-xl font-bold">TVL</h2>
 						<SecurdFormat
 							className="font-semibold"
-							value={tokenDirection ? qToken0 : qToken1}
+							value={!tokenDirection ? qToken0 : qToken1}
 							suffix={
-								tokenDirection
+								!tokenDirection
 									? poolInfo?.token_0?.token_symbol
 									: poolInfo?.token_1?.token_symbol
 							}
@@ -134,12 +183,12 @@ export default function QuickView({
 						<SecurdFormat
 							className="font-semibold"
 							value={
-								(tokenDirection
+								(!tokenDirection
 									? lastAnalytics?.volume_token_1
 									: lastAnalytics?.volume_token_0) ?? undefined
 							}
 							suffix={
-								tokenDirection
+								!tokenDirection
 									? poolInfo?.token_0?.token_symbol
 									: poolInfo?.token_1?.token_symbol
 							}
@@ -148,10 +197,10 @@ export default function QuickView({
 							className="block mx-auto text-sm text-secondary"
 							prefix="$"
 							value={
-								((tokenDirection
+								((!tokenDirection
 									? lastAnalytics?.volume_token_1
 									: lastAnalytics?.volume_token_0) ?? 0) *
-								(tokenDirection
+								(!tokenDirection
 									? poolInfo?.token_1?.prices?.[
 											poolInfo?.token_1?.prices?.length - 1
 										]?.price ?? 0
@@ -174,14 +223,14 @@ export default function QuickView({
 									.reduce(
 										(acc, curr) =>
 											acc +
-											((tokenDirection
+											((!tokenDirection
 												? curr.volume_token_0
 												: curr.volume_token_1) ?? 0),
 										0,
 									) ?? 0
 							}
 							suffix={
-								tokenDirection
+								!tokenDirection
 									? poolInfo?.token_0?.token_symbol
 									: poolInfo?.token_1?.token_symbol
 							}
@@ -198,12 +247,12 @@ export default function QuickView({
 									.reduce(
 										(acc, curr) =>
 											acc +
-											((tokenDirection
+											((!tokenDirection
 												? curr.volume_token_1
 												: curr.volume_token_0) ?? 0),
 										0,
 									) ?? 0) *
-								(tokenDirection
+								(!tokenDirection
 									? poolInfo?.token_1?.prices?.[
 											poolInfo?.token_1?.prices?.length - 1
 										]?.price ?? 0
@@ -219,36 +268,17 @@ export default function QuickView({
 				<div className="flex flex-row justify-evenly items-center w-full mt-8">
 					<div className="text-center">
 						<h2 className="text-xl font-bold">LP APY</h2>
-						<PercentageFormat
-							value={lastAnalytics?.[`lp_apy_${timeRange}`] ?? undefined}
-						/>
+						<PercentageFormat value={lpApy} />
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">LP vs Hold APY</h2>
-						<PercentageFormat
-							value={
-								lastAnalytics?.[`lp_vs_hold_apy_${timeRange}`] ?? undefined
-							}
-						/>
-					</div>
-					<div className="text-center">
-						<h2 className="text-xl font-bold">Fee APY</h2>
-						<PercentageFormat
-							value={lastAnalytics?.[`fee_apy_${timeRange}`] ?? undefined}
-						/>
-					</div>
-					<div className="text-center">
-						<h2 className="text-xl font-bold">IL APY</h2>
-						<PercentageFormat
-							value={lastAnalytics?.[`il_apy_${timeRange}`] ?? undefined}
-						/>
+						<PercentageFormat value={lpVsHoldApy} />
 					</div>
 					<div className="text-center">
 						<h2 className="text-xl font-bold">Hold APY</h2>
-						<PercentageFormat
-							value={lastAnalytics?.[`hold_apy_${timeRange}`] ?? undefined}
-						/>
+						<PercentageFormat value={holdApy} />
 					</div>
+					<Badge>&times;{leverage}</Badge>
 				</div>
 			</MenuTabsContent>
 		</Card>
