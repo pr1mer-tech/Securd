@@ -173,7 +173,7 @@ const config = {
       pattern:
         /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
     },
-    ...["[#0B4B48]", "[#E95A4C]", "[#3CC27A]", "[#E8A029]"].flatMap((customColor) => [
+    ...["[#0B4B48]", "[#E95A4C]", "[#3CC27A]", "[#E8A029]", "[#FCD34D]"].flatMap((customColor) => [
       `bg-${customColor}`,
       `border-${customColor}`,
       `hover:bg-${customColor}`,
