@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dex, Pool, Token } from "@/db/schema";
+import type { Analytics, Dex, Pool, Token } from "@/db/schema";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import useChainURL from "@/lib/hooks/useChain";
 import useBorrowerLt from "@/lib/hooks/wagmiSH/viewFunctions/farm/useBorrowerLt";
@@ -16,47 +16,74 @@ import { useEffect } from "react";
 import type { Address } from "viem";
 
 export default function FarmAddressSync({
-    children,
-    address,
-    preReservesInfo,
-    pool,
-    chainId
+	children,
+	address,
+	preReservesInfo,
+	pool,
+	chainId,
 }: {
-    children: React.ReactNode,
-    address: Address,
-    preReservesInfo: ReserveInfo[],
-    pool: Pool & {
-        token_0: Token | null,
-        token_1: Token | null,
-        dex: Dex | null
-    } | undefined,
-    chainId: string | undefined,
+	children: React.ReactNode;
+	address: Address;
+	preReservesInfo: ReserveInfo[];
+	pool:
+		| (Pool & {
+				token_0: Token | null;
+				token_1: Token | null;
+				dex: Dex | null;
+				analytics: Analytics[] | null;
+		  })
+		| undefined;
+	chainId: string | undefined;
 }) {
-    useChainURL(chainId);
-    const { reservesInfo } = useLendingPool(preReservesInfo);
-    const coinPrices = useAssetPriceOracle(reservesInfo);
+	useChainURL(chainId);
+	const { reservesInfo } = useLendingPool(preReservesInfo);
+	const coinPrices = useAssetPriceOracle(reservesInfo);
 
-    const collateralsInfos = useCollateralPool(pool ? [pool] : []);
+	const collateralsInfos = useCollateralPool(pool ? [pool] : []);
 
-    const collateralInfo = collateralsInfos.find(info => info.addressLP === address);
-    const collateralAmountPrice = useCollateralAmountPrice(collateralInfo ? [collateralInfo] : []);
-    const borrowerLt = useBorrowerLt(collateralInfo ? [collateralInfo] : [], collateralAmountPrice);
+	const collateralInfo = collateralsInfos.find(
+		(info) => info.addressLP === address,
+	);
+	const collateralAmountPrice = useCollateralAmountPrice(
+		collateralInfo ? [collateralInfo] : [],
+	);
+	const borrowerLt = useBorrowerLt(
+		collateralInfo ? [collateralInfo] : [],
+		collateralAmountPrice,
+	);
 
-    const collateralPoolBalances = useCollateralPoolBalances(collateralInfo ? [collateralInfo] : []);
-    const collateralProportions = useGetCollateralProportions(collateralInfo ? [collateralInfo] : [], collateralAmountPrice);
-    const userBalance = useBalanceCoins(collateralInfo ? [{ address: collateralInfo.addressLP }] : []);
+	const collateralPoolBalances = useCollateralPoolBalances(
+		collateralInfo ? [collateralInfo] : [],
+	);
+	const collateralProportions = useGetCollateralProportions(
+		collateralInfo ? [collateralInfo] : [],
+		collateralAmountPrice,
+	);
+	const userBalance = useBalanceCoins(
+		collateralInfo ? [{ address: collateralInfo.addressLP }] : [],
+	);
 
-    useEffect(() => {
-        useFarmAddressStore.setState({
-            reservesInfo,
-            collateralInfo,
-            collateralAmountPrice: collateralAmountPrice[address],
-            coinPrices,
-            borrowerLt: borrowerLt[address],
-            collateralPoolBalance: collateralPoolBalances[address],
-            collateralProportions: collateralProportions[address],
-            userBalance: userBalance[address],
-        })
-    }, [reservesInfo, collateralInfo, collateralAmountPrice, coinPrices, borrowerLt, collateralPoolBalances, address, collateralProportions, userBalance]);
-    return children;
+	useEffect(() => {
+		useFarmAddressStore.setState({
+			reservesInfo,
+			collateralInfo,
+			collateralAmountPrice: collateralAmountPrice[address],
+			coinPrices,
+			borrowerLt: borrowerLt[address],
+			collateralPoolBalance: collateralPoolBalances[address],
+			collateralProportions: collateralProportions[address],
+			userBalance: userBalance[address],
+		});
+	}, [
+		reservesInfo,
+		collateralInfo,
+		collateralAmountPrice,
+		coinPrices,
+		borrowerLt,
+		collateralPoolBalances,
+		address,
+		collateralProportions,
+		userBalance,
+	]);
+	return children;
 }
