@@ -374,8 +374,6 @@ function LP_HODL({
 
 	const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
 
-	// console.log(plp, _fees, hold);
-
 	const interest = Array.from(
 		{ length: delay },
 		(_, i) => (-amount * r * i) / 365,
