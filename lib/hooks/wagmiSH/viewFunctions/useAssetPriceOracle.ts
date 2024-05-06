@@ -1,5 +1,5 @@
 "use client";
-import { useAccount, useReadContracts } from "wagmi";
+import { useAccount, useReadContract, useReadContracts } from "wagmi";
 import { assetPriceOracleContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import { weiToEth } from "@/lib/helpers/main.helpers";
 import { AddressZero } from "@/lib/constants/constants";
@@ -19,6 +19,8 @@ const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, 
       refetchInterval: 10000,
     }
   })
+
+  return Object.fromEntries(reservesInfo.map((reserve, index) => [reserve.symbol as keyof Coins, 1]));
 
   if (!data) return {} as Record<keyof Coins, number>;
 
