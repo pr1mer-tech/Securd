@@ -4,31 +4,31 @@ export const abiCollateralPool = [
       {
         internalType: "address",
         name: "admin_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address payable",
         name: "lendingPool_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "assetPriceOracle_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "collateralPriceOracle_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "liquidationThreshold_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "payable",
-    type: "constructor",
+    type: "constructor"
   },
   {
     anonymous: false,
@@ -37,39 +37,39 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         components: [
           {
             internalType: "uint256",
             name: "nbAssets",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "address",
             name: "router",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address",
             name: "wETH",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address[]",
             name: "assets",
-            type: "address[]",
-          },
+            type: "address[]"
+          }
         ],
         indexed: false,
-        internalType: "struct CollateralPool.TokenInfo",
+        internalType: "struct TokenInfo",
         name: "tokenInfo_",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     name: "AddLPToken",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -78,29 +78,29 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "caller_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "asset_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Borrow",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -109,23 +109,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "caller_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Deleverage",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -134,23 +134,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "caller_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Leverage",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -159,11 +159,11 @@ export const abiCollateralPool = [
         indexed: false,
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "Paused",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -172,29 +172,29 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "asset_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: true,
         internalType: "address",
         name: "to_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "Repay",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -203,23 +203,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "previousAdminRole",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "newAdminRole",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "RoleAdminChanged",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -228,23 +228,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "RoleGranted",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -253,23 +253,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "RoleRevoked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -278,23 +278,23 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "to_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Supply",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -303,11 +303,11 @@ export const abiCollateralPool = [
         indexed: false,
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "Unpaused",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -316,47 +316,47 @@ export const abiCollateralPool = [
         indexed: true,
         internalType: "address",
         name: "caller_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Withdraw",
-    type: "event",
+    type: "event"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "CheckLoanCondition",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -365,162 +365,159 @@ export const abiCollateralPool = [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "MAX_VALUE",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "liquidationPremuim_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "UpdateLiquidationPremuim",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         components: [
           {
             internalType: "uint256",
-            name: "balancedLoanThreshold",
-            type: "uint256",
+            name: "balancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "unBalancedLoanThreshold",
-            type: "uint256",
+            name: "unBalancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "buffer",
-            type: "uint256",
+            name: "balancedLoanThreshold_b",
+            type: "uint256"
           },
+          {
+            internalType: "uint256",
+            name: "unBalancedLoanThreshold_b",
+            type: "uint256"
+          }
         ],
-        internalType: "struct CollateralPool.LiquidationThresholdInfo",
+        internalType: "struct LiquidationThresholdInfo",
         name: "liquidationThresholdInfo_",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     name: "UpdateLiquidationThresholdInfo",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bool",
         name: "state_",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     name: "UpdateTokenState",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         components: [
           {
             internalType: "uint256",
             name: "nbAssets",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "address",
             name: "router",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address",
             name: "wETH",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address[]",
             name: "assets",
-            type: "address[]",
-          },
+            type: "address[]"
+          }
         ],
-        internalType: "struct CollateralPool.TokenInfo",
+        internalType: "struct TokenInfo",
         name: "tokenInfo_",
-        type: "tuple",
+        type: "tuple"
       },
       {
         components: [
           {
             internalType: "uint256",
-            name: "balancedLoanThreshold",
-            type: "uint256",
+            name: "balancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "unBalancedLoanThreshold",
-            type: "uint256",
+            name: "unBalancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "buffer",
-            type: "uint256",
+            name: "balancedLoanThreshold_b",
+            type: "uint256"
           },
+          {
+            internalType: "uint256",
+            name: "unBalancedLoanThreshold_b",
+            type: "uint256"
+          }
         ],
-        internalType: "struct CollateralPool.LiquidationThresholdInfo",
+        internalType: "struct LiquidationThresholdInfo",
         name: "liquidationThresholdInfo_",
-        type: "tuple",
+        type: "tuple"
       },
       {
         internalType: "uint256",
         name: "liquidationPremuim_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "addLPToken",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -529,81 +526,81 @@ export const abiCollateralPool = [
       {
         internalType: "contract AssetPriceOracle",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "asset_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "address",
         name: "to_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "borrow",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "borrowerBalances",
     outputs: [
       {
         internalType: "uint256",
         name: "collateral",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "debt0",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "debt1",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "collateralInfos",
     outputs: [
@@ -612,63 +609,68 @@ export const abiCollateralPool = [
           {
             internalType: "uint256",
             name: "nbAssets",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "address",
             name: "router",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address",
             name: "wETH",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "address[]",
             name: "assets",
-            type: "address[]",
-          },
+            type: "address[]"
+          }
         ],
-        internalType: "struct CollateralPool.TokenInfo",
+        internalType: "struct TokenInfo",
         name: "tokenInfo",
-        type: "tuple",
+        type: "tuple"
       },
       {
         components: [
           {
             internalType: "uint256",
-            name: "balancedLoanThreshold",
-            type: "uint256",
+            name: "balancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "unBalancedLoanThreshold",
-            type: "uint256",
+            name: "unBalancedLoanThreshold_0",
+            type: "uint256"
           },
           {
             internalType: "uint256",
-            name: "buffer",
-            type: "uint256",
+            name: "balancedLoanThreshold_b",
+            type: "uint256"
           },
+          {
+            internalType: "uint256",
+            name: "unBalancedLoanThreshold_b",
+            type: "uint256"
+          }
         ],
-        internalType: "struct CollateralPool.LiquidationThresholdInfo",
+        internalType: "struct LiquidationThresholdInfo",
         name: "liquidationThresholdInfo",
-        type: "tuple",
+        type: "tuple"
       },
       {
         internalType: "uint256",
         name: "liquidationPremuim",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "bool",
         name: "isActivated",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -677,429 +679,297 @@ export const abiCollateralPool = [
       {
         internalType: "contract CollateralPriceOracle",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "deleverage",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "getAmounts",
     outputs: [
       {
         internalType: "uint256",
         name: "amount0_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "amount1_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getCollateralFactor",
     outputs: [
       {
         internalType: "uint256",
         name: "value_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getCollateralValue",
     outputs: [
       {
         internalType: "uint256",
         name: "value_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getLeverageFactor",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getLoanValue",
     outputs: [
       {
         internalType: "uint256",
         name: "loan0_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "loan1_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "totalLoan_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "borrower_",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "token_",
-        type: "address",
-      },
-    ],
-    name: "getMaxLeverageFactor",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "token",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "borrower",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount0",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount1",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "direction",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "direction0",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "direction1",
-            type: "bool",
-          },
-        ],
-        internalType: "struct CollateralPool.DataIn",
-        name: "dataIn_",
-        type: "tuple",
-      },
-    ],
-    name: "getPositionData",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "collateral",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "collateralValue",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "debt0",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "debtValue0",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "debt1",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "debtValue1",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "collateralFactor",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "liquidationFactor",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "leverageFactor",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct CollateralPool.DataOut",
-        name: "data_",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "getRoleAdmin",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "uint256",
         name: "index",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "getRoleMember",
     outputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "getRoleMemberCount",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "grantRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "hasRole",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "borrower_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "token_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "isLiquidablePosition",
     outputs: [
       {
         internalType: "bool",
         name: "isLiquidable_",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "uint256",
         name: "liquidationThreshold_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -1108,29 +978,29 @@ export const abiCollateralPool = [
       {
         internalType: "address payable",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "leverage",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -1139,11 +1009,11 @@ export const abiCollateralPool = [
       {
         internalType: "contract LiquidationThreshold",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -1152,143 +1022,143 @@ export const abiCollateralPool = [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "renounceRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "asset_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "address",
         name: "to_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "repay",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "revokeRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "address",
         name: "to_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "supply",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes4",
         name: "interfaceId",
-        type: "bytes4",
-      },
+        type: "bytes4"
+      }
     ],
     name: "supportsInterface",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "token_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "address",
         name: "to_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "withdraw",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     stateMutability: "payable",
-    type: "receive",
-  },
+    type: "receive"
+  }
 ] as const;

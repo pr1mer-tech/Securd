@@ -17,7 +17,7 @@ const getFarmAverageApy = (
         const collateralValue = collateralPrice?.collateralValue;
         const collateralValueDecimal = bigIntToDecimal(collateralValue, collateralInfo.decimals) || 0;
 
-        const lpApr = 0.089;
+        const lpApr = collateralInfo.lpApr;
         const lpApy = getPoolAPY(undefined, lpApr);
 
         const pairReservesInfosUn = getPairReservesInfos(reservesInfo, collateralInfo);

@@ -1,8 +1,11 @@
 // @ts-nocheck
+import { abiLendingPool } from "@/lib/constants/abi/abiLendingPool";
 import { lendingPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import type { Address } from "viem";
-import { useReadContracts } from "wagmi";
+import { readContract } from "wagmi/actions";
+import { useConfig, useReadContract, useReadContracts } from "wagmi";
+import { useEffect } from "react";
 
 export const useLendingPool = (preReservesInfo: ReserveInfo[]) => {
   const { data } = useReadContracts({
