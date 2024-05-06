@@ -20,9 +20,7 @@ const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, 
     }
   })
 
-  return Object.fromEntries(reservesInfo.map((reserve, index) => [reserve.symbol as keyof Coins, 1]));
-
-  if (!data) return {} as Record<keyof Coins, number>;
+  if (!data) return Object.fromEntries(reservesInfo.map((reserve, index) => [reserve.symbol as keyof Coins, 1])) as Record<keyof Coins, number>;
 
   const coinPrices = reservesInfo.reduce((acc, reserve, index) => {
     if (typeof data[index].result !== "string" && typeof data[index].result !== "bigint") return acc;
