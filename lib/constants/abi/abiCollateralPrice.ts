@@ -4,16 +4,16 @@ export const abiCollateralPrice = [
       {
         internalType: "address",
         name: "admin_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "address",
         name: "assetPriceOracle_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "constructor",
+    type: "constructor"
   },
   {
     anonymous: false,
@@ -22,23 +22,23 @@ export const abiCollateralPrice = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "previousAdminRole",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "newAdminRole",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "RoleAdminChanged",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -47,23 +47,23 @@ export const abiCollateralPrice = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "RoleGranted",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -72,23 +72,23 @@ export const abiCollateralPrice = [
         indexed: true,
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "RoleRevoked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -97,11 +97,11 @@ export const abiCollateralPrice = [
         indexed: true,
         internalType: "address",
         name: "assetPriceOracle_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "UpdateAssetPriceOracle",
-    type: "event",
+    type: "event"
   },
   {
     inputs: [],
@@ -110,11 +110,11 @@ export const abiCollateralPrice = [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -123,269 +123,269 @@ export const abiCollateralPrice = [
       {
         internalType: "contract IAssetPriceOracle",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "collateral_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "getCollateralAmount",
     outputs: [
       {
         internalType: "uint256",
         name: "amount0_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "amount1_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "collateral_",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "amount_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "getCollateralFairAmount",
     outputs: [
       {
         internalType: "uint256",
         name: "amount0_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "amount1_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "collateral_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getCollateralPrice",
     outputs: [
       {
         internalType: "uint256",
         name: "amount0_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "amount1_",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "price_",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "getRoleAdmin",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "uint256",
         name: "index",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "getRoleMember",
     outputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     name: "getRoleMemberCount",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "grantRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "hasRole",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "renounceRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "role",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "revokeRole",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes4",
         name: "interfaceId",
-        type: "bytes4",
-      },
+        type: "bytes4"
+      }
     ],
     name: "supportsInterface",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "assetPriceOracle_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "updateAssetPriceOracle",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-];
+    type: "function"
+  }
+] as const;

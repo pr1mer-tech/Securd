@@ -39,6 +39,7 @@ export const analyticsToCollateralInfo = (pool: Pool & {
         address: pool?.pool_address as `0x${string}`,
         addressLP: pool?.pool_address as `0x${string}`,
         decimals: pool?.token_0?.token_decimals as number,
+        lpApr: Number(analytics?.lp_apy_3m),
         isActivated: true,
         liquidationPremium: 0n,
         liquidationThresholdInfo: {
@@ -64,7 +65,11 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
     let imgSrc = token?.token_optional_image ?? `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${chain?.blockchain_name.toLowerCase()}/assets/${token && getAddress(token.token_address)}/logo.png`;
 
     if (!token?.token_optional_image && !(await fetch(imgSrc).then(res => res.ok).catch(() => false))) {
-        const infoAPI = `https://cryptofonts-token-icon-api1.p.rapidapi.com/${chain?.chain_id ?? 1}/${token && getAddress(token.token_address)}`;
+        let chainId = chain?.chain_id ?? 1;
+        if (chainId === 338) {
+            chainId = 25;
+        }
+        const infoAPI = `https://cryptofonts-token-icon-api1.p.rapidapi.com/${chainId}/${token && getAddress(token.token_address)}`;
         const res = await fetch(infoAPI, {
             headers: {
                 "x-rapidapi-host": "cryptofonts-token-icon-api1.p.rapidapi.com",

@@ -65,7 +65,7 @@ export default function Other({
 		1;
 	feeApy = (1 + leverage * perfFee) ** annualization - 1;
 	ilApy = (1 + leverage * perfIl) ** annualization - 1;
-	holdApy = (1 + leverage * perfHold) ** annualization - 1;
+	const irApy = (1 + (leverage - 1) * perfIR) ** annualization - 1;
 
 	return (
 		<MenuTabsContent value="apy">
@@ -88,6 +88,14 @@ export default function Other({
 							</TableHead>
 							<TableCell className="font-bold text-center">
 								<PercentageFormat value={ilApy} />
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableHead className="font-bold pl-0 text-center border-r">
+								IR APY
+							</TableHead>
+							<TableCell className="font-bold text-center">
+								<PercentageFormat value={irApy} />
 							</TableCell>
 						</TableRow>
 					</TableBody>

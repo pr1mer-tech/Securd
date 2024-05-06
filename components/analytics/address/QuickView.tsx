@@ -48,7 +48,7 @@ export default function QuickView({
 		0;
 
 	let lpApy = lastAnalytics?.[`lp_apy_${timeRange}`] ?? 0;
-	let holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
+	const holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
 	let feeApy = lastAnalytics?.[`fee_apy_${timeRange}`] ?? 0;
 	let ilApy = lastAnalytics?.[`il_apy_${timeRange}`] ?? 0;
 
@@ -93,7 +93,7 @@ export default function QuickView({
 
 	feeApy = (1 + leverage * perfFee) ** annualization - 1;
 	ilApy = (1 + leverage * perfIl) ** annualization - 1;
-	holdApy = (1 + leverage * perfHold) ** annualization - 1;
+	const irApy = (1 + (leverage - 1) * perfIR) ** annualization - 1;
 
 	return (
 		<Card className="p-4">
@@ -278,7 +278,9 @@ export default function QuickView({
 						<h2 className="text-xl font-bold">Hold APY</h2>
 						<PercentageFormat value={holdApy} />
 					</div>
-					<Badge>&times;{leverage}</Badge>
+					<Badge className="hover:text-white hover:bg-primary">
+						&times;{leverage}
+					</Badge>
 				</div>
 			</MenuTabsContent>
 		</Card>

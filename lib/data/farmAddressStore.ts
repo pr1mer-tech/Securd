@@ -98,8 +98,7 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         return getTotalApy(collateralValueDecimal, lpApy, priceLoan, borrowApy);
     },
     lpApy: () => {
-        // MARK: ANTHONY wanted to have this to be fixed for a demo purpose
-        const lpApr = 0.089;
+        const lpApr = get().collateralInfo?.lpApr;
 
         const lpApy =
             lpApr !== undefined ? getPoolAPY(undefined, lpApr) : undefined;

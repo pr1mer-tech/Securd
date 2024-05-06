@@ -13,28 +13,36 @@ import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
 export default function SaveSync({
-    children,
-    preReservesInfo,
-    chainId
+	children,
+	preReservesInfo,
+	chainId,
 }: {
-    children: React.ReactNode,
-    preReservesInfo: ReserveInfo[],
-    chainId: string | undefined,
+	children: React.ReactNode;
+	preReservesInfo: ReserveInfo[];
+	chainId: string | undefined;
 }) {
-    useChainURL(chainId);
-    const { reservesInfo } = useLendingPool(preReservesInfo);
-    const coinPrices = useAssetPriceOracle(reservesInfo);
-    const { balanceLDTokens } = useLDtokens(reservesInfo);
-    const userDeposit = useGetLenderSupply(reservesInfo);
+	useChainURL(chainId);
+	const { reservesInfo } = useLendingPool(preReservesInfo);
 
-    useEffect(() => {
-        useSaveStore.setState({
-            reservesInfo,
-            coinPrices,
-            balanceLDTokens,
-            userDeposit,
-        })
-    }, [reservesInfo, coinPrices, balanceLDTokens, userDeposit]);
+	const coinPrices = useAssetPriceOracle(reservesInfo);
+	const { balanceLDTokens } = useLDtokens(reservesInfo);
+	const userDeposit = useGetLenderSupply(reservesInfo);
 
-    return children;
+	console.log({
+		reservesInfo,
+		coinPrices,
+		balanceLDTokens,
+		userDeposit,
+	});
+
+	useEffect(() => {
+		useSaveStore.setState({
+			reservesInfo,
+			coinPrices,
+			balanceLDTokens,
+			userDeposit,
+		});
+	}, [reservesInfo, coinPrices, balanceLDTokens, userDeposit]);
+
+	return children;
 }

@@ -1,4 +1,4 @@
-import type { Dex, Pool, Token } from "@/db/schema";
+import type { Analytics, Dex, Pool, Token } from "@/db/schema";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import type { CollateralInfos, PoolType } from "@/lib/types/farm.types";
 import type { Address } from "viem";
@@ -7,7 +7,8 @@ import { useAccount, useReadContracts } from "wagmi";
 const useCollateralPool: (pools: (Pool & {
   token_0: Token | null,
   token_1: Token | null,
-  dex: Dex | null
+  dex: Dex | null,
+  analytics: Analytics[] | null,
 })[]) => CollateralInfos[] = (pools) => {
   const { isConnected } = useAccount();
 
@@ -44,6 +45,7 @@ const useCollateralPool: (pools: (Pool & {
     liquidationPremium: item.result[2],
     //@ts-expect-error CollateralInfos is not properly casting
     isActivated: item.result[3],
+    lpApr: pools[index].analytics?.[0]?.lp_apy_3m ?? 0,
   }));
 };
 export default useCollateralPool;

@@ -51,7 +51,7 @@ export function AccountCard({
     const collateralValue = collateralPrice?.collateralValue;
     const collateralValueDecimal = bigIntToDecimal(collateralValue, userCollateralsInfo.decimals) || 0;
 
-    const lpApr = 0.089;
+    const lpApr = userCollateralsInfo.lpApr;
     const lpApy = getPoolAPY(undefined, lpApr);
 
     const pairReservesInfosUn = getPairReservesInfos(reservesInfo, userCollateralsInfo);

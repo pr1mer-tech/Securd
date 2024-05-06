@@ -104,6 +104,7 @@ export type CollateralInfos = {
   liquidationThresholdInfo: LiquidationThresholdInfo;
   liquidationPremium: bigint;
   isActivated: boolean;
+  lpApr: number;
 };
 
 export type Proportions = {
