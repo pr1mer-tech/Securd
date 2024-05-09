@@ -6,6 +6,8 @@ import {
 	getAccount,
 	writeContract,
 	waitForTransactionReceipt,
+	getGasPrice,
+	estimateGas,
 } from "wagmi/actions";
 import type { Effect } from "./useValueEffect";
 import { type SavePipelineState, savePipelineState } from "./SavePipelineState";
@@ -126,6 +128,8 @@ export function deposit(
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
 					async () => {
+						const gasPrice = await getGasPrice(config);
+						const gas = 153072n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
 							abi: abiLendingPool,
@@ -137,6 +141,9 @@ export function deposit(
 								amount,
 								account.address as `0x${string}`,
 							],
+							gas,
+							gasPrice,
+							type: "legacy",
 						});
 
 						const receipt = await waitForTransactionReceipt(config, {
