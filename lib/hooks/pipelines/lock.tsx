@@ -200,8 +200,11 @@ export function lock(
 			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
 		const newCollateralFactor =
-			((proportions?.collateralPrice ?? 0n) * (userDepositBalance + amount)) /
-			(adjustedPriceA + adjustedPriceB);
+			adjustedPriceA + adjustedPriceB > 0n
+				? ((proportions?.collateralPrice ?? 0n) *
+						(userDepositBalance + amount)) /
+					(adjustedPriceA + adjustedPriceB)
+				: 0n;
 		const newBorrowerLT =
 			useFarmAddressStore
 				.getState()

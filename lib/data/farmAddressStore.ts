@@ -32,7 +32,6 @@ type Queries = {
     maxLeverageApy(): number | undefined;
     borrowApy(): number | undefined;
     totalBorrowApy(): number | undefined;
-    maxBorrow(token: "a" | "b"): bigint | undefined;
     leverage(): number | undefined;
     borrowBalances(): {
         borrowBalanceA: number;
@@ -135,42 +134,6 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
             getPairBorrowApy(get().reservesInfo, get().collateralInfo);
 
         return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB)
-    },
-    maxBorrow: (token: "a" | "b") => {
-        const collateralValueDecimal = bigIntToDecimal(get().collateralAmountPrice?.collateralValue, get().collateralInfo?.decimals || 18) ?? 0;
-        const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
-        const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
-
-        const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
-        const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
-        const buffer = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.buffer, get().collateralInfo?.decimals || 18) ?? 0.1;
-
-        const pairReservesInfosUn = getPairReservesInfos(get().reservesInfo, get().collateralInfo);
-
-        const ltokenPriceA = getLtokenprice(pairReservesInfosUn.reserveInfoTokenA) ?? 0;
-        const ltokenPriceB = getLtokenprice(pairReservesInfosUn.reserveInfoTokenB) ?? 0;
-
-        const tokensUSDPrices = getPairPrice(get().coinPrices, get().reservesInfo, get().collateralInfo);
-
-        const collateralA = bigIntToDecimal(get().collateralProportions?.proportions.tokenB, pairReservesInfosUn.reserveInfoTokenB?.decimals) ?? 0;
-
-        const maxDecimals = getMaximumBorrow(
-            token,
-            loanAUSD,
-            loanBUSD,
-            blt,
-            ult,
-            ult,
-            buffer,
-            ltokenPriceA,
-            ltokenPriceB,
-            tokensUSDPrices.tokenA ?? 0,
-            tokensUSDPrices.tokenB ?? 0,
-            collateralA,
-            collateralValueDecimal
-        );
-
-        return maxDecimals ? BigInt(Math.round(maxDecimals * 1e9)) * 10n ** 9n : 0n;
     },
     leverage: () => {
         const state = get();
