@@ -229,6 +229,13 @@ export function leverage(
 
 		const borrowerLt = useFarmAddressStore.getState().borrowerLt;
 
+		const adjustedPriceA = BigInt(
+			Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0),
+		);
+		const adjustedPriceB = BigInt(
+			Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0),
+		);
+
 		const positionData =
 			amount > 1
 				? await readContract(config, {
@@ -253,23 +260,17 @@ export function leverage(
 						debt0: 1n,
 						debt1: 1n,
 						liquidationFactor: borrowerLt,
+						leverageFactor: leverageFactor,
+						collateralFactor:
+							((proportions?.collateralPrice ?? 0n) *
+								((price.collateralAmount ?? 0n) + transactionAmount)) /
+							(adjustedPriceA + adjustedPriceB),
 					};
-
-		const adjustedPriceA =
-			positionData.debt0 *
-			BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
-		const adjustedPriceB =
-			positionData.debt1 *
-			BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
-
-		const newCollateralFactor =
-			((proportions?.collateralPrice ?? 0n) *
-				((price.collateralAmount ?? 0n) + transactionAmount)) /
-			(adjustedPriceA + adjustedPriceB);
 
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
+		console.log({ positionData });
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
@@ -368,8 +369,8 @@ export function leverage(
 							<div className="w-12 text-right">
 								{formatPCTFactor(
 									bigIntToDecimal(
-										newCollateralFactor,
-										collateralInfo.decimals - 8,
+										positionData?.collateralFactor,
+										collateralInfo.decimals,
 									),
 								)}
 							</div>
