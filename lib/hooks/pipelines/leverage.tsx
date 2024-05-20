@@ -4,6 +4,7 @@ import {
 	writeContract,
 	waitForTransactionReceipt,
 	readContract,
+	getGasPrice,
 } from "wagmi/actions";
 import type { Effect } from "./useValueEffect";
 import { toast } from "sonner";
@@ -116,10 +117,10 @@ export function leverage(
 		const leverageFactor =
 			bigIntToDecimal(price.leverageFactor, collateralInfo.decimals) ?? 0;
 
-		const _transactionAmount =
-			amount > _leverage
-				? leverageToLp(amount, _leverage, maxLeverage, borrowerMaxLeverageLP)
-				: -(collateralAmount - (collateralAmount * amount) / leverageFactor);
+		const _transactionAmount = amount;
+		amount > _leverage
+			? leverageToLp(amount, _leverage, maxLeverage, borrowerMaxLeverageLP)
+			: -(collateralAmount - (collateralAmount * amount) / leverageFactor);
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
@@ -132,6 +133,8 @@ export function leverage(
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
 					async () => {
+						const gasPrice = await getGasPrice(config);
+						const gas = 579234n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
 							abi: abiCollateralPool,
@@ -139,6 +142,9 @@ export function leverage(
 								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
 							functionName: "leverage",
 							args: [collateralInfo.addressLP, abs(transactionAmount)],
+							gas,
+							gasPrice,
+							type: "legacy",
 						});
 
 						const receipt = await waitForTransactionReceipt(config, {
@@ -174,6 +180,8 @@ export function leverage(
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
 					async () => {
+						const gasPrice = await getGasPrice(config);
+						const gas = 579234n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
 							abi: abiCollateralPool,
@@ -181,6 +189,9 @@ export function leverage(
 								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
 							functionName: "deleverage",
 							args: [collateralInfo.addressLP, abs(transactionAmount)],
+							gas,
+							gasPrice,
+							type: "legacy",
 						});
 
 						if (!hash) {

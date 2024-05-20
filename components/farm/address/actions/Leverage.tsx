@@ -10,6 +10,7 @@ import {
 	getBorrowerPoolMaxLeverage,
 	getPairReservesInfos,
 	getTokensSymbol,
+	lpToLeverage,
 } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
@@ -22,6 +23,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useConfig, useReadContract } from "wagmi";
 import { leverage as leveragePipeline } from "@/lib/hooks/pipelines/leverage";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
+import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
 
 export default function Leverage() {
 	const collateralInfo = useFarmAddressStore.use.collateralInfo?.();
@@ -48,17 +50,56 @@ export default function Leverage() {
 		leverage: state.leverage(),
 	}));
 	const { address } = useAccount();
-	const { data: maxLeverageData } = useReadContract({
+	const { data: maxIncreaseData } = useReadContract({
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-		abi: abiCollateralPool,
-		functionName: "getLeverageFactor",
+		abi: abiBorrowerData,
+		functionName: "getMaxIncrease",
 		args: [address ?? "0x", collateralInfo?.addressLP ?? "0x"],
+		query: {
+			enabled: !!address && !!collateralInfo?.addressLP,
+		},
+	});
+	const { data: collateralPoolAmountsData } = useReadContract({
+		address: process.env
+			.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
+		abi: abiCollateralPool,
+		functionName: "getAmounts",
+		args: [collateralInfo?.addressLP ?? "0x", maxIncreaseData ?? 0n],
+		query: {
+			enabled: !!address && !!collateralInfo?.addressLP && !!maxIncreaseData,
+		},
+	});
+
+	const { data: positionData } = useReadContract({
+		address: process.env
+			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+		abi: abiBorrowerData,
+		functionName: "getPositionData",
+		args: [
+			{
+				token: collateralInfo?.addressLP ?? "0x",
+				borrower: address ?? "0x",
+				amount: maxIncreaseData ?? 0n,
+				amount0: collateralPoolAmountsData?.[0] ?? 0n,
+				amount1: collateralPoolAmountsData?.[1] ?? 0n,
+				direction: true,
+				direction0: true,
+				direction1: true,
+			},
+		],
+		query: {
+			enabled:
+				!!address &&
+				!!collateralInfo?.addressLP &&
+				!!maxIncreaseData &&
+				!!collateralPoolAmountsData,
+		},
 	});
 
 	const minLeverage = 0;
 	const maxLeverage = bigIntToDecimal(
-		maxLeverageData,
+		positionData?.leverageFactor ?? 0n,
 		collateralInfo?.decimals ?? 18,
 	);
 

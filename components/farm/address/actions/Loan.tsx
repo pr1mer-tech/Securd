@@ -100,7 +100,7 @@ export default function Loan() {
 		setAmountInput("");
 	};
 
-	const { data: maxBorrowData } = useReadContract({
+	const { data: maxBorrowData, error } = useReadContract({
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
@@ -109,7 +109,19 @@ export default function Loan() {
 		args: [account?.address ?? "0x", collateralInfo?.addressLP ?? "0x"],
 	});
 
-	const maximumBorrow = maxBorrowData ?? 0n;
+	const maximumBorrow = (() => {
+		if (
+			maxBorrowData &&
+			(borrowBalances?.borrowBalanceA ?? 0n) > 0n &&
+			(borrowBalances?.borrowBalanceB ?? 0n) > 0n
+		) {
+			return maxBorrowData;
+		}
+		const minCollateralFactor_ =
+			collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold ?? 1n;
+		const collateral_ = collateralAmountPrice?.collateralValue ?? 0n;
+		return collateral_ / minCollateralFactor_;
+	})();
 
 	const config = useConfig();
 	const [pipeline, nextStep, _resetPipeline, setPipeline] =
