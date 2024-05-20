@@ -239,6 +239,7 @@ export function leverage(
 		const positionData =
 			amount > 1
 				? await readContract(config, {
+						account: account.address,
 						abi: abiBorrowerData,
 						address: process.env
 							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
