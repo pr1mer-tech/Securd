@@ -101,6 +101,7 @@ export default function Loan() {
 	};
 
 	const { data: maxBorrowData, error } = useReadContract({
+		account: account?.address,
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
@@ -110,6 +111,10 @@ export default function Loan() {
 	});
 
 	const maximumBorrow = (() => {
+		if (account?.address && !maxBorrowData) {
+			console.log({ maxBorrowError: error });
+			return 0n;
+		}
 		if (
 			maxBorrowData &&
 			(borrowBalances?.borrowBalanceA ?? 0n) > 0n &&

@@ -50,7 +50,8 @@ export default function Leverage() {
 		leverage: state.leverage(),
 	}));
 	const { address } = useAccount();
-	const { data: maxIncreaseData } = useReadContract({
+	const { data: maxIncreaseData, error: maxIncreaseError } = useReadContract({
+		account: address,
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
@@ -60,18 +61,21 @@ export default function Leverage() {
 			enabled: !!address && !!collateralInfo?.addressLP,
 		},
 	});
-	const { data: collateralPoolAmountsData } = useReadContract({
-		address: process.env
-			.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-		abi: abiCollateralPool,
-		functionName: "getAmounts",
-		args: [collateralInfo?.addressLP ?? "0x", maxIncreaseData ?? 0n],
-		query: {
-			enabled: !!address && !!collateralInfo?.addressLP && !!maxIncreaseData,
-		},
-	});
+	const { data: collateralPoolAmountsData, error: collateralPoolAmountsError } =
+		useReadContract({
+			account: address,
+			address: process.env
+				.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			abi: abiCollateralPool,
+			functionName: "getAmounts",
+			args: [collateralInfo?.addressLP ?? "0x", maxIncreaseData ?? 0n],
+			query: {
+				enabled: !!address && !!collateralInfo?.addressLP && !!maxIncreaseData,
+			},
+		});
 
-	const { data: positionData } = useReadContract({
+	const { data: positionData, error: positionError } = useReadContract({
+		account: address,
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
@@ -95,6 +99,17 @@ export default function Leverage() {
 				!!maxIncreaseData &&
 				!!collateralPoolAmountsData,
 		},
+	});
+
+	console.log({
+		address,
+		addressLP: collateralInfo?.addressLP,
+		maxIncreaseData,
+		maxIncreaseError,
+		collateralPoolAmountsData,
+		collateralPoolAmountsError,
+		positionData,
+		positionError,
 	});
 
 	const minLeverage = 0;
