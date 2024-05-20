@@ -5,6 +5,7 @@ import {
 	writeContract,
 	waitForTransactionReceipt,
 	getGasPrice,
+	readContract,
 } from "wagmi/actions";
 import type { Effect } from "./useValueEffect";
 import { SavePipelineState, savePipelineState2 } from "./SavePipelineState";
@@ -27,6 +28,7 @@ import {
 	securdFormat,
 } from "@/lib/helpers/numberFormat.helpers";
 import { ArrowRight } from "lucide-react";
+import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
 
 export function withdraw(
 	config: Config,
@@ -113,50 +115,27 @@ export function withdraw(
 		const tokens = useFarmAddressStore.getState().reservesInfo;
 		const _price = useFarmAddressStore.getState().collateralAmountPrice;
 		const borrowerLt = useFarmAddressStore.getState().borrowerLt;
-		const coinPrices = useFarmAddressStore.getState().coinPrices;
-		const proportions = useFarmAddressStore.getState().collateralProportions;
-		const borrowBalance = useFarmAddressStore.getState().borrowBalances();
 		const leverage = useFarmAddressStore.getState().leverage();
 
-		const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
-
-		const debt0 = parseUnits(
-			borrowBalance?.borrowBalanceA.toString() ?? "0",
-			tokens[0].decimals,
-		);
-		const debt1 = parseUnits(
-			borrowBalance?.borrowBalanceB.toString() ?? "0",
-			tokens[1].decimals,
-		);
-
-		const adjustedPriceA =
-			debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
-		const adjustedPriceB =
-			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
-
-		const newCollateralFactor =
-			((proportions?.collateralPrice ?? 0n) * (userDepositBalance - amount)) /
-			(adjustedPriceA + adjustedPriceB);
-		const newBorrowerLT =
-			useFarmAddressStore
-				.getState()
-				.computeLT(
-					bigIntToDecimal(adjustedPriceA, tokens[0].decimals + 6) ?? 0,
-					bigIntToDecimal(adjustedPriceB, tokens[1].decimals + 6) ?? 0,
-				) ?? 0;
-
-		const collatPrice =
-			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
-			0;
-		const collateralDollar =
-			(bigIntToDecimal(userDepositBalance - amount, collateralInfo.decimals) ??
-				0) * collatPrice;
-		const sumDebt =
-			bigIntToDecimal(
-				adjustedPriceA + adjustedPriceB,
-				collateralInfo.decimals + 6,
-			) ?? 0;
-		const newLeverage = collateralDollar / (collateralDollar - sumDebt);
+		const positionData = await readContract(config, {
+			account: account.address,
+			abi: abiBorrowerData,
+			address: process.env
+				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "getPositionData",
+			args: [
+				{
+					token: collateralInfo.addressLP,
+					borrower: account.address,
+					amount: amount,
+					amount0: 0n,
+					amount1: 0n,
+					direction: true,
+					direction0: false,
+					direction1: false,
+				},
+			],
+		});
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
@@ -205,8 +184,8 @@ export function withdraw(
 							<div className="w-12 text-right">
 								{formatPCTFactor(
 									bigIntToDecimal(
-										newCollateralFactor,
-										collateralInfo.decimals - 8,
+										positionData?.collateralFactor,
+										collateralInfo.decimals,
 									),
 								)}
 							</div>
@@ -220,7 +199,12 @@ export function withdraw(
 							</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{formatPCTFactor(newBorrowerLT * 100)}
+								{formatPCTFactor(
+									bigIntToDecimal(
+										positionData?.liquidationFactor,
+										collateralInfo.decimals - 2,
+									),
+								)}
 							</div>
 						</div>
 						<div className="flex justify-between">
@@ -228,7 +212,14 @@ export function withdraw(
 							<div className="w-12">{securdFormat(leverage, 2)}x</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{securdFormat(newLeverage, 2)}x
+								{securdFormat(
+									bigIntToDecimal(
+										positionData?.leverageFactor,
+										collateralInfo.decimals,
+									),
+									2,
+								)}
+								x
 							</div>
 						</div>
 					</>
