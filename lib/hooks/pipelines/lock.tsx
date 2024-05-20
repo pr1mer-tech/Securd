@@ -6,6 +6,7 @@ import {
 	getAccount,
 	writeContract,
 	waitForTransactionReceipt,
+	getGasPrice,
 } from "wagmi/actions";
 import type { Effect } from "./useValueEffect";
 import {
@@ -137,13 +138,18 @@ export function lock(
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
 					async () => {
+						const gasPrice = await getGasPrice(config);
+						const gas = 365175n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
 							abi: abiCollateralPool,
 							address: process.env
 								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
 							functionName: "supply",
-							args: [collateralInfo.addressLP, amount, account.address!],
+							args: [collateralInfo.addressLP, amount, account.address ?? "0x"],
+							gas,
+							gasPrice,
+							type: "legacy",
 						});
 
 						const receipt = await waitForTransactionReceipt(config, {
