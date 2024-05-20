@@ -40,7 +40,7 @@ export const securdFormat = (
         maximumFractionDigits: decimals || 0,
       }).format(num);
     }
-      return "--";
+    return "--";
   } catch (error) {
     throw new Error(`securdFormat failed : ${error}`);
   }
@@ -84,7 +84,7 @@ export const toFormattedPercentage = (
     if (num !== undefined && num !== null && !Number.isNaN(num.valueOf())) {
       return `${(num * 100).toFixed(decimals || 0)}%`;
     }
-      return "--";
+    return "--";
   } catch (error) {
     throw new Error(`toLeverage failed : ${error}`);
   }
@@ -101,7 +101,7 @@ export const toLeverage = (num: number | undefined): string => {
     if (num !== undefined && num !== null && !Number.isNaN(num)) {
       return `x${num.toFixed(1)}`;
     }
-      return "--";
+    return "--";
   } catch (error) {
     throw new Error(`toLeverage failed : ${error}`);
   }
@@ -116,7 +116,7 @@ export const toNoDecimal = (num: number | undefined): string => {
         maximumFractionDigits: 0,
       }).format(num);
     }
-      return "--";
+    return "--";
   } catch (error) {
     throw new Error(`toNoDecimal failed : ${error}`);
   }
@@ -154,12 +154,12 @@ export const securdFormatFloor = (num?: number, decimals?: number): string => {
       maximumFractionDigits: decimals || 0,
     }).format(getFloor(num, decimals) || 0);
   }
-    return "--";
+  return "--";
 };
 
 export const formatPCTFactor = (factor?: number): string => {
   if (factor && !Number.isNaN(factor)) {
-    return factor < 1000 ? `${factor.toFixed(0)}%` : "∞";
+    return factor < 1000000 ? `${factor.toFixed(0)}%` : "∞";
   }
-    return "--";
+  return "--";
 };

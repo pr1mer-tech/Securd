@@ -186,26 +186,44 @@ export function lock(
 		const _price = useFarmAddressStore.getState().collateralAmountPrice;
 		const borrowerLt = useFarmAddressStore.getState().borrowerLt;
 		const leverage = useFarmAddressStore.getState().leverage();
+		const borrowerBalances = useFarmAddressStore.getState().borrowBalances();
 
-		const positionData = await readContract(config, {
-			account: account.address,
-			abi: abiBorrowerData,
-			address: process.env
-				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-			functionName: "getPositionData",
-			args: [
-				{
-					token: collateralInfo.addressLP,
-					borrower: account.address,
-					amount: amount,
-					amount0: 0n,
-					amount1: 0n,
-					direction: true,
-					direction0: false,
-					direction1: false,
-				},
-			],
-		});
+		let positionData = {
+			collateral: 0n,
+			collateralFactor: 0n,
+			collateralValue: 0n,
+			debt0: 0n,
+			debt1: 0n,
+			debtValue0: 0n,
+			debtValue1: 0n,
+			leverageFactor: parseUnits("1", collateralInfo.decimals),
+			liquidationFactor: 0n,
+		};
+		if (
+			(borrowerBalances?.borrowBalanceA ?? 0) +
+				(borrowerBalances?.borrowBalanceB ?? 0) >
+			0
+		) {
+			positionData = await readContract(config, {
+				account: account.address,
+				abi: abiBorrowerData,
+				address: process.env
+					.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+				functionName: "getPositionData",
+				args: [
+					{
+						token: collateralInfo.addressLP,
+						borrower: account.address,
+						amount: amount,
+						amount0: 0n,
+						amount1: 0n,
+						direction: true,
+						direction0: false,
+						direction1: false,
+					},
+				],
+			});
+		}
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
@@ -263,7 +281,7 @@ export function lock(
 								{formatPCTFactor(
 									bigIntToDecimal(
 										positionData?.collateralFactor,
-										collateralInfo.decimals,
+										collateralInfo.decimals - 2,
 									),
 								)}
 							</div>
