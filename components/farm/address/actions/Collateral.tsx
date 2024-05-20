@@ -138,7 +138,7 @@ export default function Collateral() {
 								value={bigIntToDecimal(
 									(userBalance ?? 0n) *
 										(collateralProportions?.collateralPrice ?? 0n),
-									collateralInfo?.decimals * 2,
+									(collateralInfo?.decimals ?? 18) * 2,
 								)}
 								prefix="$"
 								decimals={0}
