@@ -167,6 +167,8 @@ export function repay(
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
 					async () => {
+						const gasPrice = await getGasPrice(config);
+						const gas = 347783n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
 							abi: abiCollateralPool,
@@ -177,8 +179,11 @@ export function repay(
 								collateralInfo.addressLP,
 								selectedAsset.address,
 								amount,
-								account.address!,
+								account.address ?? "0x",
 							],
+							gas,
+							gasPrice,
+							type: "legacy",
 						});
 
 						const receipt = await waitForTransactionReceipt(config, {
@@ -230,13 +235,15 @@ export function repay(
 			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
 		const newCollateralFactor =
-			((proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n)) /
-			(adjustedPriceA + adjustedPriceB);
+			(adjustedPriceA + adjustedPriceB) > 0n ? (
+				(proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n),
+			) /
+			(adjustedPriceA + adjustedPriceB) : 0n;
 
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
-		const newBorrowerLT = (debt0 * 10n ** 6n) / debt1;
+		const newBorrowerLT = debt1 > 0 ? (debt0 * 10n ** 6n) / debt1 : 0n;
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({

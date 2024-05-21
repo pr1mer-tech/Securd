@@ -113,10 +113,11 @@ export default function Leverage() {
 	});
 
 	const minLeverage = 0;
-	const maxLeverage = bigIntToDecimal(
-		positionData?.leverageFactor ?? 0n,
-		collateralInfo?.decimals ?? 18,
-	);
+	const maxLeverage = 5;
+	// bigIntToDecimal(
+	// 	positionData?.leverageFactor ?? 0n,
+	// 	collateralInfo?.decimals ?? 18,
+	// );
 
 	const [amount, setAmount] = useState<number>(leverage ?? 0);
 	const [amountInput, setAmountInput] = useState<string>(
