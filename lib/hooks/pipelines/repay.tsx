@@ -235,10 +235,11 @@ export function repay(
 			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
 		const newCollateralFactor =
-			(adjustedPriceA + adjustedPriceB) > 0n ? (
-				(proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n),
-			) /
-			(adjustedPriceA + adjustedPriceB) : 0n;
+			adjustedPriceA + adjustedPriceB > 0n
+				? ((proportions?.collateralPrice ?? 0n) *
+						(price.collateralAmount ?? 0n)) /
+					(adjustedPriceA + adjustedPriceB)
+				: 0n;
 
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
