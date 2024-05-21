@@ -284,6 +284,17 @@ export function leverage(
 							(adjustedPriceA + adjustedPriceB),
 					};
 
+		console.log({
+			positionData,
+			token: collateralInfo.addressLP,
+			borrower: account.address,
+			amount: abs(transactionAmount),
+			amount0,
+			amount1,
+			direction: isLeverage,
+			direction0: isLeverage,
+			direction1: isLeverage,
+		});
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
@@ -414,10 +425,11 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{securdFormat(
-									bigIntToDecimal(
-										positionData?.leverageFactor,
-										collateralInfo.decimals,
-									) ?? 0,
+									amount
+									// bigIntToDecimal(
+									// 	positionData?.leverageFactor,
+									// 	collateralInfo.decimals,
+									// ) ?? 0,
 									2,
 								)}
 								x
