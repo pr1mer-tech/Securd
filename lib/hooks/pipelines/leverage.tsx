@@ -425,7 +425,7 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{securdFormat(
-									amount
+									amount,
 									// bigIntToDecimal(
 									// 	positionData?.leverageFactor,
 									// 	collateralInfo.decimals,
