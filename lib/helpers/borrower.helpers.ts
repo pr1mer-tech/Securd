@@ -5,28 +5,13 @@
  * @returns number | undefined
  */
 export const leverageToLp = (
-  factor: number,
-  borrowerLeverage: number | undefined,
-  maxLeverageFactor: number | undefined,
-  borrowerMaxLeverageLP: number | undefined
-): number | undefined => {
-  try {
-    if (
-      borrowerLeverage !== undefined &&
-      maxLeverageFactor !== undefined &&
-      borrowerMaxLeverageLP !== undefined
-    ) {
-      const result =
-        (((maxLeverageFactor - factor < 0.1 ? maxLeverageFactor : factor) -
-          borrowerLeverage) /
-          (maxLeverageFactor - borrowerLeverage)) *
-        borrowerMaxLeverageLP;
-
-      return result;
-    }
-  } catch (error) {
-    throw new Error(`Error : ${error}`);
-  }
+  _leverageFactor: number,
+  collateralAmount: bigint,
+): bigint | undefined => {
+  // Leverage is calculated as collateralFactor / (collateralFactor - 1)
+  const unit = BigInt(10) ** BigInt(18);
+  const leverageFactor = BigInt(Math.round(_leverageFactor * 1000)) * unit / 1000n - unit;
+  return leverageFactor * collateralAmount / unit;
 };
 
 export const getLeverage = (borrowerCF: number | undefined) => {
@@ -35,7 +20,7 @@ export const getLeverage = (borrowerCF: number | undefined) => {
       if (borrowerCF !== 1) {
         return borrowerCF / (borrowerCF - 1);
       }
-        return 1;
+      return 1;
     }
   } catch (error) {
     throw new Error(`Error : ${error}`);

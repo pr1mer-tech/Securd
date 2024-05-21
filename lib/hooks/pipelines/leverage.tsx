@@ -102,14 +102,15 @@ export function leverage(
 		const minLT = getBorrowerPoolBalanceLT(collateralInfo);
 		const maxLT = getMaxLT(collateralInfo);
 
-		const borrowerMaxLeverageLP = getBorrowerMaxLeverage(
-			bigIntToDecimal(price.collateralValue, collateralInfo.decimals),
-			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals),
-			loanAUSD,
-			loanBUSD,
-			minLT,
-			maxLT,
-		);
+		const borrowerMaxLeverageLP =
+			getBorrowerMaxLeverage(
+				bigIntToDecimal(price.collateralValue, collateralInfo.decimals),
+				bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals),
+				loanAUSD,
+				loanBUSD,
+				minLT,
+				maxLT,
+			) ?? 0;
 
 		const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 		const collateralAmount =
@@ -117,17 +118,31 @@ export function leverage(
 		const leverageFactor =
 			bigIntToDecimal(price.leverageFactor, collateralInfo.decimals) ?? 0;
 
-		const _transactionAmount = amount;
-		amount > _leverage
-			? leverageToLp(amount, _leverage, maxLeverage, borrowerMaxLeverageLP)
-			: -(collateralAmount - (collateralAmount * amount) / leverageFactor);
+		// const _transactionAmount = amount;
+		// amount > _leverage
+		// 	? leverageToLp(amount, price.collateralValue ?? 0n, proportions?.collateralPrice ?? 0n)
+		// 	: -(collateralAmount - (collateralAmount * amount) / leverageFactor);
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
-		const transactionAmount = parseUnits(
-			_transactionAmount?.toString() ?? "0",
-			collateralInfo.decimals,
-		);
+		// const transactionAmount = parseUnits(
+		// 	_transactionAmount?.toString() ?? "0",
+		// 	collateralInfo.decimals,
+		// );
+		const transactionAmount =
+			amount > _leverage
+				? leverageToLp(amount, price.collateralAmount ?? 0n) ?? 0n
+				: -(
+						(price.collateralAmount ?? 0n) -
+						((price.collateralAmount ?? 0n) *
+							BigInt(Math.round(amount * 1000))) /
+							BigInt(Math.round(leverageFactor * 1000))
+					);
+
+		console.log({ transactionAmount, borrowerMaxLeverageLP });
+
+		const amount0 = abs(transactionAmount);
+		const amount1 = abs(transactionAmount);
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
@@ -237,7 +252,7 @@ export function leverage(
 		);
 
 		const positionData =
-			amount > 1
+			amount >= 1
 				? await readContract(config, {
 						account: account.address,
 						abi: abiBorrowerData,
@@ -248,9 +263,9 @@ export function leverage(
 							{
 								token: collateralInfo.addressLP,
 								borrower: account.address,
-								amount: price.collateralAmount ?? 0n,
-								amount0: abs(transactionAmount),
-								amount1: abs(transactionAmount),
+								amount: abs(transactionAmount),
+								amount0,
+								amount1,
 								direction: isLeverage,
 								direction0: isLeverage,
 								direction1: isLeverage,
@@ -261,7 +276,8 @@ export function leverage(
 						debt0: 1n,
 						debt1: 1n,
 						liquidationFactor: borrowerLt,
-						leverageFactor: leverageFactor,
+						leverageFactor:
+							BigInt(Math.round(leverageFactor * 1000)) * 10n ** 15n,
 						collateralFactor:
 							((proportions?.collateralPrice ?? 0n) *
 								((price.collateralAmount ?? 0n) + transactionAmount)) /
@@ -271,7 +287,6 @@ export function leverage(
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
-		console.log({ positionData });
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
@@ -397,7 +412,16 @@ export function leverage(
 							<div className="w-36">Leverage</div>
 							<div className="w-12">{securdFormat(_leverage, 2)}x</div>
 							<ArrowRight className="w-6 h-6" />
-							<div className="w-12 text-right">{securdFormat(amount, 2)}x</div>
+							<div className="w-12 text-right">
+								{securdFormat(
+									bigIntToDecimal(
+										positionData?.leverageFactor,
+										collateralInfo.decimals,
+									) ?? 0,
+									2,
+								)}
+								x
+							</div>
 						</div>
 					</>
 				),
