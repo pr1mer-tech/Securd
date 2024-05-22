@@ -251,6 +251,12 @@ export function leverage(
 			Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0),
 		);
 
+		const newCollateralFactor =
+			(10n ** 8n *
+				(proportions?.collateralPrice ?? 0n) *
+				((price?.collateralAmount ?? 0n) + transactionAmount)) /
+			(amount0 * adjustedPriceA + amount1 * adjustedPriceB);
+
 		const positionData =
 			amount >= 1
 				? await readContract(config, {
@@ -395,10 +401,7 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{formatPCTFactor(
-									bigIntToDecimal(
-										positionData?.collateralFactor,
-										collateralInfo.decimals,
-									),
+									bigIntToDecimal(newCollateralFactor, collateralInfo.decimals),
 								)}
 							</div>
 						</div>
