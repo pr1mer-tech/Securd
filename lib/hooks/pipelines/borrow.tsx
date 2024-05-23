@@ -212,7 +212,7 @@ export function borrow(
 				},
 				impacts: [
 					{
-						label: "Balance",
+						label: "Collateral",
 						symbol: (
 							<PairIcon
 								userCollateralsInfo={collateralInfo}

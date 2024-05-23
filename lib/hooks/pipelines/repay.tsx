@@ -245,7 +245,15 @@ export function repay(
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
 		const newBorrowerLT = debt1 > 0 ? (debt0 * 10n ** 6n) / debt1 : 0n;
-
+			const collateralDollar =
+			(bigIntToDecimal(userDepositBalance, collateralInfo.decimals) ?? 0) *
+			collatPrice;
+		const sumDebt =
+			bigIntToDecimal(
+				adjustedPriceA + adjustedPriceB,
+				collateralInfo.decimals + 6,
+			) ?? 0;
+		const newLeverage = collateralDollar / (collateralDollar - sumDebt);
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
 				open: true,
@@ -267,7 +275,7 @@ export function repay(
 				},
 				impacts: [
 					{
-						label: "Balance",
+						label: "Collateral",
 						symbol: (
 							<PairIcon
 								userCollateralsInfo={collateralInfo}
@@ -366,7 +374,7 @@ export function repay(
 							<div className="w-12">{securdFormat(leverage, 2)}x</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{securdFormat(leverage, 2)}x
+								{securdFormat(newLeverage, 2)}x
 							</div>
 						</div>
 					</>

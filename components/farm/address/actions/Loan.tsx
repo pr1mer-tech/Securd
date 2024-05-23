@@ -123,7 +123,7 @@ export default function Loan() {
 			return maxBorrowData;
 		}
 		const minCollateralFactor_ =
-			collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold ?? 1n;
+			collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold_0 ?? 1n;
 		const collateral_ = collateralAmountPrice?.collateralValue ?? 0n;
 		return collateral_ / minCollateralFactor_;
 	})();
