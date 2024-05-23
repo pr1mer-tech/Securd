@@ -76,8 +76,10 @@ export type TokenInfo = {
 };
 
 export type LiquidationThresholdInfo = {
-  balancedLoanThreshold: bigint;
-  unBalancedLoanThreshold: bigint;
+  balancedLoanThreshold_0: bigint;
+  balancedLoanThreshold_b: bigint;
+  unBalancedLoanThreshold_0: bigint;
+  unBalancedLoanThreshold_b: bigint;
   buffer: bigint;
 };
 

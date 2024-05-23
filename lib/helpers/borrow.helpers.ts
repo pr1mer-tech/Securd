@@ -94,20 +94,20 @@ export const getLightLenderPool = (
         lenderPoolSetB: undefined,
       };
     }
-      const lightLenderPoolA = pool.lenderpool_set.find(
-        (lightLenderPool: LightLenderPool) =>
-          lightLenderPool.asset.fa12?.address?.toLowerCase() ===
-          pool.dex_info.token_a.fa12?.address?.toLowerCase()
-      );
-      const lightLenderPoolB = pool.lenderpool_set.find(
-        (lightLenderPool: LightLenderPool) =>
-          lightLenderPool.asset.fa12?.address?.toLowerCase() ===
-          pool.dex_info.token_b.fa12?.address?.toLowerCase()
-      );
-      return {
-        lenderPoolSetA: lightLenderPoolA,
-        lenderPoolSetB: lightLenderPoolB,
-      };
+    const lightLenderPoolA = pool.lenderpool_set.find(
+      (lightLenderPool: LightLenderPool) =>
+        lightLenderPool.asset.fa12?.address?.toLowerCase() ===
+        pool.dex_info.token_a.fa12?.address?.toLowerCase()
+    );
+    const lightLenderPoolB = pool.lenderpool_set.find(
+      (lightLenderPool: LightLenderPool) =>
+        lightLenderPool.asset.fa12?.address?.toLowerCase() ===
+        pool.dex_info.token_b.fa12?.address?.toLowerCase()
+    );
+    return {
+      lenderPoolSetA: lightLenderPoolA,
+      lenderPoolSetB: lightLenderPoolB,
+    };
   } catch (error) {
     throw new Error(`Error : ${error}`);
   }
@@ -208,35 +208,35 @@ export const getPricePairTokens = (
       tokenB: undefined,
     };
   }
-    // modify source of price TokenA
-    const priceTokenA = 1;
+  // modify source of price TokenA
+  const priceTokenA = 1;
 
-    const amountA = pool.dex_info.token_a_dex_supply;
-    const amountB = pool.dex_info.token_b_dex_supply;
-    let priceTokenB = 0;
-    const { decimalTokenA, decimalTokenB }: DecimalTokens =
-      getPairAssetDecimals(pool);
-    if (
-      amountA !== undefined &&
-      amountB &&
-      decimalTokenA !== undefined &&
+  const amountA = pool.dex_info.token_a_dex_supply;
+  const amountB = pool.dex_info.token_b_dex_supply;
+  let priceTokenB = 0;
+  const { decimalTokenA, decimalTokenB }: DecimalTokens =
+    getPairAssetDecimals(pool);
+  if (
+    amountA !== undefined &&
+    amountB &&
+    decimalTokenA !== undefined &&
+    decimalTokenB !== undefined
+  ) {
+    priceTokenB =
+      ((amountA * 10 ** -decimalTokenA) / (amountB * 10 ** -decimalTokenB)) *
+      priceTokenA;
+  }
+
+  return {
+    tokenA:
+      decimalTokenA !== undefined
+        ? priceTokenA * 10 ** -decimalTokenA
+        : undefined,
+    tokenB:
       decimalTokenB !== undefined
-    ) {
-      priceTokenB =
-        ((amountA * 10 ** -decimalTokenA) / (amountB * 10 ** -decimalTokenB)) *
-        priceTokenA;
-    }
-
-    return {
-      tokenA:
-        decimalTokenA !== undefined
-          ? priceTokenA * 10 ** -decimalTokenA
-          : undefined,
-      tokenB:
-        decimalTokenB !== undefined
-          ? priceTokenB * 10 ** -decimalTokenB
-          : undefined,
-    };
+        ? priceTokenB * 10 ** -decimalTokenB
+        : undefined,
+  };
 };
 
 export const getBorrowAPYLP = (
@@ -260,18 +260,18 @@ export const getPairBorrowApy = (
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { apyA: undefined, apyB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
+    );
 
-      return {
-        apyA: getBorrowApy(reserveInfoTokenUn),
-        apyB: getBorrowApy(reserveInfoTokenDeux),
-      };
+    return {
+      apyA: getBorrowApy(reserveInfoTokenUn),
+      apyB: getBorrowApy(reserveInfoTokenDeux),
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -285,18 +285,18 @@ export const getPairPoolSize = (
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolSizeA: undefined, poolSizeB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
+    );
 
-      return {
-        poolSizeA: bigIntToDecimal(getDepositBalance(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
-        poolSizeB: bigIntToDecimal(getDepositBalance(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
-      };
+    return {
+      poolSizeA: bigIntToDecimal(getDepositBalance(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
+      poolSizeB: bigIntToDecimal(getDepositBalance(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -310,18 +310,18 @@ export const getPairLiquidities = (
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolLiquiditieA: undefined, poolLiquiditieB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
+    );
 
-      return {
-        poolLiquiditieA: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
-        poolLiquiditieB: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
-      };
+    return {
+      poolLiquiditieA: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenUn), reserveInfoTokenUn?.decimals),
+      poolLiquiditieB: bigIntToDecimal(getPoolLiquidity(reserveInfoTokenDeux), reserveInfoTokenDeux?.decimals),
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -336,18 +336,18 @@ export const getPairPrice = (
     if (!reservesInfo || !userCollateralsInfo) {
       return { tokenA: undefined, tokenB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, userCollateralsInfo.token_1)
+    );
 
-      return {
-        tokenA: coinPrices[reserveInfoTokenUn?.symbol as keyof Coins],
-        tokenB: coinPrices[reserveInfoTokenDeux?.symbol as keyof Coins],
-      };
+    return {
+      tokenA: coinPrices[reserveInfoTokenUn?.symbol as keyof Coins],
+      tokenB: coinPrices[reserveInfoTokenDeux?.symbol as keyof Coins],
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -361,18 +361,18 @@ export const getPairReservesInfos = (
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { reserveInfoTokenA: undefined, reserveInfoTokenB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
+    );
 
-      return {
-        reserveInfoTokenA: reserveInfoTokenUn,
-        reserveInfoTokenB: reserveInfoTokenDeux,
-      };
+    return {
+      reserveInfoTokenA: reserveInfoTokenUn,
+      reserveInfoTokenB: reserveInfoTokenDeux,
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -386,18 +386,18 @@ export const getPairUtilizations = (
     if (reservesInfo === undefined || collateralsInfos === undefined) {
       return { poolUtilizationsA: undefined, poolUtilizationsB: undefined };
     }
-      const reserveInfoTokenUn = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
-      );
+    const reserveInfoTokenUn = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_0)
+    );
 
-      const reserveInfoTokenDeux = reservesInfo.find(
-        (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
-      );
+    const reserveInfoTokenDeux = reservesInfo.find(
+      (reserveInfo) => isEqualAddress(reserveInfo.address, collateralsInfos.token_1)
+    );
 
-      return {
-        poolUtilizationsA: getPoolUtilization(reserveInfoTokenUn),
-        poolUtilizationsB: getPoolUtilization(reserveInfoTokenDeux),
-      };
+    return {
+      poolUtilizationsA: getPoolUtilization(reserveInfoTokenUn),
+      poolUtilizationsB: getPoolUtilization(reserveInfoTokenDeux),
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -456,11 +456,11 @@ export const getBorrowAPY = (
       if (loanA === 0 && loanB === 0) {
         return 0;
       }
-        return (
-          (loanA * tokenPrices.tokenA * borrowApyA +
-            loanB * tokenPrices.tokenA * borrowApyB) /
-          (loanA * tokenPrices.tokenA + loanB * tokenPrices.tokenB)
-        );
+      return (
+        (loanA * tokenPrices.tokenA * borrowApyA +
+          loanB * tokenPrices.tokenA * borrowApyB) /
+        (loanA * tokenPrices.tokenA + loanB * tokenPrices.tokenB)
+      );
     }
   } catch (error) {
     throw new Error(`Error${error}`);
@@ -497,7 +497,7 @@ export const getMaxLT = (collateralInfos: CollateralInfos | undefined) => {
   try {
     if (collateralInfos !== undefined) {
       return bigIntToDecimal(
-        collateralInfos.liquidationThresholdInfo.unBalancedLoanThreshold,
+        collateralInfos.liquidationThresholdInfo.unBalancedLoanThreshold_0,
         18
       );
     }
@@ -517,7 +517,7 @@ export const getBorrowerPoolBalanceLT = (
   try {
     if (collateralInfos !== undefined) {
       return bigIntToDecimal(
-        collateralInfos.liquidationThresholdInfo.balancedLoanThreshold,
+        collateralInfos.liquidationThresholdInfo.balancedLoanThreshold_0,
         18
       );
     }
@@ -614,13 +614,13 @@ export const getBorrowerMaxLeverage = (
           collateralPrice
         );
       }
-        return (
-          ((1 / (blt - 1 / (1 + buffer))) *
-            (collateralValue / (1 + buffer) -
-              2 * loanB * blt +
-              (loanB - loanA) * ult)) /
-          collateralPrice
-        );
+      return (
+        ((1 / (blt - 1 / (1 + buffer))) *
+          (collateralValue / (1 + buffer) -
+            2 * loanB * blt +
+            (loanB - loanA) * ult)) /
+        collateralPrice
+      );
     }
   } catch (error) {
     throw new Error(`Error : ${error}`);
@@ -650,9 +650,9 @@ export const lpToLeverage = (
           maxLeverageFactor
         );
       }
-        if (collateralAmount) {
-          return amount / collateralAmount + 1;
-        }
+      if (collateralAmount) {
+        return amount / collateralAmount + 1;
+      }
     }
   } catch (error) {
     throw new Error(`Error : ${error}`);
@@ -720,10 +720,10 @@ export const getTokenUnit = (
         numberB: numberB * 10 ** -decimalTokenB,
       };
     }
-      return {
-        numberA: undefined,
-        numberB: undefined,
-      };
+    return {
+      numberA: undefined,
+      numberB: undefined,
+    };
   } catch (error) {
     throw new Error(`Error${error}`);
   }
@@ -817,7 +817,7 @@ export const getMaximumBorrow = (
     if (token === "a") {
       return maxNewLoanA / tokenA_price;
     }
-      return maxNewLoanB / tokenB_price;
+    return maxNewLoanB / tokenB_price;
   }
 };
 

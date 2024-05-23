@@ -63,8 +63,8 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
         const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
         const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);
 
-        const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
-        const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold, get().collateralInfo?.decimals || 18) ?? 0;
+        const blt = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.balancedLoanThreshold_0, get().collateralInfo?.decimals || 18) ?? 0;
+        const ult = bigIntToDecimal(get().collateralInfo?.liquidationThresholdInfo.unBalancedLoanThreshold_0, get().collateralInfo?.decimals || 18) ?? 0;
 
         const sumLoan = (loanA ?? loanAUSD) + (loanB ?? loanBUSD);
 

@@ -43,9 +43,11 @@ export const analyticsToCollateralInfo = (pool: Pool & {
         isActivated: true,
         liquidationPremium: 0n,
         liquidationThresholdInfo: {
-            balancedLoanThreshold: 0n,
+            balancedLoanThreshold_0: 0n,
+            balancedLoanThreshold_b: 0n,
             buffer: 0n,
-            unBalancedLoanThreshold: 0n
+            unBalancedLoanThreshold_0: 0n,
+            unBalancedLoanThreshold_b: 0n
         },
         poolType: pool?.dex?.dex_name as PoolType,
         symbol: `${pool?.token_0?.token_symbol}/${pool?.token_1?.token_symbol}`,
