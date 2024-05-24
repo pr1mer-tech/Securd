@@ -294,6 +294,7 @@ export function repay(
 					},
 					{
 						label: tokens[0].symbol,
+						type: "loan",
 						symbol: (
 							<Image
 								className="inline"
@@ -315,6 +316,7 @@ export function repay(
 					},
 					{
 						label: tokens[1].symbol,
+						type: "loan",
 						symbol: (
 							<Image
 								className="inline"

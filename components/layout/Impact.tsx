@@ -18,6 +18,7 @@ import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { ArrowRight } from "lucide-react";
 import { Card } from "../ui/card";
 import { useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 export type TransactionDetails = {
     title: React.ReactNode;
@@ -30,6 +31,7 @@ export type TransactionDetails = {
 export type AccountImpact = {
     label: React.ReactNode;
     symbol?: React.ReactNode;
+    type?: "balance" | "loan";
     fromAmount: bigint;
     toAmount: bigint;
     fromDecimals: number;
@@ -118,9 +120,13 @@ export default function Impact() {
                             <div key={index} className="flex flex-row justify-between">
                                 <div className="font-bold">{impact.label}</div>
                                 <div className="flex flex-col items-end whitespace-nowrap">
-                                    <div className="font-bold inline ml-2">
+                                    <div className={cn("font-bold inline ml-2",
+                                        impact.type === "loan" && "text-red-500"
+                                    )}>
+                                        {impact.type === "loan" && "(-"}
                                         {securdFormatFloor(bigIntToDecimal(impact.fromAmount, impact.fromDecimals), 2)}{" "}
                                         {(impact.symbol ?? transactionDetails?.symbol)}
+                                        {impact.type === "loan" && ")"}
                                     </div>
                                     <div className="text-sm text-secondary">
                                         ${securdFormatFloor(((bigIntToDecimal(impact.fromAmount, impact.fromDecimals) ?? 0) * impact.fromPrice), 0)}
@@ -128,9 +134,13 @@ export default function Impact() {
                                 </div>
                                 <ArrowRight className="w-6 h-6" />
                                 <div className="flex flex-col items-end whitespace-nowrap">
-                                    <div className="font-bold inline ml-2">
+                                    <div className={cn("font-bold inline ml-2",
+                                        impact.type === "loan" && "text-red-500"
+                                    )}>
+                                        {impact.type === "loan" && "(-"}
                                         {securdFormatFloor(bigIntToDecimal(impact.toAmount, impact.toDecimals), 2)}{" "}
                                         {(impact.symbol ?? transactionDetails?.symbol)}
+                                        {impact.type === "loan" && ")"}
                                     </div>
                                     <div className="text-sm text-secondary">
                                         ${securdFormatFloor(((bigIntToDecimal(impact.toAmount, impact.toDecimals) ?? 0) * impact.toPrice), 0)}
