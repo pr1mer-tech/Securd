@@ -119,8 +119,10 @@ export const getPoolUtilization = (
 ): number | undefined => {
   try {
     if (reserveInfo !== undefined) {
-      return bigIntToDecimal((reserveInfo.debt * 10n ** 18n) / reserveInfo.supply, 18);
-      // return bigIntToDecimal(reserveInfo.interestRateInfo.utilizationRate, 18);
+      const lendingPool = getDepositBalance(reserveInfo);
+      const liquidityA = getPoolLiquidity(reserveInfo);
+      const loan = (bigIntToDecimal(lendingPool, reserveInfo?.decimals) ?? 0) - (bigIntToDecimal(liquidityA, reserveInfo?.decimals) ?? 0);
+      return loan / (bigIntToDecimal(lendingPool, reserveInfo?.decimals) ?? 0);
     }
   } catch (error) {
     throw new Error(LENDER_POOL_ERRORS.POOL_UTILIZATION_FAILED);

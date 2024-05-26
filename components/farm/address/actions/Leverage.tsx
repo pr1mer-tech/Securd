@@ -50,74 +50,31 @@ export default function Leverage() {
 		leverage: state.leverage(),
 	}));
 	const { address } = useAccount();
-	const { data: maxIncreaseData, error: maxIncreaseError } = useReadContract({
-		account: address,
-		address: process.env
-			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-		abi: abiBorrowerData,
-		functionName: "getMaxIncrease",
-		args: [address ?? "0x", collateralInfo?.addressLP ?? "0x"],
-		query: {
-			enabled: !!address && !!collateralInfo?.addressLP,
-		},
-	});
-	const { data: collateralPoolAmountsData, error: collateralPoolAmountsError } =
-		useReadContract({
-			account: address,
-			address: process.env
-				.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-			abi: abiCollateralPool,
-			functionName: "getAmounts",
-			args: [collateralInfo?.addressLP ?? "0x", maxIncreaseData ?? 0n],
-			query: {
-				enabled: !!address && !!collateralInfo?.addressLP && !!maxIncreaseData,
-			},
-		});
 
-	const { data: positionData, error: positionError } = useReadContract({
+	const { data: maxLevereage, error: positionError } = useReadContract({
 		account: address,
 		address: process.env
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
-		functionName: "getPositionData",
+		functionName: "getMaxLevereage",
 		args: [
-			{
-				token: collateralInfo?.addressLP ?? "0x",
-				borrower: address ?? "0x",
-				amount: maxIncreaseData ?? 0n,
-				amount0: collateralPoolAmountsData?.[0] ?? 0n,
-				amount1: collateralPoolAmountsData?.[1] ?? 0n,
-				direction: true,
-				direction0: true,
-				direction1: true,
-			},
+			address ?? "0x",
+			collateralInfo?.addressLP ?? "0x",
 		],
 		query: {
 			enabled:
 				!!address &&
-				!!collateralInfo?.addressLP &&
-				!!maxIncreaseData &&
-				!!collateralPoolAmountsData,
+				!!collateralInfo?.addressLP
 		},
 	});
 
-	console.log({
-		address,
-		addressLP: collateralInfo?.addressLP,
-		maxIncreaseData,
-		maxIncreaseError,
-		collateralPoolAmountsData,
-		collateralPoolAmountsError,
-		positionData,
-		positionError,
-	});
-
 	const minLeverage = 0;
-	const maxLeverage = 5;
-	// bigIntToDecimal(
-	// 	positionData?.leverageFactor ?? 0n,
-	// 	collateralInfo?.decimals ?? 18,
-	// );
+	const maxLeverage = bigIntToDecimal(
+		maxLevereage ?? 0n,
+		collateralInfo?.decimals ?? 18,
+	);
+
+	console.log({ maxLevereage, positionError });
 
 	const [amount, setAmount] = useState<number>(leverage ?? 0);
 	const [amountInput, setAmountInput] = useState<string>(

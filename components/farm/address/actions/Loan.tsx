@@ -110,6 +110,8 @@ export default function Loan() {
 		args: [account?.address ?? "0x", collateralInfo?.addressLP ?? "0x"],
 	});
 
+	console.log({ maxBorrowData, error });
+
 	const maximumBorrow = (() => {
 		if (account?.address && !maxBorrowData) {
 			console.log({ maxBorrowError: error });
