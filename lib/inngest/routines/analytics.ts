@@ -35,7 +35,7 @@ export const analyticsRoutine = inngest.createFunction(
             });
             return pairs;
         });
-        const nbDays = 2 * 30;
+        const nbDays = 4 * 30;
         await step.run("get-pair-data-and-update-db", async () => {
             // Get pair data
             const _pairData = pairs.map(async (pair) => {
