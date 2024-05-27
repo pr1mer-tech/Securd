@@ -258,7 +258,7 @@ export function leverage(
 			(amount0 * adjustedPriceA + amount1 * adjustedPriceB);
 
 		const positionData =
-			amount >= 1
+			amount > 1
 				? await readContract(config, {
 						account: account.address,
 						abi: abiBorrowerData,

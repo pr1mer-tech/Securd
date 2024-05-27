@@ -128,6 +128,7 @@ export function withdraw(
 						toPrice: price,
 					},
 				],
+				note: null,
 				action: async () => {
 					try {
 						await withdraw();
