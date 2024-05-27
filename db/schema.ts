@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { serial, varchar, integer, numeric, date, doublePrecision, pgTable } from 'drizzle-orm/pg-core';
+import { serial, varchar, integer, numeric, date, doublePrecision, pgTable, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const blockchain = pgTable('blockchain', {
     id_blockchain: serial('id_blockchain').primaryKey(),
@@ -94,7 +94,9 @@ export const analytics = pgTable('analytics', {
     fee_apy_1y: doublePrecision('fee_apy_1y'),
     il_apy_1y: doublePrecision('il_apy_1y'),
     hold_apy_1y: doublePrecision('hold_apy_1y'),
-});
+}, (table) => ({
+    uniqueAnalyticsEntry: uniqueIndex("uniqueAnalyticsEntry").on(table.id_pool, table.date),
+}));
 
 export const analyticsRelations = relations(analytics, ({ one }) => ({
     pool: one(pool, { fields: [analytics.id_pool], references: [pool.id_pool] }),
@@ -108,7 +110,9 @@ export const price = pgTable('price', {
     date: date('date', { mode: "date" }),
     price: doublePrecision('price'),
     price_currency: varchar('price_currency'),
-});
+}, (table) => ({
+    uniquePriceEntry: uniqueIndex("uniquePriceEntry").on(table.id_token, table.date),
+}));
 
 export const priceRelations = relations(price, ({ one }) => ({
     token: one(token, { fields: [price.id_token], references: [token.id_token] }),
