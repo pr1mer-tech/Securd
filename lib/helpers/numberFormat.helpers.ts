@@ -19,19 +19,19 @@ export const securdFormat = (
 ): string => {
   try {
     if (num !== undefined && num !== null && !Number.isNaN(num)) {
-      if ((num < 1e-3 && num > 0) || (num > -1e-3 && num < 0)) {
-        // Use scientific notation for very small numbers
-        return new Intl.NumberFormat("en-US", {
-          notation: "scientific",
-          minimumFractionDigits: decimals || 0,
-          maximumFractionDigits: decimals || 0,
-        }).format(num)
-          .toLowerCase()
-          .split("e")
-          // Superscript notation
-          .map((v, i) => (i === 0 ? v : toSuperscript(v)))
-          .join("×10");
-      }
+      // if ((num < 1e-3 && num > 1e-5) || (num > -1e-3 && num < -1e-5)) {
+      //   // Use scientific notation for very small numbers
+      //   return new Intl.NumberFormat("en-US", {
+      //     notation: "scientific",
+      //     minimumFractionDigits: decimals || 0,
+      //     maximumFractionDigits: decimals || 0,
+      //   }).format(num)
+      //     .toLowerCase()
+      //     .split("e")
+      //     // Superscript notation
+      //     .map((v, i) => (i === 0 ? v : toSuperscript(v)))
+      //     .join("×10");
+      // }
       const isBigNumber = num > 9999;
 
       return new Intl.NumberFormat("en-US", {

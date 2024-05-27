@@ -205,6 +205,7 @@ export function deposit(
 						toPrice: price,
 					},
 				],
+				note: null,
 				action: async () => {
 					await deposit();
 					callback();
