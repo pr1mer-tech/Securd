@@ -47,7 +47,7 @@ export default function CollateralFactor() {
 				className="my-8"
 				rangeClassName={color}
 				min={0}
-				max={maxValue * 100}
+				max={(maxValue ?? 0) * 100}
 				value={
 					collateralFactor && borrowerLt
 						? [(collateralFactor ?? 0) * 100, (borrowerLt ?? 0) * 100]
