@@ -62,7 +62,7 @@ describe('updatePairDayData', () => {
         const pairAddress = '0xbf62c67ea509e86f07c8c69d0286c0636c50270b';
         const token0Address = '0x2d03bece6747adc00e1a131bba1469c15fd11e03';
         const token1Address = '0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23';
-        const nbDays = 2 * 30;
+        const nbDays = 2 * 365;
 
         const pairDayData = await getPairDayData(pairAddress, nbDays);
         const updatedPairDayData = await updatePairDayData(pairDayData, token0Address, token1Address, nbDays);
