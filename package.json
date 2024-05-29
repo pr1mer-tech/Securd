@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@headlessui/tailwindcss": "^0.2.0",
+    "@neondatabase/serverless": "^0.9.3",
     "@nomicfoundation/ethereumjs-block": "5.0.4",
     "@nomicfoundation/ethereumjs-blockchain": "7.0.4",
     "@nomicfoundation/ethereumjs-common": "4.0.4",

@@ -10,7 +10,7 @@ const nextConfig = {
             },
         ];
     },
-    webpack: (config) => {
+    webpack: (config, { webpack }) => {
         config.resolve.fallback = { fs: false };
         config.externals.push(
             "pino-pretty",
@@ -19,10 +19,6 @@ const nextConfig = {
             "bufferutil",
             "utf-8-validate",
         );
-        
-        config.plugins.push(new webpack.IgnorePlugin({
-            resourceRegExp: /^pg-native$|^cloudflare:sockets$/,
-        }))
 
         return config;
     },
