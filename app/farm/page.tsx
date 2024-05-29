@@ -66,7 +66,7 @@ export default async function Farm({
 			...pool,
 			analytics: (pool.mirror?.analytics.length ?? 0) > 0 ? pool.mirror?.analytics : pool.analytics,
 		})),
-	}
+	} as typeof pools;
 
 	const reservesInfo = await Promise.all(
 		uniqueTokenList.map((token) => tokenToReserveInfo(token, _pools)) ?? [],
