@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { serial, varchar, integer, numeric, date, doublePrecision, pgTable, uniqueIndex } from 'drizzle-orm/pg-core';
+import { serial, varchar, integer, numeric, date, doublePrecision, pgTable, uniqueIndex, AnyPgColumn } from 'drizzle-orm/pg-core';
 
 export const blockchain = pgTable('blockchain', {
     id_blockchain: serial('id_blockchain').primaryKey(),
@@ -49,6 +49,7 @@ export const pool = pgTable('pool', {
     id_token_1: integer('id_token_1').references(() => token.id_token),
     id_dex: integer('id_dex').references(() => dex.id_dex),
     id_blockchain: integer('id_blockchain').references(() => blockchain.id_blockchain),
+    mirror_pool: integer('mirror_pool').references((): AnyPgColumn => pool.id_pool), // Optional mirror pool
 });
 
 export const poolRelations = relations(pool, ({ one, many }) => ({
@@ -57,6 +58,7 @@ export const poolRelations = relations(pool, ({ one, many }) => ({
     dex: one(dex, { fields: [pool.id_dex], references: [dex.id_dex] }),
     blockchain: one(blockchain, { fields: [pool.id_blockchain], references: [blockchain.id_blockchain] }),
     analytics: many(analytics),
+    mirror: one(pool, { fields: [pool.mirror_pool], references: [pool.id_pool] }),
 }))
 
 export type Pool = typeof pool.$inferSelect;

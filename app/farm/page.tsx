@@ -28,6 +28,14 @@ export default async function Farm({
 						orderBy: (row, { desc }) => [desc(row.date)],
 						limit: 1,
 					},
+					mirror: {
+						with: {
+							analytics: {
+								orderBy: (row, { desc }) => [desc(row.date)],
+								limit: 1,
+							},
+						},
+					}
 				},
 			},
 		},
@@ -52,14 +60,22 @@ export default async function Farm({
 				index,
 		) ?? [];
 
+	const _pools = {
+		...pools,
+		pools: pools?.pools.map((pool) => ({
+			...pool,
+			analytics: (pool.mirror?.analytics.length ?? 0) > 0 ? pool.mirror?.analytics : pool.analytics,
+		})),
+	}
+
 	const reservesInfo = await Promise.all(
-		uniqueTokenList.map((token) => tokenToReserveInfo(token, pools)) ?? [],
+		uniqueTokenList.map((token) => tokenToReserveInfo(token, _pools)) ?? [],
 	);
 
 	return (
 		<FarmSync
 			preReservesInfo={reservesInfo}
-			pools={pools?.pools ?? []}
+			pools={_pools?.pools ?? []}
 			chainId={chain}
 		>
 			<div className="max-w-7xl mx-auto pt-8 px-4">
