@@ -19,6 +19,10 @@ const nextConfig = {
             "bufferutil",
             "utf-8-validate",
         );
+        
+        config.plugins.push(new webpack.IgnorePlugin({
+            resourceRegExp: /^pg-native$|^cloudflare:sockets$/,
+        }))
 
         return config;
     },
