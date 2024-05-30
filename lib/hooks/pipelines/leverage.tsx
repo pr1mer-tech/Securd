@@ -125,10 +125,15 @@ export function leverage(
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
-		// const transactionAmount = parseUnits(
-		// 	_transactionAmount?.toString() ?? "0",
-		// 	collateralInfo.decimals,
-		// );
+		const maxIncrease = await readContract(config, {
+			account: account.address,
+			abi: abiBorrowerData,
+			address: process.env
+				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "getMaxIncrease",
+			args: [account.address, collateralInfo.addressLP],
+		});
+		
 		const transactionAmount =
 			amount > _leverage
 				? leverageToLp(amount, price.collateralAmount ?? 0n) ?? 0n
@@ -138,8 +143,6 @@ export function leverage(
 							BigInt(Math.round(amount * 1000))) /
 							BigInt(Math.round(leverageFactor * 1000))
 					);
-
-		console.log({ transactionAmount, borrowerMaxLeverageLP });
 
 		const amount0 = abs(transactionAmount);
 		const amount1 = abs(transactionAmount);

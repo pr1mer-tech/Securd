@@ -45,7 +45,7 @@ const useCollateralPool: (pools: (Pool & {
     liquidationPremium: item.result[2],
     //@ts-expect-error CollateralInfos is not properly casting
     isActivated: item.result[3],
-    lpApr: pools[index].analytics?.[0]?.lp_apy_3m ?? 0,
+    lpApr: pools[index].analytics?.[0]?.fee_apy_3m ?? 0,
   }));
 };
 export default useCollateralPool;
