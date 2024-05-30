@@ -25,6 +25,7 @@ export function useValueEffect<T>(defaultValue: T, maxIterations = 100, timeout 
             }
 
             try {
+                //@ts-expect-error - Refresh & Dispose are not supported by the generator
                 timeoutIdRef.current = setTimeout(() => {
                     console.warn("Generator execution timed out. Resetting the generator.");
                     reset();

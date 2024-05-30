@@ -74,8 +74,6 @@ export default function Leverage() {
 		collateralInfo?.decimals ?? 18,
 	);
 
-	console.log({ maxLevereage, positionError });
-
 	const [amount, setAmount] = useState<number>(leverage ?? 0);
 	const [amountInput, setAmountInput] = useState<string>(
 		(leverage ?? 0).toFixed(2),
@@ -106,6 +104,7 @@ export default function Leverage() {
 					collateralProportions,
 					coinsPrices,
 					leverage ?? 0,
+					maxLeverage ?? 0,
 					[
 						pairReservesInfosUn.reserveInfoTokenA,
 						pairReservesInfosUn.reserveInfoTokenB,
