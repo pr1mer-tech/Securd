@@ -7,6 +7,7 @@ import type { Address } from "viem";
 import PoolDetails from "@/components/farm/address/PoolDetails";
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import { analytics } from "@/db/schema";
 
 export default async function FarmAddress({
 	params,
@@ -17,7 +18,7 @@ export default async function FarmAddress({
 }) {
 	const chain =
 		typeof searchParams.chain === "string" ? searchParams.chain : "1";
-	const token = await db.query.pool.findFirst({
+	const _token = await db.query.pool.findFirst({
 		where: (row, { eq }) => eq(row.pool_address, params.address),
 		with: {
 			token_0: true,
@@ -28,8 +29,21 @@ export default async function FarmAddress({
 				orderBy: (row, { desc }) => [desc(row.date)],
 				limit: 1,
 			},
+			mirror: {
+				with: {
+					analytics: {
+						orderBy: (row, { desc }) => [desc(row.date)],
+						limit: 1,
+					},
+				},
+			}
 		},
 	});
+
+	const token = {
+		..._token,
+		analytics: _token?.mirror?.analytics || _token?.analytics,
+	} as typeof _token;
 
 	const reservesInfo = await Promise.all([
 		tokenToReserveInfo(token?.token_0, token?.blockchain),
