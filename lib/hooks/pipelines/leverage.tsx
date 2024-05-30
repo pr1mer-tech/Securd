@@ -61,6 +61,7 @@ export function leverage(
 		| undefined,
 	coinPrices: Record<keyof Coins, number>,
 	_leverage: number,
+	maxLeverage: number,
 	tokens: ReserveInfo[],
 	borrowBalance: {
 		borrowBalanceA: number;
@@ -112,7 +113,7 @@ export function leverage(
 				maxLT,
 			) ?? 0;
 
-		const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
+		// const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 		const collateralAmount =
 			bigIntToDecimal(price.collateralAmount, collateralInfo.decimals) ?? 0;
 		const leverageFactor =
@@ -130,7 +131,7 @@ export function leverage(
 			abi: abiBorrowerData,
 			address: process.env
 				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-			functionName: "getMaxIncrease",
+			functionName: "convertLevereageToIncreaseAmount",
 			args: [account.address, collateralInfo.addressLP],
 		});
 		
@@ -146,6 +147,17 @@ export function leverage(
 
 		const amount0 = abs(transactionAmount);
 		const amount1 = abs(transactionAmount);
+
+		console.log({
+			maxLeverage,
+			ratio: amount / (maxLeverage ?? 1),
+			_leverage,
+			amount,
+			maxIncrease,
+			transactionAmount,
+			amount0,
+			amount1,
+		});
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
@@ -433,11 +445,11 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{securdFormat(
-									amount,
-									// bigIntToDecimal(
-									// 	positionData?.leverageFactor,
-									// 	collateralInfo.decimals,
-									// ) ?? 0,
+									// amount,
+									bigIntToDecimal(
+										positionData?.leverageFactor,
+										collateralInfo.decimals,
+									) ?? 0,
 									2,
 								)}
 								x

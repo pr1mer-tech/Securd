@@ -3,6 +3,7 @@ import { abiLendingPool } from "../abi/abiLendingPool";
 import { abiCollateralPool } from "../abi/abiCollateralPool";
 import { abiCollateralPrice } from "../abi/abiCollateralPrice";
 import { abiAssetPriceOracle } from "../abi/abiPriceOracle";
+import { abiBorrowerData } from "../abi/abiBorrowerData";
 
 // POLYGON
 
@@ -14,6 +15,11 @@ export const lendingPoolContract = {
 export const collateralPoolContract = {
   address: process.env.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as Address,
   abi: abiCollateralPool,
+} as const;
+
+export const borrowerDataContract = {
+  address: process.env.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as Address,
+  abi: abiBorrowerData,
 } as const;
 
 export const assetPriceOracleContract = {
