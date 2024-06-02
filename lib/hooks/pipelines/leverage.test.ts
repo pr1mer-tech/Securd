@@ -4,6 +4,7 @@ import { describe, it, expect } from 'bun:test';
 import { createWalletClient, getContract, http, publicActions } from 'viem';
 import { cronosTestnet } from 'viem/chains';
 
+//@ts-expect-error BigInt.prototype.toJSON is not a function
 BigInt.prototype.toJSON = function () {
 	return this.toString();
 };
