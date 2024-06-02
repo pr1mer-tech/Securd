@@ -130,8 +130,11 @@ export function leverage(
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
-		const amount0 = abs(transactionAmount);
-		const amount1 = abs(transactionAmount);
+		const [amount0, amount1] = await readContract(config, {
+			...collateralPoolContract,
+			functionName: "getAmounts",
+			args: [collateralInfo.addressLP, abs(transactionAmount)],
+		});
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
