@@ -44,6 +44,7 @@ import {
 	securdFormat,
 } from "@/lib/helpers/numberFormat.helpers";
 import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
+import { collateralPoolContract } from '@/lib/constants/wagmiConfig/wagmiConfig';
 
 export function leverage(
 	config: Config,
@@ -114,50 +115,23 @@ export function leverage(
 			) ?? 0;
 
 		// const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
-		const collateralAmount =
-			bigIntToDecimal(price.collateralAmount, collateralInfo.decimals) ?? 0;
-		const leverageFactor =
-			bigIntToDecimal(price.leverageFactor, collateralInfo.decimals) ?? 0;
+		const collateralValue = price.collateralValue ?? 0n;
+		const [,,loanValue] = await readContract(config, {
+			...collateralPoolContract,
+			functionName: "getLoanValue",
+			args: [account.address, collateralInfo.addressLP],
+		});
 
-		// const _transactionAmount = amount;
-		// amount > _leverage
-		// 	? leverageToLp(amount, price.collateralValue ?? 0n, proportions?.collateralPrice ?? 0n)
-		// 	: -(collateralAmount - (collateralAmount * amount) / leverageFactor);
+		const delta_colateral_value = BigInt(Math.round(amount * 1000)) * (collateralValue - loanValue) / (10n ** 21n) - collateralValue;
+
+		const lpPrice = proportions?.collateralPrice ?? 0n;
+
+		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
-		const maxIncrease = await readContract(config, {
-			account: account.address,
-			abi: abiBorrowerData,
-			address: process.env
-				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-			functionName: "convertLevereageToIncreaseAmount",
-			args: [account.address, collateralInfo.addressLP],
-		});
-		
-		const transactionAmount =
-			amount > _leverage
-				? leverageToLp(amount, price.collateralAmount ?? 0n) ?? 0n
-				: -(
-						(price.collateralAmount ?? 0n) -
-						((price.collateralAmount ?? 0n) *
-							BigInt(Math.round(amount * 1000))) /
-							BigInt(Math.round(leverageFactor * 1000))
-					);
-
 		const amount0 = abs(transactionAmount);
 		const amount1 = abs(transactionAmount);
-
-		console.log({
-			maxLeverage,
-			ratio: amount / (maxLeverage ?? 1),
-			_leverage,
-			amount,
-			maxIncrease,
-			transactionAmount,
-			amount0,
-			amount1,
-		});
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {

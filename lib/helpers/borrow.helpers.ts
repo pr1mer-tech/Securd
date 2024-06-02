@@ -497,7 +497,7 @@ export const getMaxLT = (collateralInfos: CollateralInfos | undefined) => {
   try {
     if (collateralInfos !== undefined) {
       return bigIntToDecimal(
-        collateralInfos.liquidationThresholdInfo.unBalancedLoanThreshold_0,
+        collateralInfos.liquidationThresholdInfo.unBalancedLoanThreshold_b,
         18
       );
     }
@@ -517,7 +517,7 @@ export const getBorrowerPoolBalanceLT = (
   try {
     if (collateralInfos !== undefined) {
       return bigIntToDecimal(
-        collateralInfos.liquidationThresholdInfo.balancedLoanThreshold_0,
+        collateralInfos.liquidationThresholdInfo.balancedLoanThreshold_b,
         18
       );
     }
