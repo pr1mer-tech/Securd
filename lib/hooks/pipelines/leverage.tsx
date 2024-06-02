@@ -272,7 +272,7 @@ export function leverage(
 						debt1: 1n,
 						liquidationFactor: borrowerLt,
 						leverageFactor:
-							BigInt(Math.round(leverageFactor * 1000)) * 10n ** 15n,
+							BigInt(Math.round(amount * 1000)) * 10n ** 15n,
 						collateralFactor:
 							((proportions?.collateralPrice ?? 0n) *
 								((price.collateralAmount ?? 0n) + transactionAmount)) /
