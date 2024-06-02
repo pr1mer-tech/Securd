@@ -1,4 +1,4 @@
-import { collateralPoolContract, borrowerDataContract } from '@/lib/constants/wagmiConfig/wagmiConfig';
+import { collateralPoolContract, borrowerDataContract, collateralPriceContract } from '@/lib/constants/wagmiConfig/wagmiConfig';
 import { bigIntToDecimal } from '@/lib/helpers/main.helpers';
 import { describe, it, expect } from 'bun:test';
 import { createWalletClient, getContract, http, publicActions } from 'viem';
@@ -6,16 +6,6 @@ import { cronosTestnet } from 'viem/chains';
 
 BigInt.prototype.toJSON = function () {
 	return this.toString();
-};
-
-const leverageToLp = (
-	_leverageFactor: number,
-	collateralAmount: bigint,
-): bigint | undefined => {
-	// Leverage is calculated as collateralFactor / (collateralFactor - 1)
-	const unit = BigInt(10) ** BigInt(18);
-	const leverageFactor = BigInt(Math.round(_leverageFactor * 1000)) * unit / 1000n - unit;
-	return leverageFactor * collateralAmount / unit;
 };
 
 describe('leverage', () => {
@@ -26,6 +16,11 @@ describe('leverage', () => {
 
 	const collateralPool = getContract({
 		...collateralPoolContract,
+		client,
+	});
+
+	const collateralPriceOracle = getContract({
+		...collateralPriceContract,
 		client,
 	});
 
@@ -44,16 +39,28 @@ describe('leverage', () => {
 		const maxLeverage = await borrowerData.read.getMaxLevereage([borrower, token]);
 		const _maxLeverage = bigIntToDecimal(maxLeverage, 18) ?? 0;
 
-		const [collateralAmount, tokenA, tokenB] = await collateralPool.read.borrowerBalances([borrower, token]);
+		const [, tokenA, tokenB] = await collateralPool.read.borrowerBalances([borrower, token]);
 
 		expect(currentLeverage).toBeLessThan(maxLeverage);
 
 		const targetLeverage = (_maxLeverage - _currentLeverage) / 2 + _currentLeverage; // Point at the midpoint
+		const _targetLeverage = BigInt(Math.round(targetLeverage * 1e9)) * 10n ** 9n;
 
 		console.log(`Current leverage: ${_currentLeverage}, max leverage: ${_maxLeverage}, target leverage: ${targetLeverage}`);
 
+		// Calculate the transaction Value
+		const collateralValue = await collateralPool.read.getCollateralValue([borrower, token]);
+
+		const [, , loanValue] = await collateralPool.read.getLoanValue([borrower, token]);
+
+		const delta_colateral_value = _targetLeverage * (collateralValue - loanValue) / (10n ** 18n) - collateralValue;
+
+		console.log(`Transaction value: ${delta_colateral_value}`);
+
 		// Calculate the transaction amount
-		const transactionAmount = leverageToLp(targetLeverage, collateralAmount ?? 0n);
+		const [, , lpPrice] = await collateralPriceOracle.read.getCollateralPrice([token]);
+
+		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
 
 		console.log(`Transaction amount: ${transactionAmount}`);
 
