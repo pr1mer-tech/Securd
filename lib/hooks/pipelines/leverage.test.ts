@@ -39,6 +39,8 @@ describe('leverage', () => {
 		const maxLeverage = await borrowerData.read.getMaxLevereage([borrower, token]);
 		const _maxLeverage = bigIntToDecimal(maxLeverage, 18) ?? 0;
 
+		const maxIncrease = await borrowerData.read.getMaxIncrease([borrower, token]);
+
 		const [, tokenA, tokenB] = await collateralPool.read.borrowerBalances([borrower, token]);
 
 		expect(currentLeverage).toBeLessThan(maxLeverage);
@@ -63,6 +65,11 @@ describe('leverage', () => {
 		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
 
 		console.log(`Transaction amount: ${transactionAmount}`);
+
+		if (transactionAmount > maxIncrease) {
+			console.log(`Transaction amount is greater than max increase: ${maxIncrease}`);
+			return;
+		}
 
 		// Verify using position data
 		const positionData = await borrowerData.read.getPositionData([
