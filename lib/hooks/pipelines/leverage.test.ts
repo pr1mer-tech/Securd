@@ -42,8 +42,6 @@ describe('leverage', () => {
 
 		const maxIncrease = await borrowerData.read.getMaxIncrease([borrower, token]);
 
-		const [, tokenA, tokenB] = await collateralPool.read.borrowerBalances([borrower, token]);
-
 		expect(currentLeverage).toBeLessThan(maxLeverage);
 
 		const targetLeverage = (_maxLeverage - _currentLeverage) / 2 + _currentLeverage; // Point at the midpoint
@@ -65,7 +63,11 @@ describe('leverage', () => {
 
 		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
 
-		console.log(`Transaction amount: ${transactionAmount}`);
+		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
+
+		const [tokenA, tokenB] = await collateralPool.read.getAmounts([token, abs(transactionAmount)]);
+
+		console.log(`Transaction amount: ${transactionAmount}, tokenA: ${tokenA}, tokenB: ${tokenB}`);
 
 		if (transactionAmount > maxIncrease) {
 			console.log(`Transaction amount is greater than max increase: ${maxIncrease}`);
@@ -86,7 +88,7 @@ describe('leverage', () => {
 			},
 		]);
 
-		console.log(`Position data: ${JSON.stringify(positionData)}`);
+		console.log(`Position data: ${JSON.stringify(positionData, null, 2)}`);
 
 		expect(bigIntToDecimal(positionData.leverageFactor, 18)).toBeCloseTo(targetLeverage, 2);
 	});
