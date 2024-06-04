@@ -563,7 +563,7 @@ export const getBorrowerPoolMinCF = (
   try {
     const balance = getBorrowerPoolBalanceLT(collateralInfos);
 
-    return balance !== undefined ? balance * 1.1 : undefined;
+    return balance !== undefined ? balance : undefined;
   } catch (error) {
     throw new Error(`Error : ${error}`);
   }
