@@ -347,7 +347,6 @@ function calculateScores(extendedPairDayData: ExtendedPairDayData[]) {
     const nDays = 256;
     const n = T * nDays;
 
-    const amount = 100;
     const ThresholdsVeV = [5, 10, 15, 30, 50, 80];
 
     const N = extendedPairDayData.length;

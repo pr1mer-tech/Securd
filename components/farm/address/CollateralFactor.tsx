@@ -25,6 +25,7 @@ export default function CollateralFactor() {
 	);
 
 	// Check if the values are too close to each other, to avoid an overlap
+	const minValue = 85;
 	const maxValue =
 		collateralFactor && Math.max(collateralFactor, borrowerLt ?? 0);
 	const distance =
@@ -46,7 +47,7 @@ export default function CollateralFactor() {
 			<Slider
 				className="my-8"
 				rangeClassName={color}
-				min={0}
+				min={minValue}
 				max={(maxValue ?? 0) * 100}
 				value={
 					collateralFactor && borrowerLt
@@ -93,7 +94,17 @@ export default function CollateralFactor() {
 						/>
 					</span>,
 				]}
-			/>
+			>
+				{ collateralFactor && collateralFactor < 4 &&
+					<span
+				className="absolute border-r border-red-500 text-red-500 h-5"
+				style={{ left: `${(100 - minValue) / ((maxValue ?? 0) - (minValue / 100))}%` }}
+				>
+					<span className="absolute top-4 -translate-x-1/2">
+						100%
+					</span>
+				</span>}
+			</Slider>
 		</div>
 	);
 }
