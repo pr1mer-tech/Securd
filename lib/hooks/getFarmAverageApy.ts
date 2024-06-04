@@ -47,7 +47,7 @@ const getFarmAverageApy = (
         );
 
         return getTotalApy(collateralValueDecimal, lpApy, priceLoan, borrowApy);
-    }).filter((apy) => (apy ?? 0) > 0) as number[];
+    }) as number[]; //.filter((apy) => (apy ?? 0) > 0) as number[];
 
     const averageApy = apys.reduce((acc, apy) => acc + apy, 0) / apys.length;
 
