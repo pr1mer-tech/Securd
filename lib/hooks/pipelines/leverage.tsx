@@ -121,8 +121,8 @@ export function leverage(
 			functionName: "getLoanValue",
 			args: [account.address, collateralInfo.addressLP],
 		});
-
-		const delta_colateral_value = BigInt(Math.round(amount * 1000)) * (collateralValue - loanValue) / (10n ** 21n) - collateralValue;
+		const _targetLeverage = BigInt(Math.round(amount * 1e9)) * 10n ** 9n;
+		const delta_colateral_value = _targetLeverage * (collateralValue - loanValue) / (10n ** 18n) - collateralValue;
 
 		const lpPrice = proportions?.collateralPrice ?? 0n;
 
@@ -135,6 +135,9 @@ export function leverage(
 			functionName: "getAmounts",
 			args: [collateralInfo.addressLP, abs(transactionAmount)],
 		});
+
+		console.log(`Transaction value: ${delta_colateral_value}`);
+		console.log(`Transaction amount: ${transactionAmount}, tokenA: ${amount0}, tokenB: ${amount1}`);
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
@@ -282,17 +285,6 @@ export function leverage(
 							(adjustedPriceA + adjustedPriceB),
 					};
 
-		console.log({
-			positionData,
-			token: collateralInfo.addressLP,
-			borrower: account.address,
-			amount: abs(transactionAmount),
-			amount0,
-			amount1,
-			direction: isLeverage,
-			direction0: isLeverage,
-			direction1: isLeverage,
-		});
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
@@ -329,7 +321,7 @@ export function leverage(
 							/>
 						),
 						fromAmount: price.collateralAmount ?? 0n,
-						toAmount: (price.collateralAmount ?? 0n) + transactionAmount,
+						toAmount: (price.collateralAmount ?? 0n) + abs(transactionAmount),
 						fromDecimals: collateralInfo.decimals,
 						toDecimals: collateralInfo.decimals,
 						fromPrice: collatPrice,
@@ -395,7 +387,7 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{formatPCTFactor(
-									bigIntToDecimal(newCollateralFactor, collateralInfo.decimals),
+									bigIntToDecimal(positionData?.collateralFactor, collateralInfo.decimals - 2),
 								)}
 							</div>
 						</div>
