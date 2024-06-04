@@ -28,6 +28,7 @@ import {
 	securdFormat,
 } from "@/lib/helpers/numberFormat.helpers";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
+import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
 
 export function repay(
 	config: Config,
@@ -254,6 +255,27 @@ export function repay(
 				collateralInfo.decimals + 6,
 			) ?? 0;
 		const newLeverage = collateralDollar / (collateralDollar - sumDebt);
+
+		const positionData = await readContract(config, {
+						account: account.address,
+						abi: abiBorrowerData,
+						address: process.env
+							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+						functionName: "getPositionData",
+						args: [
+							{
+								token: collateralInfo.addressLP,
+								borrower: account.address,
+								amount: 0n,
+								amount0: isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n,
+								amount1: isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n,
+								direction: false,
+								direction0: !isEqualAddress(selectedAsset.address, tokens[0].address),
+								direction1: !isEqualAddress(selectedAsset.address, tokens[1].address),
+							},
+						],
+					})
+
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
 				open: true,
@@ -353,8 +375,8 @@ export function repay(
 							<div className="w-12 text-right">
 								{formatPCTFactor(
 									bigIntToDecimal(
-										newCollateralFactor,
-										collateralInfo.decimals - 8,
+										positionData?.collateralFactor,
+										collateralInfo.decimals - 2,
 									),
 								)}
 							</div>
@@ -368,7 +390,10 @@ export function repay(
 							</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{formatPCTFactor(bigIntToDecimal(newBorrowerLT, 4))}
+								{formatPCTFactor(bigIntToDecimal(
+									positionData?.liquidationFactor,
+									collateralInfo.decimals - 2,
+								))}
 							</div>
 						</div>
 						<div className="flex justify-between">
@@ -376,7 +401,14 @@ export function repay(
 							<div className="w-12">{securdFormat(leverage, 2)}x</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{securdFormat(newLeverage, 2)}x
+								{securdFormat(
+									bigIntToDecimal(
+										positionData?.leverageFactor,
+										collateralInfo.decimals,
+									) ?? 0,
+									2,
+								)}
+								x
 							</div>
 						</div>
 					</>

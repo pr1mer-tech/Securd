@@ -114,7 +114,6 @@ export default function Loan() {
 
 	const maximumBorrow = (() => {
 		if (account?.address && !maxBorrowData) {
-			console.log({ maxBorrowError: error });
 			return 0n;
 		}
 		if (
