@@ -79,7 +79,7 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
             }
         }).then(res => res.json()).catch(() => null);
 
-        imgSrc = res?.[0]?.logoURI
+        imgSrc = res?.[0]?.logoURI ?? imgSrc;
     }
 
     return {
