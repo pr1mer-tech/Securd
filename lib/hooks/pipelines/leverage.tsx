@@ -104,15 +104,6 @@ export function leverage(
 		const minLT = getBorrowerPoolBalanceLT(collateralInfo);
 		const maxLT = getMaxLT(collateralInfo);
 
-		const borrowerMaxLeverageLP =
-			getBorrowerMaxLeverage(
-				bigIntToDecimal(price.collateralValue, collateralInfo.decimals),
-				bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals),
-				loanAUSD,
-				loanBUSD,
-				minLT,
-				maxLT,
-			) ?? 0;
 
 		// const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 		const collateralValue = price.collateralValue ?? 0n;
@@ -168,7 +159,7 @@ export function leverage(
 					},
 					{
 						loading: "Applying Leverage...",
-						success: (data) => {
+						success: () => {
 							resolve();
 							return "Leverage Applied";
 						},
@@ -219,7 +210,7 @@ export function leverage(
 					},
 					{
 						loading: "Deleveraging...",
-						success: (data) => {
+						success: () => {
 							resolve();
 							return "Deleveraged";
 						},
@@ -246,11 +237,6 @@ export function leverage(
 			Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0),
 		);
 
-		const newCollateralFactor =
-			(10n ** 8n *
-				(proportions?.collateralPrice ?? 0n) *
-				((price?.collateralAmount ?? 0n) + transactionAmount)) /
-			(amount0 * adjustedPriceA + amount1 * adjustedPriceB);
 
 		const positionData =
 			amount > 1
@@ -310,7 +296,7 @@ export function leverage(
 				},
 				impacts: [
 					{
-						label: "Balance",
+						label: "Collateral",
 						symbol: (
 							<PairIcon
 								userCollateralsInfo={collateralInfo}
@@ -321,7 +307,7 @@ export function leverage(
 							/>
 						),
 						fromAmount: price.collateralAmount ?? 0n,
-						toAmount: (price.collateralAmount ?? 0n) + abs(transactionAmount),
+						toAmount: (price.collateralAmount ?? 0n) + abs(transactionAmount) * (isLeverage ? 1n : -1n),
 						fromDecimals: collateralInfo.decimals,
 						toDecimals: collateralInfo.decimals,
 						fromPrice: collatPrice,
