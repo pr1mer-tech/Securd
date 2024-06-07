@@ -70,6 +70,7 @@ export default function CollateralFactor() {
 							<div className="absolute top-5 left-1/2 w-0 h-1/4 border border-dashed border-gray-500 -z-10" />
 						)}
 						<PercentageFormat
+							factor
 							value={collateralFactor}
 							className={isTooClose ? "mt-10" : "mt-6"}
 							description={"CF:"}
@@ -88,6 +89,7 @@ export default function CollateralFactor() {
 							<div className="absolute top-1/2 left-1/2 w-0 h-1/4 border border-dashed border-gray-500" />
 						)}
 						<PercentageFormat
+							factor
 							value={borrowerLt}
 							className={isTooClose ? "mt-10" : "mt-6"}
 							description={"LT:"}

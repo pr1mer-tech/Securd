@@ -77,7 +77,10 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
                 "x-rapidapi-host": "cryptofonts-token-icon-api1.p.rapidapi.com",
                 "x-rapidapi-key": process.env.XAPI_KEY!
             }
-        }).then(res => res.json()).catch(() => null);
+        }).then(res => res.json()).catch((error) => {
+            console.log(error);
+            return null;
+        });
 
         imgSrc = res?.[0]?.logoURI ?? imgSrc;
     }

@@ -157,9 +157,9 @@ export const securdFormatFloor = (num?: number, decimals?: number): string => {
   return "--";
 };
 
-export const formatPCTFactor = (factor?: number): string => {
+export const formatPCTFactor = (factor?: number, decimals: number = 0): string => {
   if (factor && !Number.isNaN(factor)) {
-    return factor < 1000000 ? `${factor.toFixed(0)}%` : "∞";
+    return factor < 10000 ? `${factor.toFixed(decimals || 0)}%` : "∞";
   }
   return "--";
 };

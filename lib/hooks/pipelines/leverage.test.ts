@@ -9,7 +9,7 @@ BigInt.prototype.toJSON = function () {
 	return this.toString();
 };
 
-describe('leverage', () => {
+describe('leverage & deleverage', () => {
 	const client = createWalletClient({
 		chain: cronosTestnet,
 		transport: http()
@@ -30,7 +30,7 @@ describe('leverage', () => {
 		client,
 	});
 
-	it('should get correct position data', async () => {
+	it('leverage: should get correct position data', async () => {
 		const borrower = "0x492804D7740150378BE8d4bBF8ce012C5497DeA9";
 		const token = "0x3918B9bf24D714DE987514b2fBD034AAd3a5c089";
 
@@ -91,5 +91,50 @@ describe('leverage', () => {
 		console.log(`Position data: ${JSON.stringify(positionData, null, 2)}`);
 
 		expect(bigIntToDecimal(positionData.leverageFactor, 18)).toBeCloseTo(targetLeverage, 2);
+	});
+	it('deleverage: should get correct position data', async () => {
+		const borrower = "0x492804D7740150378BE8d4bBF8ce012C5497DeA9";
+		const token = "0x3918B9bf24D714DE987514b2fBD034AAd3a5c089";
+
+		const targetLeverage = 1; // Point at the midpoint
+		const _targetLeverage = BigInt(Math.round(targetLeverage * 1e9)) * 10n ** 9n;
+
+		// Calculate the transaction Value
+		const collateralValue = await collateralPool.read.getCollateralValue([borrower, token]);
+
+		const [, , loanValue] = await collateralPool.read.getLoanValue([borrower, token]);
+
+		const delta_colateral_value = _targetLeverage * (collateralValue - loanValue) / (10n ** 18n) - collateralValue;
+
+		console.log(`Transaction value: ${delta_colateral_value}`);
+
+		// Calculate the transaction amount
+		const [, , lpPrice] = await collateralPriceOracle.read.getCollateralPrice([token]);
+
+		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
+
+		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
+
+		const [tokenA, tokenB] = await collateralPool.read.getAmounts([token, abs(transactionAmount)]);
+
+		console.log(`Transaction amount: ${transactionAmount}, tokenA: ${tokenA}, tokenB: ${tokenB}`);
+
+		// Verify using position data
+		const positionData = await borrowerData.read.getPositionData([
+			{
+				token: token,
+				borrower: borrower,
+				amount: abs(transactionAmount ?? 0n),
+				amount0: tokenA,
+				amount1: tokenB,
+				direction: false,
+				direction0: true,
+				direction1: true,
+			},
+		]);
+
+		console.log(`Position data: ${JSON.stringify(positionData, null, 2)}`);
+
+		expect(bigIntToDecimal(positionData.leverageFactor, 18)).toBeCloseTo(0, 2); // Leverage of 0 is the same as no leverage
 	});
 });

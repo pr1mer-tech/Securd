@@ -192,7 +192,7 @@ export function AccountCard({
                             Collateral value divided by Loan value
                         </Help>
                     </div>
-                    <PercentageFormat value={borrowerCF} className="text-xl font-bold" />
+                    <PercentageFormat factor value={borrowerCF} className="text-xl font-bold" />
                 </div>
                 <div className="flex flex-row justify-between text-base mt-2 mb-4">
                     <div className="">
@@ -201,7 +201,7 @@ export function AccountCard({
                             Minimum Collateral Factor before your collateral is liquidated
                         </Help>
                     </div>
-                    <PercentageFormat value={balanceLT} className="text-xl font-bold" />
+                    <PercentageFormat factor value={balanceLT} className="text-xl font-bold" />
                 </div>
             </CardContent>
         </Card>
