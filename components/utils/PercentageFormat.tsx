@@ -1,4 +1,4 @@
-import { toFormattedPercentage } from "@/lib/helpers/numberFormat.helpers";
+import { formatPCTFactor, toFormattedPercentage } from "@/lib/helpers/numberFormat.helpers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export default function PercentageFormat({
@@ -8,6 +8,7 @@ export default function PercentageFormat({
 	prefix = "",
 	suffix = "",
 	description = "",
+	factor = false,
 }: {
 	value?: number;
 	className?: string;
@@ -15,11 +16,12 @@ export default function PercentageFormat({
 	prefix?: string;
 	suffix?: string;
 	description?: string;
+	factor?: boolean;
 }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger className={className}>
-				{`${prefix} ${toFormattedPercentage(value, decimals)} ${suffix}`}
+				{`${prefix} ${factor ? formatPCTFactor(value ? value * 100 : undefined, decimals) : toFormattedPercentage(value, decimals)} ${suffix}`}
 			</TooltipTrigger>
 			<TooltipContent>
 				{description}

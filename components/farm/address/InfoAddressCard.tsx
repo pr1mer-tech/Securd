@@ -56,7 +56,7 @@ export default function InfoAddressCard() {
                                 Collateral value divided by Loan value
                             </Help>
                         </h2>
-                        <PercentageFormat value={collateralFactor} className="font-bold text-2xl" />
+                        <PercentageFormat factor value={collateralFactor} className="font-bold text-2xl" />
                     </div>
                     <Separator className="mt-2" />
                     <CollateralFactor />

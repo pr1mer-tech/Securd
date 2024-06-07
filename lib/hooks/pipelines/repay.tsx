@@ -256,7 +256,10 @@ export function repay(
 			) ?? 0;
 		const newLeverage = collateralDollar / (collateralDollar - sumDebt);
 
-		const positionData = await readContract(config, {
+		const positionData = await (async () => {
+			try {
+				if (!account.address) return null;
+				await readContract(config, {
 						account: account.address,
 						abi: abiBorrowerData,
 						address: process.env
@@ -275,6 +278,11 @@ export function repay(
 							},
 						],
 					})
+			} catch (error) {
+				console.log(error);
+				return null;
+			}
+		})();
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({

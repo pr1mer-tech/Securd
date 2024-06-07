@@ -254,8 +254,8 @@ export function leverage(
 								amount0,
 								amount1,
 								direction: isLeverage,
-								direction0: isLeverage,
-								direction1: isLeverage,
+								direction0: true,
+								direction1: true,
 							},
 						],
 					})
@@ -400,11 +400,12 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{securdFormat(
-									// amount,
-									bigIntToDecimal(
+									isLeverage
+									? bigIntToDecimal(
 										positionData?.leverageFactor,
 										collateralInfo.decimals,
-									) ?? 0,
+									) ?? 0
+									: amount,
 									2,
 								)}
 								x

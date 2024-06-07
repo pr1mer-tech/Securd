@@ -382,7 +382,11 @@ export default function Loan() {
 				onValueChange={(value) => {
 					if (!sliderBase) return;
 					const exactPercentage = value[0] ?? 0;
-					const amount = (sliderBase * BigInt(exactPercentage)) / 100n;
+					let amount = (sliderBase * BigInt(exactPercentage)) / 100n;
+
+					if (menu === "repay" && amount > (walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]?.result ?? 0n)) {
+						amount = walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]?.result ?? amount;
+					}
 
 					setAmount(amount);
 					setAmountInput(formatUnits(amount, collateralInfo?.decimals ?? 18));
