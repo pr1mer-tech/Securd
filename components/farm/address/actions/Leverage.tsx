@@ -64,14 +64,17 @@ export default function Leverage() {
 		query: {
 			enabled:
 				!!address &&
-				!!collateralInfo?.addressLP
+				!!collateralInfo?.addressLP,
+			refetchInterval: 10000
 		},
 	});
 
 	const minLeverage = 0;
-	const maxLeverage = bigIntToDecimal(
-		maxLevereage ?? 0n,
+	const maxLeverage = Math.max((bigIntToDecimal(
+		maxLevereage,
 		collateralInfo?.decimals ?? 18,
+	) ?? 0.01) - 0.01, // minus 0.01 to avoid rounding errors
+	leverage ?? 0,
 	);
 
 	const [amount, setAmount] = useState<number>(leverage ?? 0);
