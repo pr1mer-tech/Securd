@@ -259,7 +259,7 @@ export function repay(
 		const positionData = await (async () => {
 			try {
 				if (!account.address) return null;
-				await readContract(config, {
+				return await readContract(config, {
 						account: account.address,
 						abi: abiBorrowerData,
 						address: process.env
