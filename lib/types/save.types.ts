@@ -59,6 +59,7 @@ export type ReserveInfo = {
   token_address: Address;
   decimals: number;
   supplyCap: bigint;
+  liquidity: bigint;
   supply: bigint;
   debt: bigint;
   fee: Fee;

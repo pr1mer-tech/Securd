@@ -234,11 +234,7 @@ export const getPoolGlobalDeposit = (pool?: LenderPool) => {
 export const getPoolLiquidity = (reserveInfo: ReserveInfo | undefined) => {
   try {
     if (reserveInfo !== undefined) {
-      const supply = getDeposit(reserveInfo);
-      const amountUsed = getUtilizedToken(reserveInfo);
-      if (supply !== undefined && amountUsed !== undefined) {
-        return supply - amountUsed;
-      }
+      return reserveInfo.liquidity;
     }
   } catch (error) {
     throw new Error(MAIN_ERRORS.FAILED_HELPER + error);
