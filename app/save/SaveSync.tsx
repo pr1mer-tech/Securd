@@ -22,18 +22,11 @@ export default function SaveSync({
 	chainId: string | undefined;
 }) {
 	useChainURL(chainId);
-	const { reservesInfo } = useLendingPool(preReservesInfo);
+	const coinPrices = useAssetPriceOracle(preReservesInfo);
+	const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
 
-	const coinPrices = useAssetPriceOracle(reservesInfo);
 	const { balanceLDTokens } = useLDtokens(reservesInfo);
 	const userDeposit = useGetLenderSupply(reservesInfo);
-
-	console.log({
-		reservesInfo,
-		coinPrices,
-		balanceLDTokens,
-		userDeposit,
-	});
 
 	useEffect(() => {
 		useSaveStore.setState({

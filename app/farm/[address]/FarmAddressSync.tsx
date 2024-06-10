@@ -36,8 +36,8 @@ export default function FarmAddressSync({
 	chainId: string | undefined;
 }) {
 	useChainURL(chainId);
-	const { reservesInfo } = useLendingPool(preReservesInfo);
-	const coinPrices = useAssetPriceOracle(reservesInfo);
+	const coinPrices = useAssetPriceOracle(preReservesInfo);
+	const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
 
 	const collateralsInfos = useCollateralPool(pool ? [pool] : []);
 

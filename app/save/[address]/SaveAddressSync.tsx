@@ -15,32 +15,43 @@ import { useEffect } from "react";
 import type { Address } from "viem";
 
 export default function SaveAddressSync({
-    children,
-    address,
-    preReservesInfo,
-    chainId
+	children,
+	address,
+	preReservesInfo,
+	chainId,
 }: {
-    children: React.ReactNode,
-    address: Address,
-    preReservesInfo: ReserveInfo[],
-    chainId: string | undefined,
+	children: React.ReactNode;
+	address: Address;
+	preReservesInfo: ReserveInfo[];
+	chainId: string | undefined;
 }) {
-    useChainURL(chainId);
-    const { reservesInfo } = useLendingPool(preReservesInfo);
-    const reserveInfo = reservesInfo.find((reserve) => isEqualAddress(reserve.address, address));
-    const coinPrices = useAssetPriceOracle(reserveInfo ? [reserveInfo] : []);
-    const { balanceLDTokens } = useLDtokens(reserveInfo ? [reserveInfo] : []);
-    const userDeposit = useGetLenderSupply(reserveInfo ? [reserveInfo] : []);
-    const userBalance = useBalanceCoins(reserveInfo ? [reserveInfo] : []);
+	useChainURL(chainId);
+	const coinPrices = useAssetPriceOracle(preReservesInfo);
+	const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
+	const reserveInfo = reservesInfo.find((reserve) =>
+		isEqualAddress(reserve.address, address),
+	);
 
-    useEffect(() => {
-        useSaveAddressStore.setState({
-            reserveInfo,
-            coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins],
-            balanceLDToken: balanceLDTokens[address],
-            userDeposit: userDeposit[address],
-            userBalance: userBalance[reserveInfo?.address as Address],
-        })
-    }, [address, balanceLDTokens, coinPrices, reserveInfo, reservesInfo, userBalance, userDeposit]);
-    return children;
+	const { balanceLDTokens } = useLDtokens(reserveInfo ? [reserveInfo] : []);
+	const userDeposit = useGetLenderSupply(reserveInfo ? [reserveInfo] : []);
+	const userBalance = useBalanceCoins(reserveInfo ? [reserveInfo] : []);
+
+	useEffect(() => {
+		useSaveAddressStore.setState({
+			reserveInfo,
+			coinPrice: coinPrices[reserveInfo?.symbol as keyof Coins],
+			balanceLDToken: balanceLDTokens[address],
+			userDeposit: userDeposit[address],
+			userBalance: userBalance[reserveInfo?.address as Address],
+		});
+	}, [
+		address,
+		balanceLDTokens,
+		coinPrices,
+		reserveInfo,
+		reservesInfo,
+		userBalance,
+		userDeposit,
+	]);
+	return children;
 }
