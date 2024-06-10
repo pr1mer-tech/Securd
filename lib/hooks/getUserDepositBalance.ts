@@ -14,6 +14,11 @@ const getUserDepositBalance = (reserveInfo: ReserveInfo | undefined, balanceLDTo
 
   const { userDTokenAmount } = getUserDToken(reserveInfo, balanceLDToken);
 
+  console.log({
+    dTokenPrice,
+    userDTokenAmount,
+  })
+
   const userDepositBalance =
     userDTokenAmount !== undefined && dTokenPrice !== undefined
       ? (userDTokenAmount * dTokenPrice) / (10n ** BigInt(reserveInfo.decimals))
