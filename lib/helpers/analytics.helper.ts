@@ -87,6 +87,7 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
 
     return {
         address: token?.token_address as `0x${string}`,
+        token_address: token?.token_address as `0x${string}`,
         decimals: token?.token_decimals as number,
         symbol: token?.token_symbol as string,
         imgSrc,
@@ -94,7 +95,8 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
         fee: {
             flashLoanFee: 0n,
             interestFee: 0n,
-            loanFee: 0n
+            loanFee: 0n,
+            reserveFee: 0n
         },
         interestRateInfo: {
             interestRate: 0n,
@@ -107,6 +109,7 @@ export const tokenToReserveInfo = async (token?: Token | null, chain?: Blockchai
         lastBlock: 0,
         lastTime: 0,
         supply: 0n,
+        liquidity: 0n,
         supplyCap: 0n,
         tokenInfo: {
             dToken: "0x" as `0x${string}`,

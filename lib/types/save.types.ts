@@ -32,9 +32,8 @@ export type HistoryApy = {
 };
 
 export type Fee = {
-  loanFee: bigint;
   flashLoanFee: bigint;
-  interestFee: bigint;
+  reserveFee: bigint;
 };
 
 export type InterestRateInfo = {
