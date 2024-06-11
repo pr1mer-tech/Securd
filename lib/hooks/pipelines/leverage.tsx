@@ -133,6 +133,13 @@ export function leverage(
 			`Transaction amount: ${transactionAmount}, tokenA: ${amount0}, tokenB: ${amount1}`,
 		);
 
+		const simulate = {
+			abi: abiCollateralPool,
+			address: process.env
+				.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: isLeverage ? "leverage" : "deleverage",
+			args: [collateralInfo.addressLP, abs(transactionAmount)],
+		} as const;
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
@@ -141,11 +148,7 @@ export function leverage(
 						const gas = 579234n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiCollateralPool,
-							address: process.env
-								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "leverage",
-							args: [collateralInfo.addressLP, abs(transactionAmount)],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -188,11 +191,7 @@ export function leverage(
 						const gas = 579234n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiCollateralPool,
-							address: process.env
-								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "deleverage",
-							args: [collateralInfo.addressLP, abs(transactionAmount)],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -280,6 +279,7 @@ export function leverage(
 			useImpactStore.setState({
 				open: true,
 				title: isLeverage ? "Confirm Leverage" : "Confirm Deleverage",
+				simulate,
 				transactionDetails: {
 					title: isLeverage ? "Leverage" : "Deleverage",
 					amount: abs(transactionAmount),

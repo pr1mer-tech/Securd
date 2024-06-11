@@ -164,6 +164,18 @@ export function repay(
 			buttonLoading: true,
 		};
 
+		const simulate = {
+			abi: abiCollateralPool,
+			address: process.env
+				.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "repay",
+			args: [
+				collateralInfo.addressLP,
+				selectedAsset.address,
+				amount,
+				account.address ?? "0x",
+			],
+		} as const;
 		const deposit = () =>
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
@@ -172,16 +184,7 @@ export function repay(
 						const gas = 347783n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiCollateralPool,
-							address: process.env
-								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "repay",
-							args: [
-								collateralInfo.addressLP,
-								selectedAsset.address,
-								amount,
-								account.address ?? "0x",
-							],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -246,7 +249,7 @@ export function repay(
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
 		const newBorrowerLT = debt1 > 0 ? (debt0 * 10n ** 6n) / debt1 : 0n;
-			const collateralDollar =
+		const collateralDollar =
 			(bigIntToDecimal(userDepositBalance, collateralInfo.decimals) ?? 0) *
 			collatPrice;
 		const sumDebt =
@@ -260,24 +263,34 @@ export function repay(
 			try {
 				if (!account.address) return null;
 				return await readContract(config, {
-						account: account.address,
-						abi: abiBorrowerData,
-						address: process.env
-							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-						functionName: "getPositionData",
-						args: [
-							{
-								token: collateralInfo.addressLP,
-								borrower: account.address,
-								amount: 0n,
-								amount0: isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n,
-								amount1: isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n,
-								direction: false,
-								direction0: !isEqualAddress(selectedAsset.address, tokens[0].address),
-								direction1: !isEqualAddress(selectedAsset.address, tokens[1].address),
-							},
-						],
-					})
+					account: account.address,
+					abi: abiBorrowerData,
+					address: process.env
+						.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+					functionName: "getPositionData",
+					args: [
+						{
+							token: collateralInfo.addressLP,
+							borrower: account.address,
+							amount: 0n,
+							amount0: isEqualAddress(selectedAsset.address, tokens[0].address)
+								? amount
+								: 0n,
+							amount1: isEqualAddress(selectedAsset.address, tokens[1].address)
+								? amount
+								: 0n,
+							direction: false,
+							direction0: !isEqualAddress(
+								selectedAsset.address,
+								tokens[0].address,
+							),
+							direction1: !isEqualAddress(
+								selectedAsset.address,
+								tokens[1].address,
+							),
+						},
+					],
+				});
 			} catch (error) {
 				console.log(error);
 				return null;
@@ -288,6 +301,7 @@ export function repay(
 			useImpactStore.setState({
 				open: true,
 				title: "Confirm Repay",
+				simulate,
 				transactionDetails: {
 					title: "Repay",
 					amount,
@@ -398,10 +412,12 @@ export function repay(
 							</div>
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
-								{formatPCTFactor(bigIntToDecimal(
-									positionData?.liquidationFactor,
-									collateralInfo.decimals - 2,
-								))}
+								{formatPCTFactor(
+									bigIntToDecimal(
+										positionData?.liquidationFactor,
+										collateralInfo.decimals - 2,
+									),
+								)}
 							</div>
 						</div>
 						<div className="flex justify-between">

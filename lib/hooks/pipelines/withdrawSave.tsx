@@ -47,6 +47,14 @@ export function withdraw(
 			buttonLoading: true,
 		};
 
+		const simulate = {
+			abi: abiCollateralPool,
+			address: process.env
+				.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "withdraw",
+			args: [reserveInfo.address, amount, account.address ?? "0x"],
+		} as const;
+
 		const withdraw = () =>
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
@@ -55,11 +63,7 @@ export function withdraw(
 						const gas = 153072n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiCollateralPool,
-							address: process.env
-								.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "withdraw",
-							args: [reserveInfo.address, amount, account.address!],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -102,6 +106,7 @@ export function withdraw(
 			useImpactStore.setState({
 				open: true,
 				title: "Confirm Withdrawal",
+				simulate,
 				transactionDetails: {
 					title: "Withdraw",
 					amount,
