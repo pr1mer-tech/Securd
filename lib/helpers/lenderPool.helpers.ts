@@ -162,7 +162,7 @@ export const getSavingApy = (
 ): number | undefined => {
   try {
     if (reserveInfo !== undefined) {
-      const interest_fees = bigIntToDecimal(reserveInfo.fee.loanFee, 18);
+      const interest_fees = bigIntToDecimal(reserveInfo.fee.reserveFee, 18);
       const utilizationRate = getPoolUtilization(reserveInfo);
       const pool_interest_rate = getInterestRate(reserveInfo);
 
