@@ -96,6 +96,19 @@ export function borrow(
 			buttonLoading: true,
 		};
 
+		const simulate = {
+			abi: abiCollateralPool,
+			address: process.env
+				.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "borrow",
+			args: [
+				collateralInfo.addressLP,
+				selectedAsset.address,
+				amount,
+				account.address ?? "0x",
+			],
+		} as const;
+
 		const borrow = () =>
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
@@ -104,16 +117,7 @@ export function borrow(
 						const gas = 387734n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiCollateralPool,
-							address: process.env
-								.NEXT_PUBLIC_COLLATERALPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "borrow",
-							args: [
-								collateralInfo.addressLP,
-								selectedAsset.address,
-								amount,
-								account.address!,
-							],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -134,7 +138,7 @@ export function borrow(
 					},
 					{
 						loading: "Borrowing...",
-						success: (data) => {
+						success: () => {
 							resolve();
 							return "Borrowed";
 						},
@@ -169,17 +173,6 @@ export function borrow(
 		const adjustedPriceB =
 			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
-		const newCollateralFactor =
-			((proportions?.collateralPrice ?? 0n) * (price.collateralAmount ?? 0n)) /
-			(adjustedPriceA + adjustedPriceB);
-		const newBorrowerLT =
-			useFarmAddressStore
-				.getState()
-				.computeLT(
-					bigIntToDecimal(adjustedPriceA, tokens[0].decimals + 6) ?? 0,
-					bigIntToDecimal(adjustedPriceB, tokens[1].decimals + 6) ?? 0,
-				) ?? 0;
-
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
@@ -191,32 +184,36 @@ export function borrow(
 				adjustedPriceA + adjustedPriceB,
 				collateralInfo.decimals + 6,
 			) ?? 0;
-		const newLeverage = collateralDollar / (collateralDollar - sumDebt);
 
 		const positionData = await readContract(config, {
-						account: account.address,
-						abi: abiBorrowerData,
-						address: process.env
-							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-						functionName: "getPositionData",
-						args: [
-							{
-								token: collateralInfo.addressLP,
-								borrower: account.address,
-								amount: 0n,
-								amount0: isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n,
-								amount1: isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n,
-								direction: false,
-								direction0: isEqualAddress(selectedAsset.address, tokens[0].address),
-								direction1: isEqualAddress(selectedAsset.address, tokens[1].address),
-							},
-						],
-					})
+			account: account.address,
+			abi: abiBorrowerData,
+			address: process.env
+				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "getPositionData",
+			args: [
+				{
+					token: collateralInfo.addressLP,
+					borrower: account.address,
+					amount: 0n,
+					amount0: isEqualAddress(selectedAsset.address, tokens[0].address)
+						? amount
+						: 0n,
+					amount1: isEqualAddress(selectedAsset.address, tokens[1].address)
+						? amount
+						: 0n,
+					direction: false,
+					direction0: isEqualAddress(selectedAsset.address, tokens[0].address),
+					direction1: isEqualAddress(selectedAsset.address, tokens[1].address),
+				},
+			],
+		});
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
 				open: true,
 				title: "Confirm Borrow",
+				simulate,
 				transactionDetails: {
 					title: "Borrow",
 					amount,
@@ -328,7 +325,10 @@ export function borrow(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{formatPCTFactor(
-									bigIntToDecimal(positionData?.liquidationFactor, collateralInfo.decimals - 2),
+									bigIntToDecimal(
+										positionData?.liquidationFactor,
+										collateralInfo.decimals - 2,
+									),
 								)}
 							</div>
 						</div>
