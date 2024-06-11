@@ -116,26 +116,31 @@ export function withdraw(
 		const _price = useFarmAddressStore.getState().collateralAmountPrice;
 		const borrowerLt = useFarmAddressStore.getState().borrowerLt;
 		const leverage = useFarmAddressStore.getState().leverage();
+		const borrowerBalances = useFarmAddressStore.getState().borrowBalances();
 
-		const positionData = await readContract(config, {
-			account: account.address,
-			abi: abiBorrowerData,
-			address: process.env
-				.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-			functionName: "getPositionData",
-			args: [
-				{
-					token: collateralInfo.addressLP,
-					borrower: account.address,
-					amount: amount,
-					amount0: 0n,
-					amount1: 0n,
-					direction: true,
-					direction0: false,
-					direction1: false,
-				},
-			],
-		});
+		const positionData =
+			(borrowerBalances?.borrowBalanceA ?? 0) > 0 ||
+			(borrowerBalances?.borrowBalanceB ?? 0) > 0
+				? await readContract(config, {
+						account: account.address,
+						abi: abiBorrowerData,
+						address: process.env
+							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+						functionName: "getPositionData",
+						args: [
+							{
+								token: collateralInfo.addressLP,
+								borrower: account.address,
+								amount: amount,
+								amount0: 0n,
+								amount1: 0n,
+								direction: false,
+								direction0: false,
+								direction1: false,
+							},
+						],
+					})
+				: null;
 
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
@@ -185,7 +190,7 @@ export function withdraw(
 								{formatPCTFactor(
 									bigIntToDecimal(
 										positionData?.collateralFactor,
-										collateralInfo.decimals,
+										collateralInfo.decimals - 2,
 									),
 								)}
 							</div>
@@ -216,7 +221,7 @@ export function withdraw(
 									bigIntToDecimal(
 										positionData?.leverageFactor,
 										collateralInfo.decimals,
-									),
+									) ?? leverage,
 									2,
 								)}
 								x

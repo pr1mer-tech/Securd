@@ -44,7 +44,7 @@ import {
 	securdFormat,
 } from "@/lib/helpers/numberFormat.helpers";
 import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
-import { collateralPoolContract } from '@/lib/constants/wagmiConfig/wagmiConfig';
+import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 
 export function leverage(
 	config: Config,
@@ -104,20 +104,21 @@ export function leverage(
 		const minLT = getBorrowerPoolBalanceLT(collateralInfo);
 		const maxLT = getMaxLT(collateralInfo);
 
-
 		// const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 		const collateralValue = price.collateralValue ?? 0n;
-		const [,,loanValue] = await readContract(config, {
+		const [, , loanValue] = await readContract(config, {
 			...collateralPoolContract,
 			functionName: "getLoanValue",
 			args: [account.address, collateralInfo.addressLP],
 		});
 		const _targetLeverage = BigInt(Math.round(amount * 1e9)) * 10n ** 9n;
-		const delta_colateral_value = _targetLeverage * (collateralValue - loanValue) / (10n ** 18n) - collateralValue;
+		const delta_colateral_value =
+			(_targetLeverage * (collateralValue - loanValue)) / 10n ** 18n -
+			collateralValue;
 
 		const lpPrice = proportions?.collateralPrice ?? 0n;
 
-		const transactionAmount = (delta_colateral_value * (10n ** 18n)) / lpPrice;
+		const transactionAmount = (delta_colateral_value * 10n ** 18n) / lpPrice;
 
 		const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
 
@@ -128,7 +129,9 @@ export function leverage(
 		});
 
 		console.log(`Transaction value: ${delta_colateral_value}`);
-		console.log(`Transaction amount: ${transactionAmount}, tokenA: ${amount0}, tokenB: ${amount1}`);
+		console.log(
+			`Transaction amount: ${transactionAmount}, tokenA: ${amount0}, tokenB: ${amount1}`,
+		);
 
 		const leverage = () =>
 			new Promise<void>((resolve, reject) => {
@@ -237,9 +240,8 @@ export function leverage(
 			Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0),
 		);
 
-
 		const positionData =
-			amount > 1
+			amount > 1 && amount0 > 0 && amount1 > 0
 				? await readContract(config, {
 						account: account.address,
 						abi: abiBorrowerData,
@@ -254,8 +256,8 @@ export function leverage(
 								amount0,
 								amount1,
 								direction: isLeverage,
-								direction0: true,
-								direction1: true,
+								direction0: isLeverage,
+								direction1: isLeverage,
 							},
 						],
 					})
@@ -263,8 +265,7 @@ export function leverage(
 						debt0: 1n,
 						debt1: 1n,
 						liquidationFactor: borrowerLt,
-						leverageFactor:
-							BigInt(Math.round(amount * 1000)) * 10n ** 15n,
+						leverageFactor: BigInt(Math.round(amount * 1000)) * 10n ** 15n,
 						collateralFactor:
 							((proportions?.collateralPrice ?? 0n) *
 								((price.collateralAmount ?? 0n) + transactionAmount)) /
@@ -278,7 +279,7 @@ export function leverage(
 		const showImpact = new Promise<void>((resolve) => {
 			useImpactStore.setState({
 				open: true,
-				title: "Confirm Leverage",
+				title: isLeverage ? "Confirm Leverage" : "Confirm Deleverage",
 				transactionDetails: {
 					title: isLeverage ? "Leverage" : "Deleverage",
 					amount: abs(transactionAmount),
@@ -307,7 +308,9 @@ export function leverage(
 							/>
 						),
 						fromAmount: price.collateralAmount ?? 0n,
-						toAmount: (price.collateralAmount ?? 0n) + abs(transactionAmount) * (isLeverage ? 1n : -1n),
+						toAmount:
+							(price.collateralAmount ?? 0n) +
+							abs(transactionAmount) * (isLeverage ? 1n : -1n),
 						fromDecimals: collateralInfo.decimals,
 						toDecimals: collateralInfo.decimals,
 						fromPrice: collatPrice,
@@ -373,7 +376,10 @@ export function leverage(
 							<ArrowRight className="w-6 h-6" />
 							<div className="w-12 text-right">
 								{formatPCTFactor(
-									bigIntToDecimal(positionData?.collateralFactor, collateralInfo.decimals - 2),
+									bigIntToDecimal(
+										positionData?.collateralFactor,
+										collateralInfo.decimals - 2,
+									),
 								)}
 							</div>
 						</div>
@@ -401,11 +407,11 @@ export function leverage(
 							<div className="w-12 text-right">
 								{securdFormat(
 									isLeverage
-									? bigIntToDecimal(
-										positionData?.leverageFactor,
-										collateralInfo.decimals,
-									) ?? 0
-									: amount,
+										? bigIntToDecimal(
+												positionData?.leverageFactor,
+												collateralInfo.decimals,
+											) ?? 0
+										: amount,
 									2,
 								)}
 								x
