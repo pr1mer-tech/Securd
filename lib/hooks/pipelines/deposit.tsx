@@ -124,6 +124,14 @@ export function deposit(
 			buttonLoading: true,
 		};
 
+		const simulate = {
+			abi: abiLendingPool,
+			address: process.env
+				.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
+			functionName: "supply", // TODO: Check if this is the right function
+			args: [reserveInfo.address, amount, account.address as `0x${string}`],
+		} as const;
+
 		const deposit = () =>
 			new Promise<void>((resolve, reject) => {
 				toast.promise(
@@ -132,15 +140,7 @@ export function deposit(
 						const gas = 153072n * 2n;
 						// Deposit the token
 						const hash = await writeContract(config, {
-							abi: abiLendingPool,
-							address: process.env
-								.NEXT_PUBLIC_LENDINGPOOL_CONTRACT_ADDRESS as `0x${string}`,
-							functionName: "supply", // TODO: Check if this is the right function
-							args: [
-								reserveInfo.address,
-								amount,
-								account.address as `0x${string}`,
-							],
+							...simulate,
 							gas,
 							gasPrice,
 							type: "legacy",
@@ -179,6 +179,7 @@ export function deposit(
 			useImpactStore.setState({
 				open: true,
 				title: "Confirm Deposit",
+				simulate,
 				transactionDetails: {
 					title: "Deposit",
 					amount,

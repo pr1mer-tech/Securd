@@ -116,11 +116,7 @@ export default function Loan() {
 		if (account?.address && !maxBorrowData) {
 			return 0n;
 		}
-		if (
-			maxBorrowData &&
-			(borrowBalances?.borrowBalanceA ?? 0n) > 0n &&
-			(borrowBalances?.borrowBalanceB ?? 0n) > 0n
-		) {
+		if (maxBorrowData) {
 			return maxBorrowData;
 		}
 		const minCollateralFactor_ =
@@ -384,8 +380,15 @@ export default function Loan() {
 					const exactPercentage = value[0] ?? 0;
 					let amount = (sliderBase * BigInt(exactPercentage)) / 100n;
 
-					if (menu === "repay" && amount > (walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]?.result ?? 0n)) {
-						amount = walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]?.result ?? amount;
+					if (
+						menu === "repay" &&
+						amount >
+							(walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]
+								?.result ?? 0n)
+					) {
+						amount =
+							walletBalances.data?.[selectedAsset === tokens[0] ? 0 : 1]
+								?.result ?? amount;
 					}
 
 					setAmount(amount);

@@ -15,10 +15,10 @@ import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { Separator } from "@radix-ui/react-separator";
 import { useEffect, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
+import { Address, formatUnits, parseUnits } from "viem";
 import PairIcon from "../../PairIcon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useConfig } from "wagmi";
+import { useAccount, useConfig, useReadContract } from "wagmi";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import {
 	type CollateralPipelineState,
@@ -26,6 +26,7 @@ import {
 } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { lock } from "@/lib/hooks/pipelines/lock";
 import { withdraw } from "@/lib/hooks/pipelines/withdrawFarm";
+import { borrowerDataContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 
 export default function Collateral() {
 	const collateralInfo = useFarmAddressStore.use.collateralInfo?.();
@@ -35,6 +36,7 @@ export default function Collateral() {
 		useFarmAddressStore.use.collateralProportions?.();
 	const reservesInfo = useFarmAddressStore.use.reservesInfo?.();
 	const userBalance = useFarmAddressStore.use.userBalance?.();
+	const proportions = useFarmAddressStore.use.collateralProportions?.();
 
 	const [menu, setMenu] = useState<"lock" | "release">("lock");
 	const [amount, setAmount] = useState<bigint>(0n);
@@ -47,13 +49,24 @@ export default function Collateral() {
 	const config = useConfig();
 	const [pipeline, nextStep, resetPipeline, setPipeline] =
 		useValueEffect<CollateralPipelineState>(lockPipelineState);
+	const { address } = useAccount();
 
-	const max = (a: bigint, b: bigint) => (a > b ? a : b);
+	const { data: maxRelease, error } = useReadContract({
+		account: address,
+		...borrowerDataContract,
+		functionName: "getMaxRelease",
+		args: [address as Address, collateralInfo?.addressLP as Address],
+		query: {
+			enabled: !!address && !!collateralInfo?.addressLP,
+			refetchInterval: 10000,
+		},
+	});
+	console.log(maxRelease, error);
 
 	useEffect(() => {
 		if (collateralInfo && collateralAmountPrice) {
 			const price = bigIntToDecimal(
-				collateralAmountPrice.collateralAmount,
+				proportions?.collateralPrice,
 				collateralInfo.decimals,
 			);
 			setPipeline(
@@ -89,7 +102,9 @@ export default function Collateral() {
 	]);
 
 	const sliderBase =
-		menu === "lock" ? userBalance : collateralAmountPrice?.collateralAmount;
+		menu === "lock"
+			? userBalance
+			: maxRelease ?? collateralAmountPrice?.collateralAmount;
 
 	return (
 		<div className="flex flex-col gap-2 w-full">
@@ -158,23 +173,20 @@ export default function Collateral() {
 					</div>
 				) : (
 					<div className="text-md">
-						Collateral Balance
+						Max Release
 						<Help>
-							Value of locked assets backing your loans in this account
+							Max amount of collateral you can release from your wallet
 						</Help>
 						<div className="inline-flex flex-col items-end">
 							<SecurdFormat
 								className="text-xl font-bold inline ml-2"
-								value={bigIntToDecimal(
-									collateralAmountPrice?.collateralAmount,
-									collateralInfo?.decimals,
-								)}
+								value={bigIntToDecimal(maxRelease, collateralInfo?.decimals)}
 							/>
 							<SecurdFormat
 								className="text-sm inline text-secondary"
 								value={bigIntToDecimal(
-									collateralAmountPrice?.collateralValue,
-									collateralInfo?.decimals,
+									(proportions?.collateralPrice ?? 0n) * (maxRelease ?? 0n),
+									(collateralInfo?.decimals ?? 18) * 2,
 								)}
 								prefix="$"
 								decimals={0}
