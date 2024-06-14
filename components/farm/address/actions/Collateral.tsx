@@ -262,7 +262,8 @@ export default function Collateral() {
 				onValueChange={(value) => {
 					if (!sliderBase) return;
 					const exactPercentage = value[0] ?? 0;
-					const amount = (sliderBase * BigInt(exactPercentage)) / 100n;
+					const amount =
+						(sliderBase * BigInt(Math.round(exactPercentage))) / 100n;
 
 					setAmount(amount);
 					setAmountInput(formatUnits(amount, collateralInfo?.decimals ?? 18));
