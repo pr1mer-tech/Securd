@@ -192,14 +192,16 @@ export default function Loan() {
 	const sliderBase =
 		menu === "borrow"
 			? maximumBorrow
-			: parseUnits(
-					(
-						(tokens[0] === selectedAsset
+			: BigInt(
+					Math.round(
+						((tokens[0] === selectedAsset
 							? borrowBalances?.borrowBalanceA
-							: borrowBalances?.borrowBalanceB) ?? "0"
-					).toString(),
-					collateralInfo?.decimals ?? 18,
-				);
+							: borrowBalances?.borrowBalanceB) ?? 0) * 1e9,
+					),
+				) *
+				10n ** BigInt((collateralInfo?.decimals ?? 18) - 9);
+
+	console.log({ sliderBase });
 
 	return (
 		<div className="flex flex-col gap-2 w-full">
@@ -378,7 +380,8 @@ export default function Loan() {
 				onValueChange={(value) => {
 					if (!sliderBase) return;
 					const exactPercentage = value[0] ?? 0;
-					let amount = (sliderBase * BigInt(exactPercentage)) / 100n;
+					let amount =
+						(sliderBase * BigInt(Math.round(exactPercentage))) / 100n;
 
 					if (
 						menu === "repay" &&

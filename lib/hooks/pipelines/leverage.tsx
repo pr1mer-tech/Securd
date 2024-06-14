@@ -96,14 +96,6 @@ export function leverage(
 
 		const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
 
-		const loanAUSD =
-			borrowBalance.borrowBalanceA * (tokensUSDPrices.tokenA ?? 0);
-		const loanBUSD =
-			borrowBalance.borrowBalanceB * (tokensUSDPrices.tokenB ?? 0);
-
-		const minLT = getBorrowerPoolBalanceLT(collateralInfo);
-		const maxLT = getMaxLT(collateralInfo);
-
 		// const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
 		const collateralValue = price.collateralValue ?? 0n;
 		const [, , loanValue] = await readContract(config, {
@@ -328,10 +320,9 @@ export function leverage(
 								height={18}
 							/>
 						),
-						fromAmount: parseUnits(
-							borrowBalance.borrowBalanceA.toString(),
-							tokens[0].decimals,
-						),
+						fromAmount:
+							BigInt(Math.round(borrowBalance.borrowBalanceA * 1e9)) *
+							10n ** BigInt((tokens[0].decimals ?? 18) - 9),
 						toAmount: positionData.debt0,
 						fromDecimals: tokens[0].decimals,
 						toDecimals: tokens[0].decimals,
@@ -350,10 +341,9 @@ export function leverage(
 								height={18}
 							/>
 						),
-						fromAmount: parseUnits(
-							borrowBalance.borrowBalanceB.toString(),
-							tokens[1].decimals,
-						),
+						fromAmount:
+							BigInt(Math.round(borrowBalance.borrowBalanceB * 1e9)) *
+							10n ** BigInt((tokens[1].decimals ?? 18) - 9),
 						toAmount: positionData.debt1,
 						fromDecimals: tokens[1].decimals,
 						toDecimals: tokens[1].decimals,
