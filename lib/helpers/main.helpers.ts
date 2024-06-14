@@ -77,7 +77,7 @@ export const weiToEth = (num: bigint) => {
  * @returns num converted from eth to wei units
  */
 export const ethToWei = (num: number) => {
-  return BigInt(num) * 10n ** 18n;
+  return BigInt(Math.round(num * 1e9)) * 10n ** 9n;
 };
 
 function countDigits(num: bigint) {
