@@ -23,7 +23,6 @@ const ResponseSchema = z.object({
     }),
 });
 
-type Token = z.infer<typeof TokenSchema>;
 type Pair = z.infer<typeof PairSchema>;
 type QueryResponse = z.infer<typeof ResponseSchema>;
 

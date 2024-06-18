@@ -2,23 +2,6 @@ import { db } from "@/db/db";
 import { inngest } from "@/lib/inngest/client";
 import { getPairDayData, updatePairDayData } from "./vvs/pairs";
 import { type Analytics, type Price, analytics, price } from "@/db/schema";
-import type { PgTable } from "drizzle-orm/pg-core";
-import { type SQL, getTableColumns, sql } from "drizzle-orm";
-
-const buildConflictUpdateColumns = <
-    T extends PgTable,
-    Q extends keyof T['_']['columns']
->(
-    table: T,
-    columns: Q[],
-) => {
-    const cls = getTableColumns(table);
-    return columns.reduce((acc, column) => {
-        const colName = cls[column].name;
-        acc[column] = sql.raw(`excluded.${colName}`);
-        return acc;
-    }, {} as Record<Q, SQL>);
-};
 
 export const analyticsRoutine = inngest.createFunction(
     { id: "update-analytics" },
@@ -26,7 +9,7 @@ export const analyticsRoutine = inngest.createFunction(
         // Cron every day at 12:00 AM
         cron: "0 0 * * *",
     },
-    async ({ event, step }) => {
+    async ({ step }) => {
         const pairs = await step.run("get-pairs-db", async () => {
             // Get pairs
             const pairs = await db.query.pool.findMany({
