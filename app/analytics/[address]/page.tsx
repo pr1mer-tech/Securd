@@ -18,6 +18,7 @@ import {
 import type { ReserveInfo } from "@/lib/types/save.types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Address } from "viem";
 
 export async function generateStaticParams() {
 	const pools = await db.select({ id: pool.id_pool }).from(pool).execute();
@@ -64,9 +65,49 @@ export default async function AnalyticsAddress({
 		},
 	});
 
+	if (!analyticsResult) {
+		return <div>No data found</div>;
+	}
+
+	const hasMirrored = await db.query.pool.findFirst({
+		where: (row, { eq }) => eq(row.mirror_pool, analyticsResult?.id_pool),
+		columns: {},
+		with: {
+			blockchain: {
+				columns: {
+					chain_id: true,
+				},
+			},
+			token_0: {
+				columns: {
+					token_address: true,
+				},
+			},
+			token_1: {
+				columns: {
+					token_address: true,
+				},
+			},
+		},
+	});
+
 	const reservesInfo: ReserveInfo[] = await Promise.all([
-		tokenToReserveInfo(analyticsResult?.token_0, analyticsResult?.blockchain),
-		tokenToReserveInfo(analyticsResult?.token_1, analyticsResult?.blockchain),
+		tokenToReserveInfo(
+			analyticsResult?.token_0,
+			analyticsResult?.blockchain,
+			(hasMirrored?.token_0?.token_address ??
+				analyticsResult?.token_0?.token_address) as Address,
+			(hasMirrored?.blockchain?.chain_id ??
+				analyticsResult?.blockchain?.chain_id) as number,
+		),
+		tokenToReserveInfo(
+			analyticsResult?.token_1,
+			analyticsResult?.blockchain,
+			(hasMirrored?.token_1?.token_address ??
+				analyticsResult?.token_1?.token_address) as Address,
+			(hasMirrored?.blockchain?.chain_id ??
+				analyticsResult?.blockchain?.chain_id) as number,
+		),
 	]);
 
 	const poolInfo = {

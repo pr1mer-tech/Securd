@@ -56,7 +56,7 @@ async function runQuery(
 		try {
 			return ResponseSchema.parse(data);
 		} catch (e) {
-			console.log(data);
+			console.log("pairs",data);
 			console.error("Error parsing response:", e);
 			throw e;
 		}

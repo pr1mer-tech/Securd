@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 
 const dataFormatter = (number: number) => `$${securdFormat(number, 2)}`;
 
@@ -303,8 +304,9 @@ function LP_HODL({
 	const delay = poolInfo?.analytics?.length ?? 30;
 	// Pour l'instant on suppose que le taux est constant pendant toute la période
 	// ce qui pourra évoluer si on souhaite considerer l'évolution du taux pendant la période
-	const r_0 = 5 / 100;
-	const r_1 = 1 / 100;
+	
+	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
+	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 5 / 100;
 
 	// Moyenne sur les deux taux(Uni V2 on emprunte la même "valeur" de token 0 / 1)
 	const r = 0.5 * (r_0 + r_1);

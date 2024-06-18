@@ -120,11 +120,6 @@ export function leverage(
 			args: [collateralInfo.addressLP, abs(transactionAmount)],
 		});
 
-		console.log(`Transaction value: ${delta_colateral_value}`);
-		console.log(
-			`Transaction amount: ${transactionAmount}, tokenA: ${amount0}, tokenB: ${amount1}`,
-		);
-
 		const simulate = {
 			abi: abiCollateralPool,
 			address: process.env
@@ -233,25 +228,41 @@ export function leverage(
 
 		const positionData =
 			amount > 1 && amount0 > 0 && amount1 > 0
-				? await readContract(config, {
-						account: account.address,
-						abi: abiBorrowerData,
-						address: process.env
-							.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
-						functionName: "getPositionData",
-						args: [
-							{
-								token: collateralInfo.addressLP,
-								borrower: account.address,
-								amount: abs(transactionAmount),
-								amount0,
-								amount1,
-								direction: isLeverage,
-								direction0: isLeverage,
-								direction1: isLeverage,
-							},
-						],
-					})
+				? await (async () => {
+						try {
+							return await readContract(config, {
+								account: account.address,
+								abi: abiBorrowerData,
+								address: process.env
+									.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
+								functionName: "getPositionData",
+								args: [
+									{
+										token: collateralInfo.addressLP,
+										borrower: account.address ?? "0x",
+										amount: abs(transactionAmount),
+										amount0,
+										amount1,
+										direction: isLeverage,
+										direction0: isLeverage,
+										direction1: isLeverage,
+									},
+								],
+							});
+						} catch (error) {
+							console.error(error);
+							return {
+								debt0: 1n,
+								debt1: 1n,
+								liquidationFactor: borrowerLt,
+								leverageFactor: BigInt(Math.round(amount * 1000)) * 10n ** 15n,
+								collateralFactor:
+									((proportions?.collateralPrice ?? 0n) *
+										((price.collateralAmount ?? 0n) + transactionAmount)) /
+									(adjustedPriceA + adjustedPriceB),
+							};
+						}
+					})()
 				: {
 						debt0: 1n,
 						debt1: 1n,
