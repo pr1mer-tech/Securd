@@ -8,6 +8,8 @@ import { getLtokenprice, getPoolAPY } from "../helpers/lenderPool.helpers"
 import { getBorrowAPY, getBorrowAPYLP, getBorrowerPoolBalanceLT, getBorrowerPoolMaxLeverage, getLiquidationThresholdForToken, getMaxLT, getMaxLpApy, getMaximumBorrow, getPairBorrowApy, getPairPrice, getPairReservesInfos, getTokensSymbol, getTotalApy } from "../helpers/borrow.helpers"
 import { bigIntToDecimal } from "../helpers/main.helpers"
 import getPairBorrowBalances from "../hooks/getPairBorrowBalances"
+import { BalanceLDToken } from "../types/global.types"
+import { Address } from "viem"
 
 type State = {
     coinPrices: Record<keyof Coins, number>,
@@ -15,6 +17,7 @@ type State = {
     collateralInfo?: CollateralInfos,
     collateralAmountPrice?: CollateralAmountPrice,
     borrowerLt: bigint,
+    balanceLDTokens: Record<Address, BalanceLDToken>,
     collateralPoolBalance: bigint;
     collateralProportions?: {
         proportions: {
@@ -58,7 +61,8 @@ const useFarmAddressStoreBase = create<State & Queries>((set, get) => ({
     collateralPoolBalance: 0n,
     collateralProportions: undefined,
     userBalance: 0n,
-
+    balanceLDTokens: {},
+    
     computeLT: (loanA = 0, loanB = 0) => {
         const loanAUSD = (get().borrowBalances()?.borrowBalanceA ?? 0) * (get().tokensUSDPrices().tokenA ?? 0);
         const loanBUSD = (get().borrowBalances()?.borrowBalanceB ?? 0) * (get().tokensUSDPrices().tokenB ?? 0);

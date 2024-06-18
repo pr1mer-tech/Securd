@@ -16,6 +16,7 @@ import {
 	type PoolDetails,
 	PoolTableRows,
 } from "@/lib/helpers/analytics.helper";
+import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useState } from "react";
 
@@ -71,8 +72,8 @@ export default function QuickView({
 	const perfFee = (1 + feeApy) ** (1 / annualization) - 1;
 	const perfIl = (1 + ilApy) ** (1 / annualization) - 1;
 
-	const r_0 = 5 / 100;
-	const r_1 = 1 / 100;
+	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
+	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 5 / 100;
 
 	const r = 0.5 * (r_0 + r_1);
 	const perfIR = (-r * delay) / 365;

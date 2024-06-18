@@ -31,12 +31,10 @@ export const useLendingPool = (preReservesInfo: ReserveInfo[], prices?: Record<k
     };
   }
 
-  console.log("data", data);
-
   const reservesInfo: ReserveInfo[] = preReservesInfo.map((reserveInfo, index) => ({
     ...reserveInfo,
     supplyCap: data[index * 2].result[0],
-    liquidity: data[index * 2 + 1].result * BigInt(Math.round((prices?.[reserveInfo.symbol as keyof Coins] ?? 0) * 1e9)) / (10n ** 9n),
+    liquidity: data[index * 2 + 1].result, //* BigInt(Math.round((prices?.[reserveInfo.symbol as keyof Coins] ?? 0) * 1e9)) / (10n ** 9n),
     supply: data[index * 2].result[1],
     debt: data[index * 2].result[2],
     fee: data[index * 2].result[3],

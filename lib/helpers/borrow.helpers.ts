@@ -57,10 +57,10 @@ export const getBorrowAssetIcons = (pool?: BorrowerPool) => {
     const borrowPoolAssets = pool?.lenderpool_set;
     const assetIcons: string[] = [];
 
-    borrowPoolAssets?.forEach((set) => {
+    for (const set of borrowPoolAssets) {
       const thumbnail_uri = set?.asset.fa12?.thumbnail_uri;
       if (thumbnail_uri) assetIcons.push(thumbnail_uri);
-    });
+    }
 
     return assetIcons;
   } catch (error) {
