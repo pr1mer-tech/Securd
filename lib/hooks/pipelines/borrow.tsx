@@ -159,31 +159,16 @@ export function borrow(
 		const borrowerLt = useFarmAddressStore.getState().borrowerLt;
 		const leverage = useFarmAddressStore.getState().leverage();
 
-		const tokensUSDPrices = getPairPrice(coinPrices, tokens, collateralInfo);
-
 		const debt0 =
-			parseUnits(borrowBalance.borrowBalanceA.toString(), tokens[0].decimals) +
+			BigInt(Math.round(borrowBalance.borrowBalanceA * 1e9)) * 10n ** BigInt(tokens[0].decimals - 9) +
 			(isEqualAddress(selectedAsset.address, tokens[0].address) ? amount : 0n);
 		const debt1 =
-			parseUnits(borrowBalance.borrowBalanceB.toString(), tokens[1].decimals) +
+			BigInt(Math.round(borrowBalance.borrowBalanceB * 1e9)) * 10n ** BigInt(tokens[1].decimals - 9) +
 			(isEqualAddress(selectedAsset.address, tokens[1].address) ? amount : 0n);
-
-		const adjustedPriceA =
-			debt0 * BigInt(Math.round((tokensUSDPrices.tokenA ?? 0) * 1e6 ?? 0));
-		const adjustedPriceB =
-			debt1 * BigInt(Math.round((tokensUSDPrices.tokenB ?? 0) * 1e6 ?? 0));
 
 		const collatPrice =
 			bigIntToDecimal(proportions?.collateralPrice, collateralInfo.decimals) ??
 			0;
-		const collateralDollar =
-			(bigIntToDecimal(userDepositBalance, collateralInfo.decimals) ?? 0) *
-			collatPrice;
-		const sumDebt =
-			bigIntToDecimal(
-				adjustedPriceA + adjustedPriceB,
-				collateralInfo.decimals + 6,
-			) ?? 0;
 
 		const positionData = await readContract(config, {
 			account: account.address,
@@ -260,10 +245,7 @@ export function borrow(
 								height={18}
 							/>
 						),
-						fromAmount: parseUnits(
-							borrowBalance.borrowBalanceA.toString(),
-							tokens[0].decimals,
-						),
+						fromAmount: BigInt(Math.round(borrowBalance.borrowBalanceA * 1e9)) * 10n ** BigInt(tokens[0].decimals - 9),
 						toAmount: debt0,
 						fromDecimals: tokens[0].decimals,
 						toDecimals: tokens[0].decimals,
@@ -282,10 +264,7 @@ export function borrow(
 								height={18}
 							/>
 						),
-						fromAmount: parseUnits(
-							borrowBalance.borrowBalanceB.toString(),
-							tokens[1].decimals,
-						),
+						fromAmount: BigInt(Math.round(borrowBalance.borrowBalanceB * 1e9)) * 10n ** BigInt(tokens[1].decimals - 9),
 						toAmount: debt1,
 						fromDecimals: tokens[1].decimals,
 						toDecimals: tokens[1].decimals,
