@@ -57,7 +57,7 @@ export default function Rates({
 								<Help>The interest rate paid by borrowers to lenders.</Help>
 							</TableHead>
 							<TableCell className="font-bold text-center">
-								<PercentageFormat value={0.05} decimals={2} />
+								<PercentageFormat value={0.01} decimals={2} />
 							</TableCell>
 						</TableRow>
 					</TableHeader>
@@ -68,7 +68,7 @@ export default function Rates({
 								<Help>The interest rate paid by borrowers to lenders.</Help>
 							</TableHead>
 							<TableCell className="font-bold text-center">
-								<PercentageFormat value={0.01} decimals={2} />
+								<PercentageFormat value={0.05} decimals={2} />
 							</TableCell>
 						</TableRow>
 					</TableBody>
