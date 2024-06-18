@@ -187,14 +187,13 @@ export default function Loan() {
 		collateralInfo,
 		collateralAmountPrice,
 		userBalance,
-		selectedAsset,
 	]);
 
 	const sliderBase =
 		menu === "borrow"
 			? maximumBorrow
 			: BigInt(
-					Math.floor(
+					Math.round(
 						((tokens[0] === selectedAsset
 							? borrowBalances?.borrowBalanceA
 							: borrowBalances?.borrowBalanceB) ?? 0) * 1e9,

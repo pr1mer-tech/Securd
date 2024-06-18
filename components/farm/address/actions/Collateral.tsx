@@ -91,7 +91,15 @@ export default function Collateral() {
 						),
 			);
 		}
-	}, [config, amount, menu, setPipeline, collateralInfo, collateralAmountPrice, userBalance, proportions?.collateralPrice]);
+	}, [
+		config,
+		amount,
+		menu,
+		setPipeline,
+		collateralInfo,
+		collateralAmountPrice,
+		userBalance,
+	]);
 
 	const sliderBase =
 		menu === "lock"
