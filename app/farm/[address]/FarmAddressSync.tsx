@@ -10,6 +10,7 @@ import useCollateralPoolBalances from "@/lib/hooks/wagmiSH/viewFunctions/farm/us
 import useGetCollateralProportions from "@/lib/hooks/wagmiSH/viewFunctions/farm/useGetCollateralProportions";
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
 import useBalanceCoins from "@/lib/hooks/wagmiSH/viewFunctions/useBalanceCoins";
+import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import { useEffect } from "react";
@@ -63,27 +64,20 @@ export default function FarmAddressSync({
 		collateralInfo ? [{ address: collateralInfo.addressLP }] : [],
 	);
 
+	const { balanceLDTokens } = useLDtokens(reservesInfo ? reservesInfo : []);
+
 	useEffect(() => {
 		useFarmAddressStore.setState({
 			reservesInfo,
 			collateralInfo,
 			collateralAmountPrice: collateralAmountPrice[address],
 			coinPrices,
+			balanceLDTokens,
 			borrowerLt: borrowerLt[address],
 			collateralPoolBalance: collateralPoolBalances[address],
 			collateralProportions: collateralProportions[address],
 			userBalance: userBalance[address],
 		});
-	}, [
-		reservesInfo,
-		collateralInfo,
-		collateralAmountPrice,
-		coinPrices,
-		borrowerLt,
-		collateralPoolBalances,
-		address,
-		collateralProportions,
-		userBalance,
-	]);
+	}, [reservesInfo, collateralInfo, collateralAmountPrice, coinPrices, borrowerLt, collateralPoolBalances, address, collateralProportions, userBalance, balanceLDTokens]);
 	return children;
 }

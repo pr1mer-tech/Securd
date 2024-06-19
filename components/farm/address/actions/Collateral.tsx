@@ -61,7 +61,6 @@ export default function Collateral() {
 			refetchInterval: 10000,
 		},
 	});
-	console.log(maxRelease, error);
 
 	useEffect(() => {
 		if (collateralInfo && collateralAmountPrice) {

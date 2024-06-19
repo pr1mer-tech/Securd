@@ -24,12 +24,16 @@ import { Slider } from "@/components/ui/slider";
 import { useEffect, useState } from "react";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
 import { MenuTabsContent } from "@/components/ui/menu-tabs";
+import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 
 export default function Rates({
 	poolInfo,
 	className,
 }: { poolInfo: PoolDetails; className?: string }) {
 	const leverage = useAnalyticsAddressStore.use.leverage();
+
+	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
+	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 5 / 100;
 
 	const minLeverage = 1;
 	const sliderBase = (() => {
@@ -57,7 +61,7 @@ export default function Rates({
 								<Help>The interest rate paid by borrowers to lenders.</Help>
 							</TableHead>
 							<TableCell className="font-bold text-center">
-								<PercentageFormat value={0.01} decimals={2} />
+								<PercentageFormat value={r_0} decimals={2} />
 							</TableCell>
 						</TableRow>
 					</TableHeader>
@@ -68,7 +72,7 @@ export default function Rates({
 								<Help>The interest rate paid by borrowers to lenders.</Help>
 							</TableHead>
 							<TableCell className="font-bold text-center">
-								<PercentageFormat value={0.05} decimals={2} />
+								<PercentageFormat value={r_1} decimals={2} />
 							</TableCell>
 						</TableRow>
 					</TableBody>

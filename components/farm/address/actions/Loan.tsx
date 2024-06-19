@@ -201,8 +201,6 @@ export default function Loan() {
 				) *
 				10n ** BigInt((collateralInfo?.decimals ?? 18) - 9);
 
-	console.log({ sliderBase });
-
 	return (
 		<div className="flex flex-col gap-2 w-full">
 			<div className="flex flex-row justify-between items-center w-full h-10">

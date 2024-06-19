@@ -23,7 +23,8 @@ export default function PoolDetails() {
         totalBorrowApy: state.totalBorrowApy(),
         lpApy: state.lpApy(),
         maxLeverageApy: state.maxLeverageApy()
-    }))
+    }));
+    const balanceLDTokens = useFarmAddressStore.use.balanceLDTokens?.();
     const tokens = getTokensSymbol(collateralInfo);
 
     const minLT = getBorrowerPoolBalanceLT(collateralInfo);
