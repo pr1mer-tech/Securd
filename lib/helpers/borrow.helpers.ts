@@ -57,10 +57,10 @@ export const getBorrowAssetIcons = (pool?: BorrowerPool) => {
     const borrowPoolAssets = pool?.lenderpool_set;
     const assetIcons: string[] = [];
 
-    borrowPoolAssets?.forEach((set) => {
+    for (const set of borrowPoolAssets ?? []) {
       const thumbnail_uri = set?.asset.fa12?.thumbnail_uri;
       if (thumbnail_uri) assetIcons.push(thumbnail_uri);
-    });
+    }
 
     return assetIcons;
   } catch (error) {
@@ -759,8 +759,8 @@ export const getMaximumRepayToken = (
 
 export const getMaximumBorrow = (
   token: "a" | "b",
-  loanA: number,
-  loanB: number,
+  _loanA: number,
+  _loanB: number,
   blt: number,
   ultA: number, // Assuming ultA is the Underlying Liquidation Threshold for Token A
   ultB: number, // Assuming ultB is the Underlying Liquidation Threshold for Token B
@@ -773,8 +773,8 @@ export const getMaximumBorrow = (
   collateral: number
 ) => {
   if (blt && ultA && ultB) {
-    loanA = loanA * tokenA_Lprice * tokenA_price;
-    loanB = loanB * tokenB_Lprice * tokenB_price;
+    const loanA = _loanA * tokenA_Lprice * tokenA_price;
+    const loanB = _loanB * tokenB_Lprice * tokenB_price;
 
     const loanTotal = loanA + loanB;
     const collateralValue = collateral / (1 + buffer);
@@ -782,8 +782,8 @@ export const getMaximumBorrow = (
     const lr = loanA / loanTotal;
     const cr = collateralA / collateralValue;
 
-    let maxNewLoanA;
-    let maxNewLoanB;
+    let maxNewLoanA: number;
+    let maxNewLoanB: number;
 
     if (lr <= cr) {
       // Case 2.1.1

@@ -57,24 +57,22 @@ export default function Leverage() {
 			.NEXT_PUBLIC_BORROWERDATA_CONTRACT_ADDRESS as `0x${string}`,
 		abi: abiBorrowerData,
 		functionName: "getMaxLevereage",
-		args: [
-			address ?? "0x",
-			collateralInfo?.addressLP ?? "0x",
-		],
+		args: [address ?? "0x", collateralInfo?.addressLP ?? "0x"],
 		query: {
-			enabled:
-				!!address &&
-				!!collateralInfo?.addressLP,
-			refetchInterval: 10000
+			enabled: !!address && !!collateralInfo?.addressLP,
+			refetchInterval: 10000,
 		},
 	});
 
+	if (positionError) {
+		console.log({ maxLevereage, positionError });
+	}
+
 	const minLeverage = 0;
-	const maxLeverage = Math.max((bigIntToDecimal(
-		maxLevereage,
-		collateralInfo?.decimals ?? 18,
-	) ?? 0.01) - 0.01, // minus 0.01 to avoid rounding errors
-	leverage ?? 0,
+	const maxLeverage = Math.max(
+		(bigIntToDecimal(maxLevereage, collateralInfo?.decimals ?? 18) ?? 0.01) -
+			0.01, // minus 0.01 to avoid rounding errors
+		leverage ?? 0,
 	);
 
 	const [amount, setAmount] = useState<number>(leverage ?? 0);
