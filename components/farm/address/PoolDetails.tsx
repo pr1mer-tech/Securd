@@ -61,7 +61,7 @@ export default function PoolDetails() {
                         <Info value={maxLT} name="Max LT" type="percentage" tooltip="Liquidation Threshold that applies when you only borrow one asset" />
                         <Info value={maxLeverage} name="Max Leverage" type="multiplier" tooltip="Maximum position multiplier allowed for this LP Token" />
                         <Info value={totalBorrowApy} name="Borrow APY" type="percentage" tooltip="Current average borrowing rate for this token pair" />
-                        <Info value={lpApy} name="LP APY" type="percentage" tooltip="Estimated yield for this LP Token based on last 7 days trading fees" />
+                        <Info value={lpApy} name="LP APY" type="percentage" tooltip="Estimated yield for this LP Token based on last 3 months trading fees" />
                         <Info value={maxLeverageApy} name="Max Farming APY" type="percentage" tooltip="Estimated Farming APY when using Max Leverage" />
                     </div>
                 </Card>

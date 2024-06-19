@@ -22,7 +22,7 @@ export default function FarmingAPY() {
                 <TableHead className="font-bold pl-0 text-center border-r">
                     Fee APY
                     <Help>
-                        Estimated yield for this LP Token based on last 7 days trading fees
+                        Estimated yield for this LP Token based on last 3 months trading fees
                     </Help>
                 </TableHead>
                 <TableHead className="font-bold text-center border-r">

@@ -195,7 +195,7 @@ export const columns: ColumnDef<{
 			<>
 				LP APY
 				<Help>
-					Estimated yield for this LP Token based on last 7 days trading fees
+					Estimated yield for this LP Token based on last 3 months trading fees
 				</Help>
 			</>
 		),
