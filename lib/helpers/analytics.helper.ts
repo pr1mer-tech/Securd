@@ -16,7 +16,7 @@ import {
 	http,
 	parseUnits,
 } from "viem";
-import { lendingPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
+import { lendingPoolContract, collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import { cronos, cronosTestnet, mainnet, polygonMumbai } from "viem/chains";
 
 export type PoolTableRows = Analytics & {
@@ -58,7 +58,9 @@ export type PoolDetails =
 	  })
 	| null;
 
-export const analyticsToCollateralInfo = (
+const chains = [cronos, cronosTestnet, mainnet, polygonMumbai];
+
+export const analyticsToCollateralInfo = async (
 	pool:
 		| (Pool & {
 				token_0: Token | null;
@@ -67,7 +69,26 @@ export const analyticsToCollateralInfo = (
 		  })
 		| null,
 	analytics: Analytics | null,
+	onChainData?: Address,
+	onChainId?: number,
 ) => {
+
+	const client = createPublicClient({
+		chain: extractChain({
+			chains,
+			id: Number(onChainId ?? 1) as (typeof chains)[number]["id"],
+		}),
+		transport: http(),
+	});
+
+	const collateralInfo = 
+		onChainData && 
+		(await client.readContract({
+			...collateralPoolContract,
+			functionName: "collateralInfos",
+      		args: [onChainData],
+		}));
+
 	const userCollateralInfo: CollateralInfos = {
 		address: pool?.pool_address as `0x${string}`,
 		addressLP: pool?.pool_address as `0x${string}`,
@@ -75,7 +96,7 @@ export const analyticsToCollateralInfo = (
 		lpApr: Number(analytics?.lp_apy_3m),
 		isActivated: true,
 		liquidationPremium: 0n,
-		liquidationThresholdInfo: {
+		liquidationThresholdInfo: collateralInfo?.[1] ?? {
 			balancedLoanThreshold_0: 0n,
 			balancedLoanThreshold_b: 0n,
 			buffer: 0n,
@@ -86,7 +107,7 @@ export const analyticsToCollateralInfo = (
 		symbol: `${pool?.token_0?.token_symbol}/${pool?.token_1?.token_symbol}`,
 		token_0: pool?.token_0?.token_address as `0x${string}`,
 		token_1: pool?.token_1?.token_address as `0x${string}`,
-		tokenInfo: {
+		tokenInfo: collateralInfo?.[0] ?? {
 			assets: [
 				pool?.token_0?.token_address as `0x${string}`,
 				pool?.token_1?.token_address as `0x${string}`,
@@ -134,8 +155,6 @@ export const tokenToReserveInfo = async (
 
 		imgSrc = res?.[0]?.logoURI ?? imgSrc;
 	}
-
-	const chains = [cronos, cronosTestnet, mainnet, polygonMumbai];
 
 	const client = createPublicClient({
 		chain: extractChain({

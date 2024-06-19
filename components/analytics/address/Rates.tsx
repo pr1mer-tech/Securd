@@ -24,12 +24,14 @@ import { Slider } from "@/components/ui/slider";
 import { useEffect, useState } from "react";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
 import { MenuTabsContent } from "@/components/ui/menu-tabs";
-import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
+import { getBorrowApy, getBorrowerPoolMaxLeverage } from "@/lib/helpers/borrow.helpers";
+import { CollateralInfos } from "@/lib/types/farm.types";
 
 export default function Rates({
 	poolInfo,
+	collateralInfo,
 	className,
-}: { poolInfo: PoolDetails; className?: string }) {
+}: { poolInfo: PoolDetails; collateralInfo: CollateralInfos; className?: string }) {
 	const leverage = useAnalyticsAddressStore.use.leverage();
 
 	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
@@ -37,6 +39,10 @@ export default function Rates({
 
 	const minLeverage = 1;
 	const sliderBase = (() => {
+		const maxLeverage = getBorrowerPoolMaxLeverage(collateralInfo);
+
+		if (maxLeverage) return maxLeverage;
+
 		const mrm = poolInfo?.analytics?.[0]?.mrm;
 		if (!mrm) return 0;
 

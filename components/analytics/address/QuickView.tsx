@@ -18,6 +18,7 @@ import {
 } from "@/lib/helpers/analytics.helper";
 import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
+import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import { useState } from "react";
 
 export default function QuickView({
@@ -280,7 +281,7 @@ export default function QuickView({
 						<PercentageFormat value={holdApy} />
 					</div>
 					<Badge className="hover:text-white hover:bg-primary">
-						&times;{leverage}
+						&times;{securdFormat(leverage, 1)}
 					</Badge>
 				</div>
 			</MenuTabsContent>

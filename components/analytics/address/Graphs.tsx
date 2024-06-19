@@ -42,16 +42,16 @@ export default function Graphs({
 	const [selected, setSelected] = useState<string>("symbol");
 	const [selected2, setSelected2] = useState<string>("lp");
 	// Compute date from timeRange
-	const limitDate = new Date();
+	let delay: number;
 	switch (timeRange) {
 		case "1m":
-			limitDate.setMonth(limitDate.getMonth() - 1);
+			delay = 30;
 			break;
 		case "3m":
-			limitDate.setMonth(limitDate.getMonth() - 3);
+			delay = 90;
 			break;
 		case "1y":
-			limitDate.setFullYear(limitDate.getFullYear() - 1);
+			delay = 365;
 			break;
 	}
 
@@ -109,7 +109,7 @@ export default function Graphs({
 					autoMinValue
 					data={
 						poolInfo?.analytics
-							?.filter((info) => info.date && info.date >= limitDate)
+							?.slice(-delay)
 							.map((info) => ({
 								date: formatDate(info.date),
 								[`${symbol0} price in $`]: tokenDirection
@@ -180,7 +180,7 @@ export default function Graphs({
 					className="h-60"
 					data={
 						poolInfo?.analytics
-							?.filter((info) => info.date && info.date >= limitDate)
+							?.slice(-delay)
 							.map((info) => ({
 								date: formatDate(info.date),
 								[`Volume in ${symbol.split("/")[1]}`]: tokenDirection
@@ -273,7 +273,7 @@ export default function Graphs({
 					showLegend={false}
 					colors={selected2 === "lp" ? ["#0B4B48", "#E95A4C"] : ["#FCD34D"]}
 					autoMinValue
-					data={LP_HODL({ poolInfo, limitDate, leverage })}
+					data={LP_HODL({ poolInfo, delay, leverage })}
 					index="date"
 					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold"]}
 					valueFormatter={dataFormatter}
@@ -284,7 +284,7 @@ export default function Graphs({
 					className="h-60"
 					colors={["#E95A4C", "#0B4B48", "#E8A029"]}
 					autoMinValue
-					data={LP_HODL({ poolInfo, limitDate, leverage })}
+					data={LP_HODL({ poolInfo, delay, leverage })}
 					index="date"
 					categories={["Fee", "IL", "Interest"]}
 					valueFormatter={(number) => `$${securdFormat(number, 2)}`}
@@ -296,17 +296,31 @@ export default function Graphs({
 }
 
 function LP_HODL({
-	poolInfo,
-	limitDate,
+	poolInfo: _poolInfo,
+	delay: _delay,
 	leverage,
-}: { poolInfo: PoolDetails; limitDate: Date; leverage: number }) {
+}: { poolInfo: PoolDetails; delay: number; leverage: number }) {
+	// Truncate
+	const poolInfo = {
+		..._poolInfo,
+		analytics: _poolInfo?.analytics?.slice(-_delay),
+		token_0: {
+			..._poolInfo?.token_0,
+			prices: _poolInfo?.token_0?.prices?.slice(-_delay),
+		},
+		token_1: {
+			..._poolInfo?.token_1,
+			prices: _poolInfo?.token_1?.prices?.slice(-_delay),
+		},
+	}
+
 	// Delay is in days
 	const delay = poolInfo?.analytics?.length ?? 30;
 	// Pour l'instant on suppose que le taux est constant pendant toute la période
 	// ce qui pourra évoluer si on souhaite considerer l'évolution du taux pendant la période
 	
 	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
-	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 5 / 100;
+	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 1 / 100;
 
 	// Moyenne sur les deux taux(Uni V2 on emprunte la même "valeur" de token 0 / 1)
 	const r = 0.5 * (r_0 + r_1);
@@ -368,10 +382,10 @@ function LP_HODL({
 				(poolInfo?.analytics?.[0]?.quantity_token_1 ?? 0) /
 				(poolInfo?.analytics?.[0]?.quantity_token_lp ?? 0);
 
-			const price0 = poolInfo.token_0?.prices?.[i]?.price;
-			const price1 = poolInfo.token_1?.prices?.[i]?.price;
+			const price0 = poolInfo.token_0?.prices?.[i]?.price ?? 0;
+			const price1 = poolInfo.token_1?.prices?.[i]?.price ?? 0;
 
-			return qty * (qToken0 * (price0 ?? 0) + qToken1 * (price1 ?? 0));
+			return qty * (qToken0 * price0 + qToken1 * price1);
 		}) ?? [];
 
 	const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
@@ -381,13 +395,11 @@ function LP_HODL({
 		(_, i) => (-amount * r * i) / 365,
 	);
 	const infos =
-		poolInfo?.analytics?.filter(
-			(info) => info.date && info.date >= limitDate,
-		) ?? [];
+		poolInfo?.analytics?.slice(-delay) ?? [];
 
 	const L = leverage ?? 1;
 
-	return infos.map((info, i) => ({
+	const result = infos.map((info, i) => ({
 		date: formatDate(info.date),
 		LP: hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
 		HOLD: hold[i],
@@ -397,4 +409,6 @@ function LP_HODL({
 		Interest: (L - 1) * interest[i],
 		Fee: L * _fees[i],
 	}));
+
+	return result;
 }

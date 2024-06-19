@@ -14,6 +14,7 @@ import { pool } from "@/db/schema";
 import {
 	type PoolDetails,
 	tokenToReserveInfo,
+	analyticsToCollateralInfo,
 } from "@/lib/helpers/analytics.helper";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import { ArrowLeft } from "lucide-react";
@@ -31,7 +32,10 @@ export default async function AnalyticsAddress({
 }: { params: { address: string } }) {
 	// limitDate: 7 days ago
 	const limitDate = new Date();
-	limitDate.setDate(limitDate.getDate() - 365);
+	// Set region to GMT
+	limitDate.setUTCDate(limitDate.getDate() - 365);
+	// Set time to 00:00:00 of the day
+	limitDate.setUTCHours(0, 0, 0, 0);
 
 	const analyticsResult = await db.query.pool.findFirst({
 		where: (row, { eq }) => eq(row.id_pool, Number(params.address)),
@@ -71,7 +75,9 @@ export default async function AnalyticsAddress({
 
 	const hasMirrored = await db.query.pool.findFirst({
 		where: (row, { eq }) => eq(row.mirror_pool, analyticsResult?.id_pool),
-		columns: {},
+		columns: {
+			pool_address: true,
+		},
 		with: {
 			blockchain: {
 				columns: {
@@ -110,6 +116,13 @@ export default async function AnalyticsAddress({
 		),
 	]);
 
+	const collateralInfo = await analyticsToCollateralInfo(
+		analyticsResult,
+		analyticsResult?.analytics[0],
+		(hasMirrored?.pool_address ?? analyticsResult?.pool_address) as Address,
+		hasMirrored?.blockchain?.chain_id ?? analyticsResult?.blockchain?.chain_id,
+	);
+
 	const poolInfo = {
 		...analyticsResult,
 		reservesInfo,
@@ -133,7 +146,7 @@ export default async function AnalyticsAddress({
 					>
 						<div className="flex flex-col basis-1/3 gap-4">
 							<InfoCard poolInfo={poolInfo} className="" />
-							<Rates poolInfo={poolInfo} className="" />
+							<Rates poolInfo={poolInfo} collateralInfo={collateralInfo} className="" />
 							<Other poolInfo={poolInfo} className="" />
 						</div>
 						<div className="flex flex-col gap-4 basis-2/3">
