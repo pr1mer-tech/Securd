@@ -72,7 +72,7 @@ export type TokenPrices = {
 export type TokenInfo = {
   nbAssets: bigint;
   router: Address;
-  assets: Address[];
+  assets: readonly Address[];
 };
 
 export type LiquidationThresholdInfo = {
@@ -80,7 +80,7 @@ export type LiquidationThresholdInfo = {
   balancedLoanThreshold_b: bigint;
   unBalancedLoanThreshold_0: bigint;
   unBalancedLoanThreshold_b: bigint;
-  buffer: bigint;
+  buffer?: bigint;
 };
 
 export enum PoolType {
