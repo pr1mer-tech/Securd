@@ -184,8 +184,8 @@ export default function QuickView({
 							className="font-semibold"
 							value={
 								(!tokenDirection
-									? lastAnalytics?.volume_token_1
-									: lastAnalytics?.volume_token_0) ?? undefined
+									? lastAnalytics?.volume_token_0
+									: lastAnalytics?.volume_token_1) ?? undefined
 							}
 							suffix={
 								!tokenDirection
