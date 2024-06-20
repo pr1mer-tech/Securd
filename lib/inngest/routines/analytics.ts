@@ -28,6 +28,7 @@ export const analyticsRoutine = inngest.createFunction(
                 const data = await getPairDayData(pair.pool_address, nbDays);
                 const updatedData = await updatePairDayData(
                     data,
+                    pair.pool_address,
                     pair.token_0?.token_address ?? "",
                     pair.token_1?.token_address ?? "",
                     nbDays

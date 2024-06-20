@@ -109,10 +109,6 @@ export default function PoolDetails() {
 		liquidityA,
 		loanA,
 		utilizationA,
-		dTokenSupply:
-			balanceLDTokens?.[pairReservesInfos.reserveInfoTokenA?.address ?? "0x"]
-				?.dTokenSupply,
-                balanceLDTokens
 	});
 
 	return (
