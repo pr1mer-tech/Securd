@@ -15,25 +15,25 @@ const useLDtokens = (
 	const { data, error } = useReadContracts({
 		contracts: reserveInfos.flatMap((reserve) => [
 			{
-				address: reserve.tokenInfo.dToken,
+				address: reserve.tokenInfo?.dToken,
 				abi: abiUSDT,
 				functionName: "balanceOf",
 				args: [address as Address],
 			},
 			{
-				address: reserve.tokenInfo.dToken,
+				address: reserve.tokenInfo?.dToken,
 				abi: abiUSDT,
 				functionName: "totalSupply",
 				args: [],
 			},
 			{
-				address: reserve.tokenInfo.lToken,
+				address: reserve.tokenInfo?.lToken,
 				abi: abiUSDT,
 				functionName: "balanceOf",
 				args: [address as Address],
 			},
 			{
-				address: reserve.tokenInfo.lToken,
+				address: reserve.tokenInfo?.lToken,
 				abi: abiUSDT,
 				functionName: "totalSupply",
 				args: [],

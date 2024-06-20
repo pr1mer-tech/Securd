@@ -1,4 +1,9 @@
+import { db } from "@/db/db";
+import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
+import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
+import { ReserveInfo } from "@/lib/types/save.types";
 import { DateTime } from "luxon";
+import { Address } from "viem";
 import { z } from "zod";
 
 const TokenDataSchema = z.object({
@@ -28,7 +33,7 @@ const ResponseSchema = z.object({
 	}),
 });
 
-type PairDayData = z.infer<typeof PairDayDataSchema>;
+export type PairDayData = z.infer<typeof PairDayDataSchema>;
 type QueryResponse = z.infer<typeof ResponseSchema>;
 
 interface QueryVariables {
@@ -56,7 +61,7 @@ async function runQuery(
 		try {
 			return ResponseSchema.parse(data);
 		} catch (e) {
-			console.log("pairs",data);
+			console.log("pairs", data);
 			console.error("Error parsing response:", e);
 			throw e;
 		}
@@ -248,14 +253,72 @@ function calculateTotalVolume(
 	}));
 }
 
-function calculateAPYs(
+async function calculateAPYs(
+	pool_address: `0x${string}`,
 	pairDayData: PairDayData[],
-	startDelayPairs: { start: number; delay: number }[],
+	startDelayPairs: number[],
 	amount: number,
 	fees: number,
 	adj_fees: number,
-): ExtendedPairDayData[] {
-	const N = pairDayData.length;
+): Promise<ExtendedPairDayData[]> {
+	const analyticsResult = await db.query.pool.findFirst({
+		where: (row, { eq }) => eq(row.pool_address, pool_address),
+		with: {
+			blockchain: true,
+			dex: true,
+			token_0: true,
+			token_1: true,
+		},
+	});
+
+	const hasMirrored = await db.query.pool.findFirst({
+		where: (row, { eq }) => eq(row.mirror_pool, analyticsResult?.id_pool),
+		columns: {
+			pool_address: true,
+		},
+		with: {
+			blockchain: {
+				columns: {
+					chain_id: true,
+				},
+			},
+			token_0: {
+				columns: {
+					token_address: true,
+				},
+			},
+			token_1: {
+				columns: {
+					token_address: true,
+				},
+			},
+		},
+	});
+
+	const reservesInfo: ReserveInfo[] = await Promise.all([
+		tokenToReserveInfo(
+			analyticsResult?.token_0,
+			analyticsResult?.blockchain,
+			(hasMirrored?.token_0?.token_address ??
+				analyticsResult?.token_0?.token_address) as Address,
+			(hasMirrored?.blockchain?.chain_id ??
+				analyticsResult?.blockchain?.chain_id) as number,
+		),
+		tokenToReserveInfo(
+			analyticsResult?.token_1,
+			analyticsResult?.blockchain,
+			(hasMirrored?.token_1?.token_address ??
+				analyticsResult?.token_1?.token_address) as Address,
+			(hasMirrored?.blockchain?.chain_id ??
+				analyticsResult?.blockchain?.chain_id) as number,
+		),
+	]);
+
+	const r_0 = getBorrowApy(reservesInfo?.[0]) ?? 1 / 100;
+	const r_1 = getBorrowApy(reservesInfo?.[1]) ?? 1 / 100;
+
+	// Moyenne sur les deux taux(Uni V2 on emprunte la même "valeur" de token 0 / 1)
+	const r = 0.5 * (r_0 + r_1);
 
 	const extendedPairDayData: ExtendedPairDayData[] = pairDayData.map(
 		(dayData) => ({
@@ -289,122 +352,104 @@ function calculateAPYs(
 		}),
 	);
 
-	for (const { start, delay: _delay } of startDelayPairs) {
-		const X = 365 / _delay;
-		const delay = _delay + 1;
-		for (let i = start; i < N; i++) {
-			if (i - delay < 0) continue; // Ensure the slice doesn't go out of bounds
+	for (const delay of startDelayPairs) {
+		for (let i = 365; i < extendedPairDayData.length; i++) { // Need at least 365 days to compute APY
+			const data = extendedPairDayData.slice(i - delay, i);
 
-			// Calculate reserves and prices
-			const qToken0_current = pairDayData
-				.slice(i - delay, i)
-				.map((dayData) => dayData.reserve0 / dayData.totalSupply);
-			const qToken1_current = pairDayData
-				.slice(i - delay, i)
-				.map((dayData) => dayData.reserve1 / dayData.totalSupply);
+			let plp: number[] =
+				data.map((analytic, i) => {
+					const qToken0 = analytic.reserve0 / analytic.totalSupply;
+					const qToken1 = analytic.reserve1 / analytic.totalSupply;
 
-			let plp_current = qToken0_current.map(
-				(qt0, index) =>
-					qt0 * (pairDayData[i - delay + index].priceToken0inDollars ?? 0),
-			);
-			plp_current = plp_current.map(
-				(plp, index) =>
-					plp +
-					qToken1_current[index] *
-						(pairDayData[i - delay + index].priceToken1inDollars ?? 0),
-			);
+					const price0 = analytic.priceToken0inDollars ?? 0;
+					const price1 = analytic.priceToken1inDollars ?? 0;
 
-			const qty_current = amount / plp_current[0];
-			plp_current = plp_current.map((plp) => qty_current * plp);
+					const plp = qToken0 * price0 + qToken1 * price1;
+					return plp;
+				}) ?? [];
 
-			const volume_current = pairDayData
-				.slice(i - delay, i)
-				.map(
-					(dayData) =>
-						dayData.dailyVolumeToken0 * (dayData.priceToken0inDollars ?? 0),
-				);
+			const qty = amount / plp[0];
+			plp = plp.map((val) => qty * val);
 
-			// Calculate fees current
-			let fees_current = volume_current
+			const totalVolume =
+				data.map((info, i) => {
+					const price0 = info.priceToken0inDollars ?? 0;
+
+					return info.dailyVolumeToken0 * price0 ?? 0;
+				}) ?? [];
+
+			let _fees: number[] = totalVolume
 				.slice(1)
 				.map(
-					(vol, index) =>
-						(qty_current * vol * fees * adj_fees) /
-						100 /
-						pairDayData[i - delay + index + 1].totalSupply,
+					(val, i) =>
+						(val * fees * adj_fees * qty) / 100 / (data[i]?.totalSupply ?? 0),
 				);
-			fees_current = [0, ...fees_current];
+			_fees = [0.0, ..._fees];
+			_fees = _fees.reduce((acc, val) => {
+				acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + val);
+				return acc;
+			}, [] as number[]);
 
-			let hold_current = pairDayData
-				.slice(i - delay, i)
-				.map(
-					(dayData) =>
-						qToken0_current[0] * (dayData.priceToken0inDollars ?? 0) +
-						qToken1_current[0] * (dayData.priceToken1inDollars ?? 0),
-				);
-			hold_current = hold_current.map((hold) => qty_current * hold);
+			const hold: number[] = data.map((info, i) => {
+				const qToken0 = (data[0]?.reserve0 ?? 0) / (data[0]?.totalSupply ?? 0);
+				const qToken1 = (data[0]?.reserve1 ?? 0) / (data[0]?.totalSupply ?? 0);
 
-			const perf_hodl_current =
-				(hold_current[hold_current.length - 1] - hold_current[0]) /
-				hold_current[0];
-			const perf_fees_current =
-				fees_current.reduce((sum, fee) => sum + fee, 0) / hold_current[0];
-			const perf_il_current = Math.min(
-				(plp_current[plp_current.length - 1] -
-					fees_current.reduce((sum, fee) => sum + fee, 0) -
-					hold_current[hold_current.length - 1]) /
-					hold_current[0],
-				0,
+				const price0 = info.priceToken0inDollars ?? 0;
+				const price1 = info.priceToken1inDollars ?? 0;
+
+				const qty = amount / (qToken0 * price0 + qToken1 * price1);
+
+				return qty * (qToken0 * price0 + qToken1 * price1);
+			});
+
+			const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
+
+			const interest = Array.from(
+				{ length: delay },
+				(_, i) => (-amount * r * i) / 365,
 			);
+			const L = 1;
+			const lp = data.map(
+				(_, i) => hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
+			);
+			const lpVsHold = data.map(
+				(_, i) => L * _fees[i] + L * il[i] - (L - 1) * interest[i],
+			);
+			const _interest = data.map((_, i) => (L - 1) * interest[i]);
 
-			const current_lp_apy =
-				(1 + perf_hodl_current + perf_fees_current + perf_il_current) ** X - 1;
-			const current_lp_versus_hold_apy =
-				(1 + perf_fees_current + perf_il_current) ** X - 1;
-			const current_fees_apy = (1 + perf_fees_current) ** X - 1;
-			const current_il_apy = (1 + perf_il_current) ** X - 1;
-			const current_hold_apy = (1 + perf_hodl_current) ** X - 1;
+			const lpApr = lp[lp.length - 1] / lp[0];
+			const lpVsHoldApr = lpVsHold[lpVsHold.length - 1] / lpVsHold[0];
+			const interestApr = _interest[lp.length - 1] / lp[0];
 
-			if (_delay === 1) {
-				extendedPairDayData[i] = {
-					...extendedPairDayData[i],
-					lp_apy_1d: current_lp_apy,
-					lp_versus_hold_apy_1d: current_lp_versus_hold_apy,
-					fees_apy_1d: current_fees_apy,
-					il_apy_1d: current_il_apy,
-					hold_apy_1d: current_hold_apy,
-				};
-			} else if (_delay === 30) {
-				extendedPairDayData[i] = {
-					...extendedPairDayData[i],
-					lp_apy_1m: current_lp_apy,
-					lp_versus_hold_apy_1m: current_lp_versus_hold_apy,
-					fees_apy_1m: current_fees_apy,
-					il_apy_1m: current_il_apy,
-					hold_apy_1m: current_hold_apy,
-				};
-			} else if (_delay === 3 * 30) {
-				extendedPairDayData[i] = {
-					...extendedPairDayData[i],
-					lp_apy_3m: current_lp_apy,
-					lp_versus_hold_apy_3m: current_lp_versus_hold_apy,
-					fees_apy_3m: current_fees_apy,
-					il_apy_3m: current_il_apy,
-					hold_apy_3m: current_hold_apy,
-				};
-			} else if (_delay === 365) {
-				extendedPairDayData[i] = {
-					...extendedPairDayData[i],
-					lp_apy_1y: current_lp_apy,
-					lp_versus_hold_apy_1y: current_lp_versus_hold_apy,
-					fees_apy_1y: current_fees_apy,
-					il_apy_1y: current_il_apy,
-					hold_apy_1y: current_hold_apy,
-				};
+			// Annualized APY
+			const lpApy = (1 + lpApr) ^ (365 / delay - 1);
+			const lpVsHoldApy = (1 + lpVsHoldApr) ^ (365 / delay - 1);
+			const interestApy = (1 + interestApr) ^ (365 / delay - 1);
+
+			switch (delay) {
+				case 1:
+					extendedPairDayData[i - delay].lp_apy_1d = lpApy;
+					extendedPairDayData[i - delay].lp_versus_hold_apy_1d = lpVsHoldApy;
+					extendedPairDayData[i - delay].fees_apy_1d = interestApy;
+					break;
+				case 30:
+					extendedPairDayData[i - delay].lp_apy_1m = lpApy;
+					extendedPairDayData[i - delay].lp_versus_hold_apy_1m = lpVsHoldApy;
+					extendedPairDayData[i - delay].fees_apy_1m = interestApy;
+					break;
+				case 3*30:
+					extendedPairDayData[i - delay].lp_apy_3m = lpApy;
+					extendedPairDayData[i - delay].lp_versus_hold_apy_3m = lpVsHoldApy;
+					extendedPairDayData[i - delay].fees_apy_3m = interestApy;
+					break;
+				case 365:
+					extendedPairDayData[i - delay].lp_apy_1y = lpApy;
+					extendedPairDayData[i - delay].lp_versus_hold_apy_1y = lpVsHoldApy;
+					extendedPairDayData[i - delay].fees_apy_1y = interestApy;
+					break;
 			}
 		}
 	}
-
 	return extendedPairDayData;
 }
 
@@ -505,6 +550,7 @@ function calculateScores(extendedPairDayData: ExtendedPairDayData[]) {
 
 export async function updatePairDayData(
 	pairDayData: PairDayData[],
+	pool_address: string,
 	token0Address: string,
 	token1Address: string,
 	nbDays: number,
@@ -535,18 +581,14 @@ export async function updatePairDayData(
 
 	const pairDayDataWithTotalVolume = calculateTotalVolume(updatedPairDayData);
 
-	const startDelayPairs = [
-		{ start: 365, delay: 1 },
-		{ start: 365, delay: 30 },
-		{ start: 365, delay: 3 * 30 },
-		{ start: 365, delay: 365 },
-	];
+	const startDelayPairs = [1, 30, 3 * 30, 365];
 
 	const amount = 10000;
 	const fees = 0.3; // Replace with the actual fees value
 	const adj_fees = 2 / 3; // Replace with the actual adjusted fees value
 
-	let extendedPairDayData = calculateAPYs(
+	let extendedPairDayData = await calculateAPYs(
+		pool_address as Address,
 		pairDayDataWithTotalVolume,
 		startDelayPairs,
 		amount,
