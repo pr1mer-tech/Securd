@@ -2,6 +2,7 @@ import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 import type { ReserveInfo } from "@/lib/types/save.types";
+import { int } from "drizzle-orm/mysql-core";
 import { DateTime } from "luxon";
 import type { Address } from "viem";
 import { z } from "zod";
@@ -390,7 +391,7 @@ async function calculateAPYs(
 						(val * fees * adj_fees * qty) / 100 / (data[i]?.totalSupply ?? 0),
 				);
 			_fees = [0.0, ..._fees];
-			_fees = _fees.reduce((acc, val) => {
+			const __fees = _fees.reduce((acc, val) => {
 				acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + val);
 				return acc;
 			}, [] as number[]);
@@ -405,7 +406,7 @@ async function calculateAPYs(
 				return qty * (qToken0 * price0 + qToken1 * price1);
 			});
 
-			const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
+			const il = hold.map((val, i) => Math.min(plp[i] - __fees[i] - val, 0));
 
 			const interest = Array.from(
 				{ length: delay },
@@ -415,46 +416,89 @@ async function calculateAPYs(
 			const lp = data.map(
 				(_, i) => hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
 			);
-			const lpVsHold = data.map(
-				(_, i) => L * _fees[i] + L * il[i] - (L - 1) * interest[i],
-			);
-			const _interest = data.map((_, i) => (L - 1) * interest[i]);
 
-			const holdApr = hold[hold.length - 1] / hold[0];
-			const lpApr = lp[lp.length - 1] / lp[0];
-			const lpVsHoldApr = lpVsHold[lpVsHold.length - 1] / lpVsHold[0];
-			const interestApr = _interest[lp.length - 1] / lp[0];
+			const holdReturn = hold[hold.length - 1] / hold[0] - 1;
+			const lpReturn = lp[lp.length - 1] / lp[0] - 1;
+			const sumFee = _fees.reduce((acc, val) => acc + val, 0)
+			const interestReturn = Math.min(plp[plp.length - 1] - sumFee - hold[hold.length - 1] / hold[0], 0);
+			const feesReturn = sumFee / hold[0];
+			const lpVsHoldReturn = feesReturn + interestReturn;
+			const ilReturn = (il[il.length - 1] + hold[0]) / hold[0] - 1;
 
-			// Annualized APY
-			const holdApy = (1 + holdApr) ^ (365 / delay - 1);
-			const lpApy = (1 + lpApr) ^ (365 / delay - 1);
-			const lpVsHoldApy = (1 + lpVsHoldApr) ^ (365 / delay - 1);
-			const interestApy = (1 + interestApr) ^ (365 / delay - 1);
+			// Annualize the returns
+			const annualizationFactor = 365 / delay;
+			const holdApy = (1 + holdReturn) ** annualizationFactor - 1;
+			const lpApy = (1 + lpReturn) ** annualizationFactor - 1;
+			const lpVsHoldApy = (1 + lpVsHoldReturn) ** annualizationFactor - 1;
+			const interestApy = (1 + interestReturn) ** annualizationFactor - 1;
+			const feesApy = (1 + feesReturn) ** annualizationFactor - 1;
+			const ilApy = (1 + ilReturn) ** annualizationFactor - 1;
+
+			// Assuming daily compounding (adjust 'n' based on your compounding frequency)
+			// const n = 365;
+
+			// // Annualized APY
+			// const holdApy = (1 + holdApr / n) ** n - 1;
+			// const lpApy = (1 + lpApr / n) ** n - 1;
+			// const lpVsHoldApy = (1 + lpVsHoldApr / n) ** n - 1;
+			// const interestApy = (1 + interestApr / n) ** n - 1;
+			// const feesApy = (1 + feesApr / n) ** n - 1;
+
+			if (
+				i === extendedPairDayData.length - 1 &&
+				delay === 365 &&
+				analyticsResult?.pool_address.toLowerCase() ===
+					"0x814920d1b8007207db6cb5a2dd92bf0b082bdba1".toLowerCase()
+			) {
+				debugger;
+				// Print for debug
+				console.log(
+					`Pair ${analyticsResult?.token_0?.token_symbol} / ${analyticsResult?.token_1?.token_symbol}`,
+				);
+				console.log(hold.slice(-10));
+				// APR
+				// console.log(`Hold APR: ${holdApr}`);
+				// console.log(`LP APR: ${lpApr}`);
+				// console.log(`LP vs Hold APR: ${lpVsHoldApr}`);
+				// console.log(`Interest APR: ${interestApr}`);
+				// APY
+				console.log(`Hold APY: ${holdApy}`);
+				console.log(`LP APY: ${lpApy}`);
+				console.log(`Fees APY: ${feesApy}`);
+				console.log(`LP vs Hold APY: ${lpVsHoldApy}`);
+				console.log(`Interest APY: ${interestApy}`);
+				console.log(`Impermanent Loss APY: ${ilApy}`);
+				console.log(`Delay: ${delay}`);
+			}
 
 			switch (delay) {
 				case 1:
-					extendedPairDayData[i - delay].hold_apy_1d = holdApy;
-					extendedPairDayData[i - delay].lp_apy_1d = lpApy;
-					extendedPairDayData[i - delay].lp_versus_hold_apy_1d = lpVsHoldApy;
-					extendedPairDayData[i - delay].fees_apy_1d = interestApy;
+					extendedPairDayData[i].hold_apy_1d = holdApy;
+					extendedPairDayData[i].lp_apy_1d = lpApy;
+					extendedPairDayData[i].lp_versus_hold_apy_1d = lpVsHoldApy;
+					extendedPairDayData[i].fees_apy_1d = feesApy;
+					extendedPairDayData[i].il_apy_1d = ilApy;
 					break;
 				case 30:
-					extendedPairDayData[i - delay].hold_apy_1m = holdApy;
-					extendedPairDayData[i - delay].lp_apy_1m = lpApy;
-					extendedPairDayData[i - delay].lp_versus_hold_apy_1m = lpVsHoldApy;
-					extendedPairDayData[i - delay].fees_apy_1m = interestApy;
+					extendedPairDayData[i].hold_apy_1m = holdApy;
+					extendedPairDayData[i].lp_apy_1m = lpApy;
+					extendedPairDayData[i].lp_versus_hold_apy_1m = lpVsHoldApy;
+					extendedPairDayData[i].fees_apy_1m = feesApy;
+					extendedPairDayData[i].il_apy_1m = ilApy;
 					break;
-				case 3 * 30:
+				case 90:
 					extendedPairDayData[i - delay].hold_apy_3m = holdApy;
 					extendedPairDayData[i - delay].lp_apy_3m = lpApy;
 					extendedPairDayData[i - delay].lp_versus_hold_apy_3m = lpVsHoldApy;
-					extendedPairDayData[i - delay].fees_apy_3m = interestApy;
+					extendedPairDayData[i - delay].fees_apy_3m = feesApy;
+					extendedPairDayData[i - delay].il_apy_3m = ilApy;
 					break;
 				case 365:
-					extendedPairDayData[i - delay].hold_apy_1y = holdApy;
-					extendedPairDayData[i - delay].lp_apy_1y = lpApy;
-					extendedPairDayData[i - delay].lp_versus_hold_apy_1y = lpVsHoldApy;
-					extendedPairDayData[i - delay].fees_apy_1y = interestApy;
+					extendedPairDayData[i].hold_apy_1y = holdApy;
+					extendedPairDayData[i].lp_apy_1y = lpApy;
+					extendedPairDayData[i].lp_versus_hold_apy_1y = lpVsHoldApy;
+					extendedPairDayData[i].fees_apy_1y = feesApy;
+					extendedPairDayData[i].il_apy_1y = ilApy;
 					break;
 			}
 		}
@@ -550,11 +594,12 @@ function calculateScores(extendedPairDayData: ExtendedPairDayData[]) {
 		mrm[i - start] = categorieVeV ?? 0;
 	}
 
-	return extendedPairDayData.map((dayData, index) => ({
-		...dayData,
-		volatility_score: volatilityScore[index] ?? 0,
-		mrm: mrm[index] ? mrm[index] : 0,
-	}));
+	for (let i = 0; i < extendedPairDayData.length; i++) {
+		extendedPairDayData[i].volatility_score = volatilityScore[i];
+		extendedPairDayData[i].mrm = mrm[i];
+	}
+
+	return extendedPairDayData;
 }
 
 export async function updatePairDayData(
@@ -594,11 +639,14 @@ export async function updatePairDayData(
 		// };
 	});
 
+	console.log("token0DayData", token0DayData.length, token0DayData.slice(0, 5));
+	console.log("token1DayData", token1DayData.length, token1DayData.slice(0, 5));
+
 	const pairDayDataWithTotalVolume = calculateTotalVolume(updatedPairDayData);
 
-	const startDelayPairs = [1, 30, 3 * 30, 365];
+	const startDelayPairs = [1, 30, 90, 365];
 
-	const amount = 10000;
+	const amount = 100;
 	const fees = 0.3; // Replace with the actual fees value
 	const adj_fees = 2 / 3; // Replace with the actual adjusted fees value
 
@@ -610,6 +658,12 @@ export async function updatePairDayData(
 		fees,
 		adj_fees,
 	);
+
+	console.log(
+		"Last extendedPairDayData",
+		extendedPairDayData[extendedPairDayData.length - 1],
+	);
+
 	extendedPairDayData = calculateScores(extendedPairDayData);
 
 	return extendedPairDayData;

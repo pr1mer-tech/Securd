@@ -60,7 +60,7 @@ export const analyticsRoutine = inngest.createFunction(
                             date: dayData.date,
                             quantity_token_0: dayData.reserve0,
                             quantity_token_1: dayData.reserve1,
-                            quantity_token_lp: dayData.liquidity,
+                            quantity_token_lp: dayData.totalSupply,
                             volume_token_0: dayData.dailyVolumeToken0,
                             volume_token_1: dayData.dailyVolumeToken1,
                             mrm: dayData.mrm,
@@ -133,8 +133,7 @@ export const analyticsRoutine = inngest.createFunction(
                 }
                 console.log(`Inserted ${priceChunks.length} price records`);
             });
-
-            return pairData.slice(-10);
+            return JSON.stringify(pairData[pairData.length - 1]);
         });
     },
 );

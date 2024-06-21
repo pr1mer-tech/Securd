@@ -275,7 +275,7 @@ export default function Graphs({
 					autoMinValue
 					data={LP_HODL({ poolInfo, delay, leverage })}
 					index="date"
-					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold"]}
+					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold", "price0", "price1"]}
 					valueFormatter={dataFormatter}
 					yAxisWidth={90}
 					customTooltip={selected2 === "lp" ? customTooltip : undefined}
@@ -408,7 +408,11 @@ function LP_HODL({
 		IL: L * il[i],
 		Interest: (L - 1) * interest[i],
 		Fee: L * _fees[i],
+		"price0": poolInfo?.analytics?.[i]?.quantity_token_lp ?? 0,
+		"price1": poolInfo?.analytics?.[i]?.quantity_token_lp ?? 0,
 	}));
+
+	// debugger;
 
 	return result;
 }

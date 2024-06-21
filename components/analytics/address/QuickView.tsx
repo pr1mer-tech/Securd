@@ -92,6 +92,8 @@ export default function QuickView({
 		(1 + leverage * perfFee + leverage * perfIl + (leverage - 1) * perfIR) **
 			annualization -
 		1;
+		
+	// debugger;
 
 	feeApy = (1 + leverage * perfFee) ** annualization - 1;
 	ilApy = (1 + leverage * perfIl) ** annualization - 1;
