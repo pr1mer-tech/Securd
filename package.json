@@ -44,7 +44,7 @@
     "ethereumjs-util": "^7.1.5",
     "global": "^4.4.0",
     "hardhat": "2.20",
-    "inngest": "^3.19.7",
+    "inngest": "^3.19.16",
     "inngest-cli": "^0.29.0",
     "lucide-react": "^0.354.0",
     "luxon": "^3.4.4",
