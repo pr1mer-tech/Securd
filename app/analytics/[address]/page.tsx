@@ -14,7 +14,7 @@ import { pool } from "@/db/schema";
 import {
 	type PoolDetails,
 	tokenToReserveInfo,
-	analyticsToCollateralInfo,
+	analyticsToCollateralInfoServer,
 } from "@/lib/helpers/analytics.helper";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import { ArrowLeft } from "lucide-react";
@@ -116,7 +116,7 @@ export default async function AnalyticsAddress({
 		),
 	]);
 
-	const collateralInfo = await analyticsToCollateralInfo(
+	const collateralInfo = await analyticsToCollateralInfoServer(
 		analyticsResult,
 		analyticsResult?.analytics[0],
 		(hasMirrored?.pool_address ?? analyticsResult?.pool_address) as Address,

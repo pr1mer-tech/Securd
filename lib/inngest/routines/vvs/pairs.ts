@@ -1,10 +1,9 @@
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
-import { ReserveInfo } from "@/lib/types/save.types";
+import type { ReserveInfo } from "@/lib/types/save.types";
 import { DateTime } from "luxon";
-import { Plot, plot } from "nodeplotlib";
-import { Address } from "viem";
+import type { Address } from "viem";
 import { z } from "zod";
 
 const TokenDataSchema = z.object({
@@ -272,6 +271,10 @@ async function calculateAPYs(
 		},
 	});
 
+	if (!analyticsResult) {
+		return [];
+	}
+
 	const hasMirrored = await db.query.pool.findFirst({
 		where: (row, { eq }) => eq(row.mirror_pool, analyticsResult?.id_pool),
 		columns: {
@@ -427,40 +430,6 @@ async function calculateAPYs(
 			const lpApy = (1 + lpApr) ^ (365 / delay - 1);
 			const lpVsHoldApy = (1 + lpVsHoldApr) ^ (365 / delay - 1);
 			const interestApy = (1 + interestApr) ^ (365 / delay - 1);
-
-			if (i === extendedPairDayData.length - 1 && delay === 365) {
-				console.log("------------------");
-				console.log("start day", data[0].date);
-				console.log("end day", data[data.length - 1].date);
-				console.log("delay", delay);
-				console.log("lpApr", lpApr);
-				console.log("lpVsHoldApr", lpVsHoldApr);
-				console.log("interestApr", interestApr);
-				console.log("lpApy", lpApy);
-				console.log("lpVsHoldApy", lpVsHoldApy);
-				console.log("interestApy", interestApy);
-				const charts: Plot[] = [
-					{
-						type: "scatter",
-						x: data.map((d) => d.date),
-						y: hold,
-						title: {
-							text: "Hold",
-						},
-					},
-					{
-						type: "scatter",
-						x: data.map((d) => d.date),
-						y: lp,
-						title: {
-							text: "LP",
-						},
-					},
-				];
-
-				plot(charts);
-				console.log("------------------");
-			}
 
 			switch (delay) {
 				case 1:

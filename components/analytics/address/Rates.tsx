@@ -1,12 +1,8 @@
 "use client";
 
-import PairIcon from "@/components/farm/PairIcon";
 import { Card } from "@/components/ui/card";
-import {
-	type PoolDetails,
-	PoolTableRows,
-	analyticsToCollateralInfo,
-	tokenToReserveInfo,
+import type {
+	PoolDetails,
 } from "@/lib/helpers/analytics.helper";
 import { cn } from "@/lib/utils";
 import Help from "@/components/ui/Help";
@@ -21,7 +17,6 @@ import {
 import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { Slider } from "@/components/ui/slider";
-import { useEffect, useState } from "react";
 import { useAnalyticsAddressStore } from "@/lib/data/analyticsAddressStore";
 import { MenuTabsContent } from "@/components/ui/menu-tabs";
 import { getBorrowApy, getBorrowerPoolMaxLeverage } from "@/lib/helpers/borrow.helpers";

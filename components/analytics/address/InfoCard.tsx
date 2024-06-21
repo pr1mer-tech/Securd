@@ -4,9 +4,7 @@ import PairIcon from "@/components/farm/PairIcon";
 import { Card } from "@/components/ui/card";
 import {
 	type PoolDetails,
-	PoolTableRows,
-	analyticsToCollateralInfo,
-	tokenToReserveInfo,
+	analyticsToCollateralInfoClient,
 } from "@/lib/helpers/analytics.helper";
 import { cn } from "@/lib/utils";
 import Help from "@/components/ui/Help";
@@ -28,7 +26,7 @@ export default function InfoCard({
 	poolInfo,
 	className,
 }: { poolInfo: PoolDetails; className?: string }) {
-	const userCollateralInfo = analyticsToCollateralInfo(
+	const userCollateralInfo = analyticsToCollateralInfoClient(
 		poolInfo,
 		poolInfo?.analytics?.[0] ?? null,
 	);
