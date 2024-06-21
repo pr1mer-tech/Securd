@@ -12,7 +12,7 @@ import PercentageFormat from "../utils/PercentageFormat";
 import PairIcon from "../farm/PairIcon";
 import {
 	type PoolTableRows,
-	analyticsToCollateralInfo,
+	analyticsToCollateralInfoClient,
 } from "@/lib/helpers/analytics.helper";
 import MrmScore from "./score";
 import { Button } from "../ui/button";
@@ -28,7 +28,7 @@ const columns: ColumnDef<PoolTableRows>[] = [
 			`${row.pool?.token_0?.token_symbol}/${row.pool?.token_1?.token_symbol}`,
 		header: "Pool",
 		cell: ({ row }) => {
-			const userCollateralInfo = analyticsToCollateralInfo(
+			const userCollateralInfo = analyticsToCollateralInfoClient(
 				row.original.pool,
 				row.original,
 			);

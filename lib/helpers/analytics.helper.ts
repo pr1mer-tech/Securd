@@ -60,7 +60,7 @@ export type PoolDetails =
 
 const chains = [cronos, cronosTestnet, mainnet, polygonMumbai];
 
-export const analyticsToCollateralInfo = async (
+export const analyticsToCollateralInfoServer = async (
 	pool:
 		| (Pool & {
 				token_0: Token | null;
@@ -108,6 +108,47 @@ export const analyticsToCollateralInfo = async (
 		token_0: pool?.token_0?.token_address as `0x${string}`,
 		token_1: pool?.token_1?.token_address as `0x${string}`,
 		tokenInfo: collateralInfo?.[0] ?? {
+			assets: [
+				pool?.token_0?.token_address as `0x${string}`,
+				pool?.token_1?.token_address as `0x${string}`,
+			],
+			nbAssets: parseUnits(analytics?.quantity_token_lp?.toString() ?? "0", 18),
+			router: "0x" as `0x${string}`,
+		},
+	};
+
+	return userCollateralInfo;
+};
+
+export const analyticsToCollateralInfoClient = (
+	pool:
+		| (Pool & {
+				token_0: Token | null;
+				token_1: Token | null;
+				dex: Dex | null;
+		  })
+		| null,
+	analytics: Analytics | null,
+) => {
+	const userCollateralInfo: CollateralInfos = {
+		address: pool?.pool_address as `0x${string}`,
+		addressLP: pool?.pool_address as `0x${string}`,
+		decimals: pool?.token_0?.token_decimals as number,
+		lpApr: Number(analytics?.lp_apy_3m),
+		isActivated: true,
+		liquidationPremium: 0n,
+		liquidationThresholdInfo: {
+			balancedLoanThreshold_0: 0n,
+			balancedLoanThreshold_b: 0n,
+			buffer: 0n,
+			unBalancedLoanThreshold_0: 0n,
+			unBalancedLoanThreshold_b: 0n,
+		},
+		poolType: pool?.dex?.dex_name as PoolType,
+		symbol: `${pool?.token_0?.token_symbol}/${pool?.token_1?.token_symbol}`,
+		token_0: pool?.token_0?.token_address as `0x${string}`,
+		token_1: pool?.token_1?.token_address as `0x${string}`,
+		tokenInfo: {
 			assets: [
 				pool?.token_0?.token_address as `0x${string}`,
 				pool?.token_1?.token_address as `0x${string}`,
