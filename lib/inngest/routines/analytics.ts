@@ -134,7 +134,7 @@ export const analyticsRoutine = inngest.createFunction(
                 console.log(`Inserted ${priceChunks.length} price records`);
             });
 
-            return pairData.length;
+            return pairData.slice(-10);
         });
     },
 );

@@ -3,10 +3,12 @@ import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 import { ReserveInfo } from "@/lib/types/save.types";
 import { DateTime } from "luxon";
+import { Plot, plot } from "nodeplotlib";
 import { Address } from "viem";
 import { z } from "zod";
 
 const TokenDataSchema = z.object({
+	id: z.string(),
 	symbol: z.string(),
 	derivedUSD: z.coerce.number(),
 });
@@ -92,10 +94,12 @@ export async function getPairDayData(
         dailyVolumeToken1
         totalSupply
         token0 {
+		  id
           symbol
           derivedUSD
         }
         token1 {
+		  id
           symbol
           derivedUSD
         }
@@ -111,6 +115,8 @@ export async function getPairDayData(
 		date: DateTime.fromSeconds(dayData.date as number).toJSDate(),
 		liquidity: Math.sqrt(dayData.reserve0 * dayData.reserve1),
 		price: dayData.reserve1 / dayData.reserve0,
+		priceToken0inDollars: dayData.token0.derivedUSD,
+		priceToken1inDollars: dayData.token1.derivedUSD,
 	}));
 
 	formattedData.forEach((dayData, index) => {
@@ -192,25 +198,20 @@ async function getTokenDayData(
     }
   `;
 
-	const m = 1;
-	const tokenDayData: TokenDayData[] = [];
+	const variables: QueryVariablesToken = {
+		first: nbDays,
+		skip: 0,
+		tokenAdress: tokenAddress,
+	};
 
-	for (let i = 0; i < m; i++) {
-		const variables: QueryVariablesToken = {
-			first: nbDays,
-			skip: nbDays * i,
-			tokenAdress: tokenAddress,
-		};
+	const result = await runQueryToken(query, variables);
 
-		const result = await runQueryToken(query, variables);
+	const formattedData = result.data.tokenDayDatas.map((dayData) => ({
+		...dayData,
+		date: DateTime.fromSeconds(dayData.date as number).toJSDate(),
+	}));
 
-		const formattedData = result.data.tokenDayDatas.map((dayData) => ({
-			...dayData,
-			date: DateTime.fromSeconds(dayData.date as number).toJSDate(),
-		}));
-
-		tokenDayData.push(...formattedData);
-	}
+	const tokenDayData: TokenDayData[] = formattedData;
 
 	return tokenDayData.reverse();
 }
@@ -353,7 +354,8 @@ async function calculateAPYs(
 	);
 
 	for (const delay of startDelayPairs) {
-		for (let i = 365; i < extendedPairDayData.length; i++) { // Need at least 365 days to compute APY
+		for (let i = 365; i < extendedPairDayData.length; i++) {
+			// Need at least 365 days to compute APY
 			const data = extendedPairDayData.slice(i - delay, i);
 
 			let plp: number[] =
@@ -397,8 +399,6 @@ async function calculateAPYs(
 				const price0 = info.priceToken0inDollars ?? 0;
 				const price1 = info.priceToken1inDollars ?? 0;
 
-				const qty = amount / (qToken0 * price0 + qToken1 * price1);
-
 				return qty * (qToken0 * price0 + qToken1 * price1);
 			});
 
@@ -417,32 +417,72 @@ async function calculateAPYs(
 			);
 			const _interest = data.map((_, i) => (L - 1) * interest[i]);
 
+			const holdApr = hold[hold.length - 1] / hold[0];
 			const lpApr = lp[lp.length - 1] / lp[0];
 			const lpVsHoldApr = lpVsHold[lpVsHold.length - 1] / lpVsHold[0];
 			const interestApr = _interest[lp.length - 1] / lp[0];
 
 			// Annualized APY
+			const holdApy = (1 + holdApr) ^ (365 / delay - 1);
 			const lpApy = (1 + lpApr) ^ (365 / delay - 1);
 			const lpVsHoldApy = (1 + lpVsHoldApr) ^ (365 / delay - 1);
 			const interestApy = (1 + interestApr) ^ (365 / delay - 1);
 
+			if (i === extendedPairDayData.length - 1 && delay === 365) {
+				console.log("------------------");
+				console.log("start day", data[0].date);
+				console.log("end day", data[data.length - 1].date);
+				console.log("delay", delay);
+				console.log("lpApr", lpApr);
+				console.log("lpVsHoldApr", lpVsHoldApr);
+				console.log("interestApr", interestApr);
+				console.log("lpApy", lpApy);
+				console.log("lpVsHoldApy", lpVsHoldApy);
+				console.log("interestApy", interestApy);
+				const charts: Plot[] = [
+					{
+						type: "scatter",
+						x: data.map((d) => d.date),
+						y: hold,
+						title: {
+							text: "Hold",
+						},
+					},
+					{
+						type: "scatter",
+						x: data.map((d) => d.date),
+						y: lp,
+						title: {
+							text: "LP",
+						},
+					},
+				];
+
+				plot(charts);
+				console.log("------------------");
+			}
+
 			switch (delay) {
 				case 1:
+					extendedPairDayData[i - delay].hold_apy_1d = holdApy;
 					extendedPairDayData[i - delay].lp_apy_1d = lpApy;
 					extendedPairDayData[i - delay].lp_versus_hold_apy_1d = lpVsHoldApy;
 					extendedPairDayData[i - delay].fees_apy_1d = interestApy;
 					break;
 				case 30:
+					extendedPairDayData[i - delay].hold_apy_1m = holdApy;
 					extendedPairDayData[i - delay].lp_apy_1m = lpApy;
 					extendedPairDayData[i - delay].lp_versus_hold_apy_1m = lpVsHoldApy;
 					extendedPairDayData[i - delay].fees_apy_1m = interestApy;
 					break;
-				case 3*30:
+				case 3 * 30:
+					extendedPairDayData[i - delay].hold_apy_3m = holdApy;
 					extendedPairDayData[i - delay].lp_apy_3m = lpApy;
 					extendedPairDayData[i - delay].lp_versus_hold_apy_3m = lpVsHoldApy;
 					extendedPairDayData[i - delay].fees_apy_3m = interestApy;
 					break;
 				case 365:
+					extendedPairDayData[i - delay].hold_apy_1y = holdApy;
 					extendedPairDayData[i - delay].lp_apy_1y = lpApy;
 					extendedPairDayData[i - delay].lp_versus_hold_apy_1y = lpVsHoldApy;
 					extendedPairDayData[i - delay].fees_apy_1y = interestApy;
@@ -558,25 +598,31 @@ export async function updatePairDayData(
 	const token0DayData = await getTokenDayData(token0Address, nbDays);
 	const token1DayData = await getTokenDayData(token1Address, nbDays);
 
-	const updatedPairDayData = pairDayData.map((dayData) => {
-		const token0Price =
-			token0DayData.find((token0Data) =>
-				DateTime.fromJSDate(token0Data.date as Date)
-					.startOf("day")
-					.equals(DateTime.fromJSDate(dayData.date as Date).startOf("day")),
-			)?.priceUSD ?? 0;
-		const token1Price =
-			token1DayData.find((token1Data) =>
-				DateTime.fromJSDate(token1Data.date as Date)
-					.startOf("day")
-					.equals(DateTime.fromJSDate(dayData.date as Date).startOf("day")),
-			)?.priceUSD ?? 0;
-
+	const updatedPairDayData = pairDayData.map((dayData, i) => {
+		const token0Price = token0DayData[i]?.priceUSD ?? 0;
+		const token1Price = token1DayData[i]?.priceUSD ?? 0;
 		return {
 			...dayData,
 			priceToken0inDollars: token0Price,
 			priceToken1inDollars: token1Price,
 		};
+		// 	token0DayData.find((token0Data) =>
+		// 		DateTime.fromJSDate(token0Data.date as Date)
+		// 			.startOf("day")
+		// 			.equals(DateTime.fromJSDate(dayData.date as Date).startOf("day")),
+		// 	)?.priceUSD ?? 0;
+		// const token1Price =
+		// 	token1DayData.find((token1Data) =>
+		// 		DateTime.fromJSDate(token1Data.date as Date)
+		// 			.startOf("day")
+		// 			.equals(DateTime.fromJSDate(dayData.date as Date).startOf("day")),
+		// 	)?.priceUSD ?? 0;
+
+		// return {
+		// 	...dayData,
+		// 	priceToken0inDollars: token0Price,
+		// 	priceToken1inDollars: token1Price,
+		// };
 	});
 
 	const pairDayDataWithTotalVolume = calculateTotalVolume(updatedPairDayData);

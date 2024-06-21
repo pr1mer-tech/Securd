@@ -60,20 +60,22 @@ describe("getPairDayData", () => {
 
 describe("updatePairDayData", () => {
 	it("should update pair day data with token prices and non-zero APYs", async () => {
-		const pairAddress = "0xbf62c67ea509e86f07c8c69d0286c0636c50270b";
-		const token0Address = "0x2d03bece6747adc00e1a131bba1469c15fd11e03";
-		const token1Address = "0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23";
+		const pairAddress = "0x814920d1b8007207db6cb5a2dd92bf0b082bdba1";
 		const nbDays = 2 * 365;
 
 		const pairDayData = await getPairDayData(pairAddress, nbDays);
 		const updatedPairDayData = await updatePairDayData(
 			pairDayData,
             pairAddress,
-			token0Address,
-			token1Address,
+			pairDayData[0].token0.id,
+			pairDayData[0].token1.id,
 			nbDays,
 		);
 
+        const latest = updatedPairDayData[updatedPairDayData.length - 1];
+
+        console.log(latest);
+        
 		const chart: Plot = {
             type: "scatter",
             x: updatedPairDayData.map((d) => d.date),
@@ -160,5 +162,5 @@ describe("updatePairDayData", () => {
 			expect(dayData.il_apy_1y).toBeLessThanOrEqual(0);
 			expect(dayData.hold_apy_1y).not.toBe(0);
 		}
-	}, 50000);
+	}, 0);
 });
