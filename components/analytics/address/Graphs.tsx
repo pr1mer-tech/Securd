@@ -18,7 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 
@@ -37,6 +37,7 @@ export default function Graphs({
 	className,
 }: { poolInfo: PoolDetails; className?: string }) {
 	const timeRange = useAnalyticsAddressStore.use.timeRange();
+	const graph = useAnalyticsAddressStore.use.graph();
 	const leverage = useAnalyticsAddressStore.use.leverage();
 	const tokenDirection = useAnalyticsAddressStore.use.tokenDirection();
 	const [selected, setSelected] = useState<string>("symbol");
@@ -65,6 +66,10 @@ export default function Graphs({
 	const symbol1 = !tokenDirection
 		? poolInfo?.token_0?.token_symbol
 		: poolInfo?.token_1?.token_symbol;
+
+	useEffect(() => {
+		useAnalyticsAddressStore.setState({ graph: LP_HODL({ poolInfo, delay, leverage }) });
+	}, [poolInfo, delay, leverage]);
 
 	return (
 		<Card className="w-full pl-1 pr-4">
@@ -273,9 +278,9 @@ export default function Graphs({
 					showLegend={false}
 					colors={selected2 === "lp" ? ["#0B4B48", "#E95A4C"] : ["#FCD34D"]}
 					autoMinValue
-					data={LP_HODL({ poolInfo, delay, leverage })}
+					data={graph}
 					index="date"
-					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold", "price0", "price1"]}
+					categories={selected2 === "lp" ? ["LP", "HOLD"] : ["LP vs Hold"]}
 					valueFormatter={dataFormatter}
 					yAxisWidth={90}
 					customTooltip={selected2 === "lp" ? customTooltip : undefined}
@@ -284,7 +289,7 @@ export default function Graphs({
 					className="h-60"
 					colors={["#E95A4C", "#0B4B48", "#E8A029"]}
 					autoMinValue
-					data={LP_HODL({ poolInfo, delay, leverage })}
+					data={graph}
 					index="date"
 					categories={["Fee", "IL", "Interest"]}
 					valueFormatter={(number) => `$${securdFormat(number, 2)}`}
@@ -295,7 +300,7 @@ export default function Graphs({
 	);
 }
 
-function LP_HODL({
+export function LP_HODL({
 	poolInfo: _poolInfo,
 	delay: _delay,
 	leverage,
@@ -303,14 +308,14 @@ function LP_HODL({
 	// Truncate
 	const poolInfo = {
 		..._poolInfo,
-		analytics: _poolInfo?.analytics?.slice(-_delay),
+		analytics: _poolInfo?.analytics?.slice(-_delay - 1, -1),
 		token_0: {
 			..._poolInfo?.token_0,
-			prices: _poolInfo?.token_0?.prices?.slice(-_delay),
+			prices: _poolInfo?.token_0?.prices?.slice(-_delay - 1, -1),
 		},
 		token_1: {
 			..._poolInfo?.token_1,
-			prices: _poolInfo?.token_1?.prices?.slice(-_delay),
+			prices: _poolInfo?.token_1?.prices?.slice(-_delay - 1, -1),
 		},
 	}
 
@@ -407,12 +412,12 @@ function LP_HODL({
 		// Inverse all the values
 		IL: L * il[i],
 		Interest: (L - 1) * interest[i],
-		Fee: L * _fees[i],
-		"price0": poolInfo?.analytics?.[i]?.quantity_token_lp ?? 0,
-		"price1": poolInfo?.analytics?.[i]?.quantity_token_lp ?? 0,
+		Fee: L * _fees[i]
 	}));
 
 	// debugger;
 
 	return result;
-}
+};
+
+export type GraphContextData = ReturnType<typeof LP_HODL>;
