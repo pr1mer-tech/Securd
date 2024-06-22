@@ -20,6 +20,7 @@ import { getBorrowApy } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import { useState } from "react";
+import { LP_HODL } from "./Graphs";
 
 export default function QuickView({
 	poolInfo,
@@ -49,10 +50,10 @@ export default function QuickView({
 					?.price ?? 0) ??
 		0;
 
-	let lpApy = lastAnalytics?.[`lp_apy_${timeRange}`] ?? 0;
-	const holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
-	let feeApy = lastAnalytics?.[`fee_apy_${timeRange}`] ?? 0;
-	let ilApy = lastAnalytics?.[`il_apy_${timeRange}`] ?? 0;
+	// let lpApy = lastAnalytics?.[`lp_apy_${timeRange}`] ?? 0;
+	// const holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
+	// let feeApy = lastAnalytics?.[`fee_apy_${timeRange}`] ?? 0;
+	// let ilApy = lastAnalytics?.[`il_apy_${timeRange}`] ?? 0;
 
 	const delay = (() => {
 		switch (timeRange) {
@@ -67,11 +68,30 @@ export default function QuickView({
 		}
 	})();
 
+	const graph = useAnalyticsAddressStore.use.graph();
+
+	let lpApy =
+		((graph[graph.length - 1]?.LP ?? 0) - (graph[0]?.LP ?? 0)) /
+		(graph[0]?.LP ?? 0);
+	let holdApy =
+		((graph[graph.length - 1]?.HOLD ?? 0) - (graph[0]?.HOLD ?? 0)) /
+		(graph[0]?.HOLD ?? 0);
+	let feeApy =
+		((graph[graph.length - 1]?.Fee ?? 0) - (graph[0]?.Fee ?? 0)) /
+		(graph[0]?.Fee ?? 0);
+	let ilApy =
+		((graph[graph.length - 1]?.IL ?? 0) - (graph[0]?.IL ?? 0)) /
+		(graph[0]?.IL ?? 0);
+	let lpVsHoldApy =
+		(graph[graph.length - 1]?.["LP vs Hold"] ?? 0) / (graph[0]?.HOLD ?? 0);
+
 	const annualization = 365 / delay;
 
-	const perfHold = (1 + holdApy) ** (1 / annualization) - 1;
-	const perfFee = (1 + feeApy) ** (1 / annualization) - 1;
-	const perfIl = (1 + ilApy) ** (1 / annualization) - 1;
+	lpApy = (1 + lpApy) ** annualization - 1;
+	holdApy = (1 + holdApy) ** annualization - 1;
+	feeApy = (1 + feeApy) ** annualization - 1;
+	ilApy = (1 + ilApy) ** annualization - 1;
+	lpVsHoldApy = (1 + lpVsHoldApy) ** annualization - 1;
 
 	const r_0 = getBorrowApy(poolInfo?.reservesInfo?.[0]) ?? 1 / 100;
 	const r_1 = getBorrowApy(poolInfo?.reservesInfo?.[1]) ?? 5 / 100;
@@ -79,25 +99,17 @@ export default function QuickView({
 	const r = 0.5 * (r_0 + r_1);
 	const perfIR = (-r * delay) / 365;
 
-	lpApy =
-		(1 +
-			perfHold +
-			leverage * perfFee +
-			leverage * perfIl +
-			(leverage - 1) * perfIR) **
-			annualization -
-		1;
+	// lpApy =
+	// 	(1 +
+	// 		perfHold +
+	// 		leverage * perfFee +
+	// 		leverage * perfIl +
+	// 		(leverage - 1) * perfIR) **
+	// 		annualization -
+	// 	1;
 
-	const lpVsHoldApy =
-		(1 + leverage * perfFee + leverage * perfIl + (leverage - 1) * perfIR) **
-			annualization -
-		1;
-		
 	// debugger;
-
-	feeApy = (1 + leverage * perfFee) ** annualization - 1;
-	ilApy = (1 + leverage * perfIl) ** annualization - 1;
-	const irApy = (1 + (leverage - 1) * perfIR) ** annualization - 1;
+	// const irApy = (1 + (leverage - 1) * perfIR) ** annualization - 1;
 
 	return (
 		<Card className="p-4">
