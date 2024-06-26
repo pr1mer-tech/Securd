@@ -76,12 +76,8 @@ export default function QuickView({
 	let holdApy =
 		((graph[graph.length - 1]?.HOLD ?? 0) - (graph[0]?.HOLD ?? 0)) /
 		(graph[0]?.HOLD ?? 0);
-	let feeApy =
-		((graph[graph.length - 1]?.Fee ?? 0) - (graph[0]?.Fee ?? 0)) /
-		(graph[0]?.Fee ?? 0);
-	let ilApy =
-		((graph[graph.length - 1]?.IL ?? 0) - (graph[0]?.IL ?? 0)) /
-		(graph[0]?.IL ?? 0);
+	let feeApy = (graph[graph.length - 1]?.Fee ?? 0) / (graph[0]?.HOLD ?? 0);
+	let ilApy = (graph[graph.length - 1]?.IL ?? 0) / (graph[0]?.HOLD ?? 0);
 	let lpVsHoldApy =
 		(graph[graph.length - 1]?.["LP vs Hold"] ?? 0) / (graph[0]?.HOLD ?? 0);
 

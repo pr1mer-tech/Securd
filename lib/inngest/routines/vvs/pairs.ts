@@ -391,7 +391,7 @@ async function calculateAPYs(
 						(val * fees * adj_fees * qty) / 100 / (data[i]?.totalSupply ?? 0),
 				);
 			_fees = [0.0, ..._fees];
-			const __fees = _fees.reduce((acc, val) => {
+			_fees = _fees.reduce((acc, val) => {
 				acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + val);
 				return acc;
 			}, [] as number[]);
@@ -406,7 +406,7 @@ async function calculateAPYs(
 				return qty * (qToken0 * price0 + qToken1 * price1);
 			});
 
-			const il = hold.map((val, i) => Math.min(plp[i] - __fees[i] - val, 0));
+			const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
 
 			const interest = Array.from(
 				{ length: delay },
@@ -414,25 +414,26 @@ async function calculateAPYs(
 			);
 			const L = 1;
 			const lp = data.map(
-				(_, i) => hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
+				(_, i) => hold[i] + L * _fees[i] + L * il[i] + (L - 1) * interest[i],
+			);
+			const lpVsHold = data.map(
+				(_, i) => L * _fees[i] + L * il[i] + (L - 1) * interest[i],
 			);
 
-			const holdReturn = hold[hold.length - 1] / hold[0] - 1;
-			const lpReturn = lp[lp.length - 1] / lp[0] - 1;
-			const sumFee = _fees.reduce((acc, val) => acc + val, 0)
-			const interestReturn = Math.min(plp[plp.length - 1] - sumFee - hold[hold.length - 1] / hold[0], 0);
-			const feesReturn = sumFee / hold[0];
-			const lpVsHoldReturn = feesReturn + interestReturn;
-			const ilReturn = (il[il.length - 1] + hold[0]) / hold[0] - 1;
+		
+			let holdApy = ((hold[hold.length - 1] - hold[0]) / hold[0])
+			let lpApy = ((lp[lp.length - 1] - lp[0]) / lp[0]);
+			let feesApy = _fees[_fees.length - 1] / hold[0];
+			let ilApy = il[il.length - 1] / hold[0];
+			let lpVsHoldApy = ((lpVsHold[lpVsHold.length - 1]) / hold[0]);
 
-			// Annualize the returns
-			const annualizationFactor = 365 / delay;
-			const holdApy = (1 + holdReturn) ** annualizationFactor - 1;
-			const lpApy = (1 + lpReturn) ** annualizationFactor - 1;
-			const lpVsHoldApy = (1 + lpVsHoldReturn) ** annualizationFactor - 1;
-			const interestApy = (1 + interestReturn) ** annualizationFactor - 1;
-			const feesApy = (1 + feesReturn) ** annualizationFactor - 1;
-			const ilApy = (1 + ilReturn) ** annualizationFactor - 1;
+			const annualization = 365 / delay;
+
+			lpApy = (1 + lpApy) ** annualization - 1;
+			holdApy = (1 + holdApy) ** annualization - 1;
+			feesApy = (1 + feesApy) ** annualization - 1;
+			ilApy = (1 + ilApy) ** annualization - 1;
+			lpVsHoldApy = (1 + lpVsHoldApy) ** annualization - 1;
 
 			// Assuming daily compounding (adjust 'n' based on your compounding frequency)
 			// const n = 365;
@@ -446,11 +447,11 @@ async function calculateAPYs(
 
 			if (
 				i === extendedPairDayData.length - 1 &&
-				delay === 365 &&
+				delay === 90 &&
 				analyticsResult?.pool_address.toLowerCase() ===
-					"0x814920d1b8007207db6cb5a2dd92bf0b082bdba1".toLowerCase()
+					"0x39cc0e14795a8e6e9d02a21091b81fe0d61d82f9".toLowerCase()
 			) {
-				debugger;
+				// debugger;
 				// Print for debug
 				console.log(
 					`Pair ${analyticsResult?.token_0?.token_symbol} / ${analyticsResult?.token_1?.token_symbol}`,
@@ -466,7 +467,6 @@ async function calculateAPYs(
 				console.log(`LP APY: ${lpApy}`);
 				console.log(`Fees APY: ${feesApy}`);
 				console.log(`LP vs Hold APY: ${lpVsHoldApy}`);
-				console.log(`Interest APY: ${interestApy}`);
 				console.log(`Impermanent Loss APY: ${ilApy}`);
 				console.log(`Delay: ${delay}`);
 			}
@@ -487,11 +487,11 @@ async function calculateAPYs(
 					extendedPairDayData[i].il_apy_1m = ilApy;
 					break;
 				case 90:
-					extendedPairDayData[i - delay].hold_apy_3m = holdApy;
-					extendedPairDayData[i - delay].lp_apy_3m = lpApy;
-					extendedPairDayData[i - delay].lp_versus_hold_apy_3m = lpVsHoldApy;
-					extendedPairDayData[i - delay].fees_apy_3m = feesApy;
-					extendedPairDayData[i - delay].il_apy_3m = ilApy;
+					extendedPairDayData[i].hold_apy_3m = holdApy;
+					extendedPairDayData[i].lp_apy_3m = lpApy;
+					extendedPairDayData[i].lp_versus_hold_apy_3m = lpVsHoldApy;
+					extendedPairDayData[i].fees_apy_3m = feesApy;
+					extendedPairDayData[i].il_apy_3m = ilApy;
 					break;
 				case 365:
 					extendedPairDayData[i].hold_apy_1y = holdApy;
@@ -590,8 +590,8 @@ function calculateScores(extendedPairDayData: ExtendedPairDayData[]) {
 			categorieVeV = 7;
 		}
 
-		volatilityScore[i - start] = currentVeV;
-		mrm[i - start] = categorieVeV ?? 0;
+		volatilityScore[i] = currentVeV;
+		mrm[i] = categorieVeV ?? 0;
 	}
 
 	for (let i = 0; i < extendedPairDayData.length; i++) {
