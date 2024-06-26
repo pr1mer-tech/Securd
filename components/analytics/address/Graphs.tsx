@@ -406,9 +406,9 @@ export function LP_HODL({
 
 	const result = infos.map((info, i) => ({
 		date: formatDate(info.date),
-		LP: hold[i] + L * _fees[i] + L * il[i] - (L - 1) * interest[i],
+		LP: hold[i] + L * _fees[i] + L * il[i] + (L - 1) * interest[i],
 		HOLD: hold[i],
-		"LP vs Hold": L * _fees[i] + L * il[i] - (L - 1) * interest[i],
+		"LP vs Hold": L * _fees[i] + L * il[i] + (L - 1) * interest[i],
 		// Inverse all the values
 		IL: L * il[i],
 		Interest: (L - 1) * interest[i],
