@@ -1,3 +1,6 @@
+// @ts-nocheck
+/* eslint-disable */
+
 import { formatEther } from "viem";
 
 const lendingPoolTransfers = [
@@ -13182,7 +13185,7 @@ console.log('Total Outgoing:', formatEther(outgoingAmount));
 console.log('Contract Balance:', formatEther(incomingAmount - outgoingAmount));
 
 // Analyze borrowers and their loans
-const borrowerTransactions = {};
+const borrowerTransactions: object = {};
 
 for (const tx of usdcTransfers) {
     const isBorrow = tx.from.address === CONTRACT_ADDRESS;
