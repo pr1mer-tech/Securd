@@ -1,11 +1,8 @@
 // @ts-nocheck
-import { abiLendingPool } from "@/lib/constants/abi/abiLendingPool";
 import { lendingPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import { erc20Abi, type Address } from "viem";
-import { readContract } from "wagmi/actions";
-import { useConfig, useReadContract, useReadContracts } from "wagmi";
-import { useEffect } from "react";
+import { useReadContracts } from "wagmi";
 
 export const useLendingPool = (preReservesInfo: ReserveInfo[], prices?: Record<keyof Coins, number>) => {
   const { data } = useReadContracts({

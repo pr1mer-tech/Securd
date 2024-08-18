@@ -1,8 +1,8 @@
 import { lendingPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import type { ReserveInfo } from "@/lib/types/save.types";
 import type { Address } from "viem";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 
 const useGetLenderSupply: (reserveInfos: ReserveInfo[]) => Record<Address, bigint> = (reserveInfos) => {
   const { isConnected, address } = useAccount();

@@ -1,12 +1,10 @@
 import type { CollateralInfos } from "@/lib/types/farm.types";
 import { collateralPriceContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 import type { CollateralAmountPrice } from "./useCollateralAmountPrice";
 import type { Address } from "viem";
-import { Proportions } from "lucide-react";
 
 const useGetCollateralProportions = (collateralInfos: CollateralInfos[], collateralAmountPrice: Record<Address, CollateralAmountPrice>) => {
-  const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
     contracts: collateralInfos.flatMap((info) => ([

@@ -1,6 +1,5 @@
 "use client";
 
-import { Blockchain, Pool } from "@/db/schema";
 import { useSaveStore } from "@/lib/data/saveStore";
 import useChainURL from "@/lib/hooks/useChain";
 import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
@@ -8,9 +7,7 @@ import useGetLenderSupply from "@/lib/hooks/wagmiSH/viewFunctions/useGetLenderSu
 import useLDtokens from "@/lib/hooks/wagmiSH/viewFunctions/useLDtokens";
 import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
 import type { ReserveInfo } from "@/lib/types/save.types";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useEffect } from "react";
 
 export default function SaveSync({
 	children,

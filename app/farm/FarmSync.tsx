@@ -1,7 +1,7 @@
 "use client";
 
 import {
-	Analytics,
+	type Analytics,
 	Blockchain,
 	type Dex,
 	type Pool,

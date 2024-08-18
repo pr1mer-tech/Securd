@@ -20,7 +20,7 @@ import { Card } from "../ui/card";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useSimulateContract } from "wagmi";
-import { BaseError } from "viem";
+import type { BaseError } from "viem";
 
 export type TransactionDetails = {
 	title: React.ReactNode;

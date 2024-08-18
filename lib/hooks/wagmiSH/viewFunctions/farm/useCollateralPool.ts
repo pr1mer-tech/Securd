@@ -2,7 +2,7 @@ import type { Analytics, Dex, Pool, Token } from "@/db/schema";
 import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
 import type { CollateralInfos, PoolType } from "@/lib/types/farm.types";
 import type { Address } from "viem";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 
 const useCollateralPool: (pools: (Pool & {
   token_0: Token | null,
@@ -10,7 +10,6 @@ const useCollateralPool: (pools: (Pool & {
   dex: Dex | null,
   analytics: Analytics[] | null,
 })[]) => CollateralInfos[] = (pools) => {
-  const { isConnected } = useAccount();
 
   const { data } = useReadContracts({
     contracts: pools.map((pool) => ({

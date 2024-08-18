@@ -7,10 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import {
-	getBorrowerPoolMaxLeverage,
 	getPairReservesInfos,
-	getTokensSymbol,
-	lpToLeverage,
 } from "@/lib/helpers/borrow.helpers";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import getPairBorrowBalances from "@/lib/hooks/getPairBorrowBalances";
@@ -20,9 +17,9 @@ import {
 } from "@/lib/hooks/pipelines/CollateralPipelineState";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import { useEffect, useState } from "react";
-import { useAccount, useConfig, useReadContract } from "wagmi";
+import { useConfig, useReadContract } from "wagmi";
 import { leverage as leveragePipeline } from "@/lib/hooks/pipelines/leverage";
-import { abiCollateralPool } from "@/lib/constants/abi/abiCollateralPool";
+import { useAccount } from "@/lib/hooks/bear/account";
 import { abiBorrowerData } from "@/lib/constants/abi/abiBorrowerData";
 
 export default function Leverage() {

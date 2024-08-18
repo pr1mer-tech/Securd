@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { ConnectKitButton } from "connectkit";

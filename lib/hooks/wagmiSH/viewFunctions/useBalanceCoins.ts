@@ -1,6 +1,8 @@
-import { useAccount, useBalance, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 import type { BalanceCoins } from "@/lib/types/save.types";
 import { type Address, erc20Abi, zeroAddress } from "viem";
+import { useAccount } from "../../bear/account";
+import { useBalance } from "../../bear/balance";
 
 const useBalanceCoins = (reservesInfo: { address: Address }[]) => {
   const { isConnected, address } = useAccount();

@@ -1,8 +1,8 @@
 "use client";
-import { useAccount, useReadContract, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 import { assetPriceOracleContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import { weiToEth } from "@/lib/helpers/main.helpers";
-import { AddressZero } from "@/lib/constants/constants";
+import { useAccount } from "../../bear/account";
 import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 
 const useAssetPriceOracle: (reservesInfo: ReserveInfo[]) => Record<keyof Coins, number> = (reservesInfo) => {

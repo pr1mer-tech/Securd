@@ -92,6 +92,15 @@ const Header = () => {
                     >
                         Farm
                     </Link>
+                    <Link
+                        href="/analytics"
+                        className={`block px-8 py-2 ${activeTab === ActiveTab.ANALYTICS
+                            ? "bg-securdWhite text-securdBlack"
+                            : "text-securdWhite"
+                            }`}
+                    >
+                        Analytics
+                    </Link>
                     <div className="px-8 pt-4">
                         <ConnectKitButton />
                     </div>

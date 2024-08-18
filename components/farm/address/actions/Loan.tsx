@@ -9,32 +9,25 @@ import {
 	MenuTabsTrigger,
 } from "@/components/ui/menu-tabs";
 import { Slider } from "@/components/ui/slider";
-import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { Separator } from "@radix-ui/react-separator";
 import { useEffect, useState } from "react";
 import { erc20Abi, formatUnits, parseUnits } from "viem";
-import PairIcon from "../../PairIcon";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-	useAccount,
 	useConfig,
 	useReadContract,
 	useReadContracts,
 } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import {
 	type CollateralPipelineState,
 	borrowPipelineState,
-	lockPipelineState,
 } from "@/lib/hooks/pipelines/CollateralPipelineState";
-import { lock } from "@/lib/hooks/pipelines/lock";
-import { withdraw } from "@/lib/hooks/pipelines/withdrawFarm";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	getMaximumBorrow,
 	getPairReservesInfos,
 	getTokensSymbol,
 } from "@/lib/helpers/borrow.helpers";

@@ -1,9 +1,9 @@
 import { abiUSDT } from "@/lib/constants/abi/abi";
 import type { BalanceLDToken } from "@/lib/types/global.types";
 import type { ReserveInfo } from "@/lib/types/save.types";
-import { useState } from "react";
 import type { Address } from "viem";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 
 const useLDtokens = (
 	// addressDToken: Address | undefined,

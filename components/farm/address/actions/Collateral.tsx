@@ -9,16 +9,16 @@ import {
 	MenuTabsTrigger,
 } from "@/components/ui/menu-tabs";
 import { Slider } from "@/components/ui/slider";
-import PercentageFormat from "@/components/utils/PercentageFormat";
 import SecurdFormat from "@/components/utils/SecurdFormat";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { Separator } from "@radix-ui/react-separator";
 import { useEffect, useState } from "react";
-import { Address, formatUnits, parseUnits } from "viem";
+import { type Address, formatUnits, parseUnits } from "viem";
 import PairIcon from "../../PairIcon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccount, useConfig, useReadContract } from "wagmi";
+import { useConfig, useReadContract } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 import { useValueEffect } from "@/lib/hooks/pipelines/useValueEffect";
 import {
 	type CollateralPipelineState,

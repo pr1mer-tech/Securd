@@ -1,9 +1,10 @@
 import type { CollateralInfos } from "@/lib/types/farm.types";
 import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 import type { Address } from "viem";
 import getUserCollateralsInfos from "@/lib/hooks/getUserCollateralsInfos";
 import type { CollateralAmountPrice } from "./useCollateralAmountPrice";
+import { useAccount } from "@/lib/hooks/bear/account";
 
 const useBorrowerLt: (collateralInfos: CollateralInfos[], collateralAmountPrice: Record<Address, CollateralAmountPrice>) => Record<Address, bigint> = (collateralInfos, collateralAmountPrice) => {
   const { isConnected, address } = useAccount();

@@ -1,6 +1,7 @@
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useSwitchChain } from "wagmi";
+import { useAccount } from "./bear/account";
 
 export default function useChainURL(chainId: string | undefined) {
     const [hydrated, setHydrated] = useState(false);

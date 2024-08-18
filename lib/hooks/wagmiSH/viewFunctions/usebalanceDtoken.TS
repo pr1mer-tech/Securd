@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { type Address, useAccount, useContractReads } from "wagmi";
+import { useContractReads } from "wagmi";
 import { abiUSDT } from "../../../constants/abi/abi";
+import type { Address } from "viem";
+import { useAccount } from "@/lib/hooks/bear/account";
 
 const useBalanceDtoken = (addressDToken: Address) => {
   const { isConnected, address } = useAccount();

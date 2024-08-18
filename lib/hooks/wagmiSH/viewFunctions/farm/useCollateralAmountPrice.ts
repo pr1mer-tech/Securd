@@ -1,7 +1,8 @@
 import { collateralPoolContract } from "@/lib/constants/wagmiConfig/wagmiConfig";
 import type { CollateralInfos, Debts } from "@/lib/types/farm.types";
 import type { Address } from "viem";
-import { useAccount, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 
 export type CollateralAmountPrice = {
   collateralAmount?: bigint;

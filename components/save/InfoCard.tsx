@@ -1,21 +1,16 @@
 "use client";
 
-import { useAccount } from "wagmi";
+import { useAccount } from "@/lib/hooks/bear/account";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { ConnectKitButton } from "connectkit";
 import { LoaderCircle } from "lucide-react";
-import { toNoDecimal, toFormattedPercentage, securdFormat } from "@/lib/helpers/numberFormat.helpers";
+import { securdFormat } from "@/lib/helpers/numberFormat.helpers";
 import QuestionMark from "@/assets/icons/question-mark.svg";
 import Image from "next/image";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import getUserTotalBalanceUSD from "@/lib/hooks/getUserTotalBalanceUSD";
-import useGetTotalDeposit from "@/lib/hooks/getTotalDeposit";
-import { useLendingPool } from "@/lib/hooks/wagmiSH/viewFunctions/useLendingPool";
-import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
 import { useMemo } from "react";
-import useGetTotalAverageApy from "@/lib/hooks/getTotalAverageApy";
-import useAssetPriceOracle from "@/lib/hooks/wagmiSH/viewFunctions/useAssetPriceOracle";
 import { useSaveStore } from "@/lib/data/saveStore";
 import getTotalDeposit from "@/lib/hooks/getTotalDeposit";
 import getTotalAverageApy from "@/lib/hooks/getTotalAverageApy";
