@@ -7,6 +7,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { ActiveTab } from "@/lib/types/enums";
 import { ConnectKitButton } from "connectkit";
 import { MenuIcon, XIcon } from "lucide-react";
+import { useConnect } from 'wagmi'
+import { Button } from "../ui/button";
+import { mock } from "wagmi/connectors";
 
 const Header = () => {
     const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.SAVE);
@@ -14,6 +17,8 @@ const Header = () => {
 
     const pathname = usePathname();
     const router = useRouter();
+    const { connect } = useConnect();
+    
 
     useEffect(() => {
         if (pathname?.includes("/save")) {
