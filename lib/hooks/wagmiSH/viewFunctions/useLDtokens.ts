@@ -38,10 +38,10 @@ const useLDtokens = (
 				functionName: "totalSupply",
 				args: [],
 			},
-		]) as any,
+		]),
 		query: {
-			enabled: isConnected,
-			refetchInterval: 10000,
+			// enabled: isConnected,
+			// refetchInterval: 10000,
 		},
 	});
 

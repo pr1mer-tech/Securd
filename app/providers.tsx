@@ -3,9 +3,19 @@
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { cronosTestnet, polygonMumbai } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConnectKitProvider, getDefaultConfig } from "connectkit";
+import { HyperGateProvider } from "@hyper-gate/react";
+import {
+	ConnectKitProvider,
+	getDefaultConfig as getDefaultHGConfig,
+} from "@hyper-gate/connectkit";
+import {
+	XummConnector,
+	GemConnector,
+	createConfig as createHGConfig,
+} from "@hyper-gate/core";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
+import { getDefaultConfig } from "connectkit";
 
 const config = createConfig(
 	getDefaultConfig({
@@ -33,18 +43,30 @@ const config = createConfig(
 	}),
 );
 
+const hgconfig = createHGConfig(
+	getDefaultHGConfig({
+		appName: "HyperGate Demo",
+		connectors: [
+			new XummConnector(process.env.NEXT_PUBLIC_XUMM_API_KEY ?? ""),
+			new GemConnector(),
+		],
+	}),
+);
+
 const queryClient = new QueryClient();
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<TooltipProvider>
 			<WagmiProvider config={config}>
-				<QueryClientProvider client={queryClient}>
-					<ConnectKitProvider>
-						{children}
-						<Toaster />
-					</ConnectKitProvider>
-				</QueryClientProvider>
+				<HyperGateProvider config={hgconfig}>
+					<QueryClientProvider client={queryClient}>
+						<ConnectKitProvider>
+							{children}
+							<Toaster />
+						</ConnectKitProvider>
+					</QueryClientProvider>
+				</HyperGateProvider>
 			</WagmiProvider>
 		</TooltipProvider>
 	);
