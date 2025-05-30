@@ -7,9 +7,9 @@ import { useAccount, useReadContracts } from "wagmi";
 const useGetLenderSupply: (
 	reserveInfos: ReserveInfo[],
 ) => Record<Address, bigint> = (reserveInfos) => {
-	const { isConnected, address } = useAccount();
+	const { address } = useAccount();
 
-	const { data, error } = useReadContracts({
+	const { data } = useReadContracts({
 		contracts: reserveInfos.map((reserve) => ({
 			...lendingPoolContract,
 			functionName: "getLenderSupply",
@@ -28,7 +28,7 @@ const useGetLenderSupply: (
 	return Object.fromEntries(
 		data.map((item, i) => [
 			reserveInfos[i].address,
-			BigInt(item.result as string),
+			BigInt(item.result ?? "0"),
 		]),
 	);
 };

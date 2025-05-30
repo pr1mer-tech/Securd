@@ -13,9 +13,11 @@ export const metadata = {
 
 export default async function Save({
 	searchParams,
-}: { searchParams: { [key: string]: string | string[] | undefined } }) {
-	const chain =
-		typeof searchParams.chain === "string" ? searchParams.chain : "1";
+}: {
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+	const params = await searchParams;
+	const chain = typeof params.chain === "string" ? params.chain : "338";
 	const pools = await db.query.blockchain.findFirst({
 		where: (row, { eq }) => eq(row.chain_id, Number(chain)),
 		with: {
@@ -41,8 +43,9 @@ export default async function Save({
 	const uniqueTokenList =
 		tokenList?.filter(
 			(token, index, self) =>
-				self.findIndex((t) => t?.token_address === token?.token_address) ===
-				index,
+				self.findIndex(
+					(t) => t?.token_address === token?.token_address,
+				) === index,
 		) ?? [];
 
 	const reservesInfo = await Promise.all(

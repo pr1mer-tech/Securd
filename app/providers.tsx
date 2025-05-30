@@ -1,9 +1,16 @@
 "use client";
 
-import { WagmiProvider, createConfig, http } from "wagmi";
+import {
+	WagmiProvider,
+	createConfig,
+	http,
+	mock,
+	useConnect,
+	useDisconnect,
+} from "wagmi";
 import { cronosTestnet, polygonMumbai } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HyperGateProvider } from "@hyper-gate/react";
+import { HyperGateProvider, useAccountEffect } from "@hyper-gate/react";
 import {
 	ConnectKitProvider,
 	getDefaultConfig as getDefaultHGConfig,
@@ -62,12 +69,32 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 				<HyperGateProvider config={hgconfig}>
 					<QueryClientProvider client={queryClient}>
 						<ConnectKitProvider>
-							{children}
-							<Toaster />
+							<HyperConnectSync>
+								{children}
+								<Toaster />
+							</HyperConnectSync>
 						</ConnectKitProvider>
 					</QueryClientProvider>
 				</HyperGateProvider>
 			</WagmiProvider>
 		</TooltipProvider>
 	);
+};
+
+const HyperConnectSync = ({ children }: { children: React.ReactNode }) => {
+	const { connect } = useConnect();
+	const { disconnect } = useDisconnect();
+	useAccountEffect({
+		onConnect: () => {
+			connect({
+				connector: mock({
+					accounts: ["0x492804D7740150378BE8d4bBF8ce012C5497DeA9"],
+				}),
+			});
+		},
+		onDisconnect: () => {
+			disconnect();
+		},
+	});
+	return children;
 };

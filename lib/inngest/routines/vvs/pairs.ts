@@ -68,7 +68,9 @@ async function runQuery(
 			throw e;
 		}
 	}
-	throw new Error(`Query failed. Return code is ${response.status}. ${query}`);
+	throw new Error(
+		`Query failed. Return code is ${response.status}. ${query}`,
+	);
 }
 
 export async function getPairDayData(
@@ -176,7 +178,9 @@ async function runQueryToken(
 			throw e;
 		}
 	}
-	throw new Error(`Query failed. Return code is ${response.status}. ${query}`);
+	throw new Error(
+		`Query failed. Return code is ${response.status}. ${query}`,
+	);
 }
 
 async function getTokenDayData(
@@ -381,14 +385,16 @@ async function calculateAPYs(
 				data.map((info, i) => {
 					const price0 = info.priceToken0inDollars ?? 0;
 
-					return info.dailyVolumeToken0 * price0 ?? 0;
+					return info.dailyVolumeToken0 * price0;
 				}) ?? [];
 
 			let _fees: number[] = totalVolume
 				.slice(1)
 				.map(
 					(val, i) =>
-						(val * fees * adj_fees * qty) / 100 / (data[i]?.totalSupply ?? 0),
+						(val * fees * adj_fees * qty) /
+						100 /
+						(data[i]?.totalSupply ?? 0),
 				);
 			_fees = [0.0, ..._fees];
 			_fees = _fees.reduce((acc, val) => {
@@ -397,8 +403,10 @@ async function calculateAPYs(
 			}, [] as number[]);
 
 			const hold: number[] = data.map((info, i) => {
-				const qToken0 = (data[0]?.reserve0 ?? 0) / (data[0]?.totalSupply ?? 0);
-				const qToken1 = (data[0]?.reserve1 ?? 0) / (data[0]?.totalSupply ?? 0);
+				const qToken0 =
+					(data[0]?.reserve0 ?? 0) / (data[0]?.totalSupply ?? 0);
+				const qToken1 =
+					(data[0]?.reserve1 ?? 0) / (data[0]?.totalSupply ?? 0);
 
 				const price0 = info.priceToken0inDollars ?? 0;
 				const price1 = info.priceToken1inDollars ?? 0;
@@ -406,7 +414,9 @@ async function calculateAPYs(
 				return qty * (qToken0 * price0 + qToken1 * price1);
 			});
 
-			const il = hold.map((val, i) => Math.min(plp[i] - _fees[i] - val, 0));
+			const il = hold.map((val, i) =>
+				Math.min(plp[i] - _fees[i] - val, 0),
+			);
 
 			const interest = Array.from(
 				{ length: delay },
@@ -414,18 +424,18 @@ async function calculateAPYs(
 			);
 			const L = 1;
 			const lp = data.map(
-				(_, i) => hold[i] + L * _fees[i] + L * il[i] + (L - 1) * interest[i],
+				(_, i) =>
+					hold[i] + L * _fees[i] + L * il[i] + (L - 1) * interest[i],
 			);
 			const lpVsHold = data.map(
 				(_, i) => L * _fees[i] + L * il[i] + (L - 1) * interest[i],
 			);
 
-		
-			let holdApy = ((hold[hold.length - 1] - hold[0]) / hold[0])
-			let lpApy = ((lp[lp.length - 1] - lp[0]) / lp[0]);
+			let holdApy = (hold[hold.length - 1] - hold[0]) / hold[0];
+			let lpApy = (lp[lp.length - 1] - lp[0]) / lp[0];
 			let feesApy = _fees[_fees.length - 1] / hold[0];
 			let ilApy = il[il.length - 1] / hold[0];
-			let lpVsHoldApy = ((lpVsHold[lpVsHold.length - 1]) / hold[0]);
+			let lpVsHoldApy = lpVsHold[lpVsHold.length - 1] / hold[0];
 
 			const annualization = 365 / delay;
 
@@ -536,14 +546,22 @@ function calculateScores(extendedPairDayData: ExtendedPairDayData[]) {
 			logReturnCurrent.reduce((sum, val) => sum + val, 0) /
 			logReturnCurrent.length;
 		const currentSigma = Math.sqrt(
-			logReturnCurrent.reduce((sum, val) => sum + (val - currentMean) ** 2, 0) /
-				logReturnCurrent.length,
+			logReturnCurrent.reduce(
+				(sum, val) => sum + (val - currentMean) ** 2,
+				0,
+			) / logReturnCurrent.length,
 		);
 		const currentS =
-			logReturnCurrent.reduce((sum, val) => sum + (val - currentMean) ** 3, 0) /
+			logReturnCurrent.reduce(
+				(sum, val) => sum + (val - currentMean) ** 3,
+				0,
+			) /
 			(logReturnCurrent.length * currentSigma ** 3);
 		const currentK =
-			logReturnCurrent.reduce((sum, val) => sum + (val - currentMean) ** 4, 0) /
+			logReturnCurrent.reduce(
+				(sum, val) => sum + (val - currentMean) ** 4,
+				0,
+			) /
 				(logReturnCurrent.length * currentSigma ** 4) -
 			3;
 
@@ -639,8 +657,16 @@ export async function updatePairDayData(
 		// };
 	});
 
-	console.log("token0DayData", token0DayData.length, token0DayData.slice(0, 5));
-	console.log("token1DayData", token1DayData.length, token1DayData.slice(0, 5));
+	console.log(
+		"token0DayData",
+		token0DayData.length,
+		token0DayData.slice(0, 5),
+	);
+	console.log(
+		"token1DayData",
+		token1DayData.length,
+		token1DayData.slice(0, 5),
+	);
 
 	const pairDayDataWithTotalVolume = calculateTotalVolume(updatedPairDayData);
 

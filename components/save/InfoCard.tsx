@@ -79,6 +79,8 @@ export const Info = ({
 );
 
 export default function InfoCard() {
+	"use no memo";
+
 	const { status } = useAccount();
 
 	const reservesInfo = useSaveStore.use.reservesInfo();
@@ -115,9 +117,7 @@ export default function InfoCard() {
 
 	return (
 		<>
-			{(status === "connected" || status === "reconnecting") && (
-				<h2 className="text-xl font-bold text-white mt-4">Summary</h2>
-			)}
+			<h2 className="text-xl font-bold text-white mt-4">Summary</h2>
 			<Card className="mt-4 p-4">
 				{status === "connected" || status === "reconnecting" ? (
 					<div className="flex flex-row justify-evenly">
@@ -150,12 +150,7 @@ export default function InfoCard() {
 							Connect your wallet to start saving today
 						</p>
 						<ConnectKitButton.Custom>
-							{({
-								show,
-								truncatedAddress,
-								ensName,
-								isConnecting,
-							}) => {
+							{({ show, isConnecting }) => {
 								return (
 									<Button
 										onClick={show}
