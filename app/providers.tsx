@@ -1,20 +1,10 @@
 "use client";
 
-import {
-	WagmiProvider,
-	createConfig,
-	http,
-	mock,
-	useConnect,
-	useDisconnect,
-} from "wagmi";
+import { WagmiProvider, createConfig, http } from "wagmi";
 import { cronosTestnet, polygonMumbai } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HyperGateProvider, useAccountEffect } from "@hyper-gate/react";
-import {
-	ConnectKitProvider,
-	getDefaultConfig as getDefaultHGConfig,
-} from "@hyper-gate/connectkit";
+import { HyperGateProvider } from "@hyper-gate/react";
+import { getDefaultConfig as getDefaultHGConfig } from "@hyper-gate/connectkit";
 import {
 	XummConnector,
 	GemConnector,
@@ -23,6 +13,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { getDefaultConfig } from "connectkit";
+import { HyperConnectSync } from "./sync";
 
 const config = createConfig(
 	getDefaultConfig({
@@ -68,33 +59,13 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 			<WagmiProvider config={config}>
 				<HyperGateProvider config={hgconfig}>
 					<QueryClientProvider client={queryClient}>
-						<ConnectKitProvider>
-							<HyperConnectSync>
-								{children}
-								<Toaster />
-							</HyperConnectSync>
-						</ConnectKitProvider>
+						<HyperConnectSync>
+							{children}
+							<Toaster />
+						</HyperConnectSync>
 					</QueryClientProvider>
 				</HyperGateProvider>
 			</WagmiProvider>
 		</TooltipProvider>
 	);
-};
-
-const HyperConnectSync = ({ children }: { children: React.ReactNode }) => {
-	const { connect } = useConnect();
-	const { disconnect } = useDisconnect();
-	useAccountEffect({
-		onConnect: () => {
-			connect({
-				connector: mock({
-					accounts: ["0x492804D7740150378BE8d4bBF8ce012C5497DeA9"],
-				}),
-			});
-		},
-		onDisconnect: () => {
-			disconnect();
-		},
-	});
-	return children;
 };
