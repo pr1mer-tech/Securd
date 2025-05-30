@@ -48,7 +48,9 @@ export const analyticsRoutine = inngest.createFunction(
 			});
 
 			const pairDataRaw = await Promise.all(_pairData);
-			const pairData = pairDataRaw.filter((data) => data !== null);
+			const pairData = pairDataRaw.filter(
+				(data): data is Exclude<typeof data, null> => data !== null,
+			);
 
 			// Helper function to split an array into chunks of a specified size
 			function chunk<T>(array: T[], size: number): T[][] {
