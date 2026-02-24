@@ -6,7 +6,7 @@ import BorrowIconPrimary from "@/assets/icons/borrow-icon-primary";
 import LeverageIconPrimary from "@/assets/icons/leverage-icon-primary";
 import Collateral from "./actions/Collateral";
 import Loan from "./actions/Loan";
-import Leverage from "./actions/Leverage";
+// import Leverage from "./actions/Leverage";
 import { useFarmAddressStore } from "@/lib/data/farmAddressStore";
 export default function Actions() {
     const collateralPrice = useFarmAddressStore.use.collateralAmountPrice?.();
@@ -19,14 +19,14 @@ export default function Actions() {
                 <LockIconPrimary className="block w-6 h-6" />
                 Collateral
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
                 value="leverage"
                 className="w-full h-28 rounded-md text-primary flex flex-col gap-1 border-2 border-primary data-[state=active]:bg-primary data-[state=active]:text-white"
                 disabled={(collateralPrice?.collateralAmount ?? 0n) === 0n}
             >
                 <LeverageIconPrimary className="block w-6 h-6" />
                 Leverage
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger
                 value="loan"
                 className="w-full h-28 rounded-md text-primary flex flex-col gap-1 border-2 border-primary data-[state=active]:bg-primary data-[state=active]:text-white"
@@ -39,9 +39,9 @@ export default function Actions() {
         <TabsContent value="collateral" className="mt-4">
             <Collateral />
         </TabsContent>
-        <TabsContent value="leverage" className="mt-4">
+        {/* <TabsContent value="leverage" className="mt-4">
             <Leverage />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="loan" className="mt-4">
             <Loan />
         </TabsContent>
