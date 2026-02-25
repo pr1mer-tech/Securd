@@ -3,34 +3,36 @@ import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
 export default function useChainURL(chainId: string | undefined) {
-    const [hydrated, setHydrated] = useState(false);
-    const { chain } = useAccount();
-    const { switchChain } = useSwitchChain();
-    const searchParams = useSearchParams();
-    const path = usePathname();
-    const router = useRouter()
+  const [hydrated, setHydrated] = useState(false);
+  const { chain } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const searchParams = useSearchParams();
+  const path = usePathname();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (hydrated) return;
-        if (typeof chain === "undefined") return;
-        if (chainId !== chain.id.toString()) {
-            switchChain({ chainId: Number(chainId) });
-        }
+  useEffect(() => {
+    if (hydrated) return;
+    if (typeof chain === "undefined") return;
+    if (chainId !== chain.id.toString()) {
+      switchChain({ chainId: Number(chainId) });
+    }
 
-        setHydrated(true);
-    }, [hydrated, chainId, chain, switchChain]);
+    setHydrated(true);
+  }, [hydrated, chainId, chain, switchChain]);
 
-    useEffect(() => {
-        if (!hydrated) return;
+  useEffect(() => {
+    if (!hydrated) return;
 
-        const newParams = new URLSearchParams(searchParams.toString());
-        if (chain) newParams.set('chain', chain.id.toString());
+    const currentChainParam = searchParams.get("chain");
+    const expectedChainId = chain?.id.toString();
 
-        // Just append the new params to the path.
-        router.replace(`${path}?${newParams.toString()}`, {
-            scroll: false
-        });
+    if (expectedChainId && currentChainParam !== expectedChainId) {
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.set("chain", expectedChainId);
 
-        console.log(`-> ${newParams.toString()}`);
-    }, [chain, hydrated, path, router, searchParams]);
+      router.replace(`${path}?${newParams.toString()}`, {
+        scroll: false,
+      });
+    }
+  }, [chain, hydrated, path, router, searchParams]);
 }

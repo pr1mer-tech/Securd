@@ -116,7 +116,7 @@ export default function InfoAddressCard() {
 
 	if (!reserveInfo || !coinPrice || !balanceLDToken) {
 		return (
-			<Skeleton className="w-full rounded-xl h-56 max-w-screen-xl mx-auto mt-8" />
+			<Skeleton className="w-full rounded-xl h-56 max-w-(--breakpoint-xl) mx-auto mt-8" />
 		);
 	}
 
@@ -159,7 +159,7 @@ export default function InfoAddressCard() {
 								resetInput();
 							}}
 						>
-							<MenuTabsList className="h-[3.25rem]">
+							<MenuTabsList className="h-13">
 								<MenuTabsTrigger value="deposit" className="p-6">
 									Deposit
 								</MenuTabsTrigger>

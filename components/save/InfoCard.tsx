@@ -111,7 +111,7 @@ export default function InfoCard() {
 
 	if (!reservesInfo || !coinPrices) {
 		return (
-			<Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />
+			<Skeleton className="w-full rounded-xl h-24 max-w-(--breakpoint-xl) mx-auto" />
 		);
 	}
 

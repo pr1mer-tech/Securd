@@ -3,20 +3,25 @@ import type { ReserveInfo } from "../types/save.types";
 import { getDtokenprice } from "../helpers/lenderPool.helpers";
 import getUserDToken from "./getUserDToken";
 
-const getUserDepositBalance = (reserveInfo: ReserveInfo | undefined, balanceLDToken: {
-  dToken: bigint;
-  lToken: bigint;
-}) => {
-  if (reserveInfo === undefined) {
-    return undefined;
+const getUserDepositBalance = (
+  reserveInfo: ReserveInfo | undefined,
+  balanceLDToken:
+    | {
+        dToken: bigint;
+        lToken: bigint;
+      }
+    | undefined,
+) => {
+  if (reserveInfo === undefined || balanceLDToken === undefined) {
+    return 0n;
   }
-  const dTokenPrice = getDtokenprice(reserveInfo)
+  const dTokenPrice = getDtokenprice(reserveInfo);
 
   const { userDTokenAmount } = getUserDToken(reserveInfo, balanceLDToken);
 
   const userDepositBalance =
     userDTokenAmount !== undefined && dTokenPrice !== undefined
-      ? (userDTokenAmount * dTokenPrice) / (10n ** BigInt(reserveInfo.decimals))
+      ? (userDTokenAmount * dTokenPrice) / 10n ** BigInt(reserveInfo.decimals)
       : 0n;
 
   return userDepositBalance;

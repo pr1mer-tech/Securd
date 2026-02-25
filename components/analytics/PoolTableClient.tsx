@@ -52,9 +52,8 @@ const columns: ColumnDef<PoolTableRows>[] = [
 			const qToken1 = row?.quantity_token_1 ?? 0;
 
 			const tvl =
-				qToken0 * (row?.pool?.token_0?.prices?.[0]?.price ?? 0) ??
-				0 + qToken1 * (row.pool?.token_1?.prices?.[0]?.price ?? 0) ??
-				0;
+				qToken0 * (row?.pool?.token_0?.prices?.[0]?.price ?? 0) +
+				qToken1 * (row.pool?.token_1?.prices?.[0]?.price ?? 0);
 
 			return tvl;
 		},

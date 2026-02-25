@@ -1,12 +1,6 @@
 "use client";
 
-import {
-	Analytics,
-	Blockchain,
-	type Dex,
-	type Pool,
-	type Token,
-} from "@/db/schema";
+import type { Analytics, Dex, Pool, Token } from "@/db/schema";
 import { useFarmStore } from "@/lib/data/farmStore";
 import useChainURL from "@/lib/hooks/useChain";
 import useBorrowerLt from "@/lib/hooks/wagmiSH/viewFunctions/farm/useBorrowerLt";
@@ -20,53 +14,64 @@ import type { ReserveInfo } from "@/lib/types/save.types";
 import { useEffect } from "react";
 
 export default function FarmSync({
-	children,
-	preReservesInfo,
-	pools,
-	chainId,
+  children,
+  preReservesInfo,
+  pools,
+  chainId,
 }: {
-	children: React.ReactNode;
-	preReservesInfo: ReserveInfo[];
-	pools: (Pool & {
-		token_0: Token | null;
-		token_1: Token | null;
-		dex: Dex | null;
-		analytics: Analytics[] | null;
-	})[];
-	chainId: string | undefined;
+  children: React.ReactNode;
+  preReservesInfo: ReserveInfo[];
+  pools: (Pool & {
+    token_0: Token | null;
+    token_1: Token | null;
+    dex: Dex | null;
+    analytics: Analytics[] | null;
+  })[];
+  chainId: string | undefined;
 }) {
-	useChainURL(chainId);
-	const coinPrices = useAssetPriceOracle(preReservesInfo);
-	const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
+  useChainURL(chainId);
+  const coinPrices = useAssetPriceOracle(preReservesInfo);
+  const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
 
-	const collateralsInfos = useCollateralPool(pools);
-	const collateralAmountPrice = useCollateralAmountPrice(collateralsInfos);
-	const borrowerLt = useBorrowerLt(collateralsInfos, collateralAmountPrice);
+  const collateralsInfos = useCollateralPool(pools);
+  const collateralAmountPrice = useCollateralAmountPrice(collateralsInfos);
+  const borrowerLt = useBorrowerLt(collateralsInfos, collateralAmountPrice);
 
-	const collateralPoolBalances = useCollateralPoolBalances(collateralsInfos);
-	const collateralProportions = useGetCollateralProportions(
-		collateralsInfos,
-		collateralAmountPrice,
-	);
+  const collateralPoolBalances = useCollateralPoolBalances(collateralsInfos);
+  const collateralProportions = useGetCollateralProportions(
+    collateralsInfos,
+    collateralAmountPrice,
+  );
 
-	useEffect(() => {
-		useFarmStore.setState({
-			reservesInfo,
-			collateralsInfos,
-			collateralAmountPrice,
-			coinPrices,
-			borrowerLt,
-			collateralPoolBalances,
-			collateralProportions,
-		});
-	}, [
-		reservesInfo,
-		collateralsInfos,
-		collateralAmountPrice,
-		coinPrices,
-		borrowerLt,
-		collateralPoolBalances,
-		collateralProportions,
-	]);
-	return children;
+  useEffect(() => {
+    useFarmStore.setState({
+      reservesInfo,
+      collateralsInfos,
+      collateralAmountPrice,
+      coinPrices,
+      borrowerLt,
+      collateralPoolBalances,
+      collateralProportions: Object.fromEntries(
+        Object.entries(collateralProportions).map(([key, value]) => [
+          key,
+          {
+            proportions: {
+              tokenA: value.proportions.tokenA ?? 0n,
+              tokenB: value.proportions.tokenB ?? 0n,
+            },
+            collateralPrice: value.collateralPrice ?? 0n,
+          },
+        ]),
+      ),
+    });
+  }, [
+    reservesInfo,
+    collateralsInfos,
+    collateralAmountPrice,
+    coinPrices,
+    borrowerLt,
+    collateralPoolBalances,
+    collateralProportions,
+  ]);
+  return children;
 }

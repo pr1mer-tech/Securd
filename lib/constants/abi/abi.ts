@@ -287,4 +287,4 @@ export const abiUSDT = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;

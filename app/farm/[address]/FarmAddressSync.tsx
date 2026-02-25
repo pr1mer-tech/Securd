@@ -17,67 +17,89 @@ import { useEffect } from "react";
 import type { Address } from "viem";
 
 export default function FarmAddressSync({
-	children,
-	address,
-	preReservesInfo,
-	pool,
-	chainId,
+  children,
+  address,
+  preReservesInfo,
+  pool,
+  chainId,
 }: {
-	children: React.ReactNode;
-	address: Address;
-	preReservesInfo: ReserveInfo[];
-	pool:
-		| (Pool & {
-				token_0: Token | null;
-				token_1: Token | null;
-				dex: Dex | null;
-				analytics: Analytics[] | null;
-		  })
-		| undefined;
-	chainId: string | undefined;
+  children: React.ReactNode;
+  address: Address;
+  preReservesInfo: ReserveInfo[];
+  pool:
+    | (Pool & {
+        token_0: Token | null;
+        token_1: Token | null;
+        dex: Dex | null;
+        analytics: Analytics[] | null;
+      })
+    | undefined;
+  chainId: string | undefined;
 }) {
-	useChainURL(chainId);
-	const coinPrices = useAssetPriceOracle(preReservesInfo);
-	const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
+  useChainURL(chainId);
+  const coinPrices = useAssetPriceOracle(preReservesInfo);
+  const { reservesInfo } = useLendingPool(preReservesInfo, coinPrices);
 
-	const collateralsInfos = useCollateralPool(pool ? [pool] : []);
+  const collateralsInfos = useCollateralPool(pool ? [pool] : []);
 
-	const collateralInfo = collateralsInfos.find(
-		(info) => info.addressLP === address,
-	);
-	const collateralAmountPrice = useCollateralAmountPrice(
-		collateralInfo ? [collateralInfo] : [],
-	);
-	const borrowerLt = useBorrowerLt(
-		collateralInfo ? [collateralInfo] : [],
-		collateralAmountPrice,
-	);
+  const collateralInfo = collateralsInfos.find(
+    (info) => info.addressLP === address,
+  );
+  const collateralAmountPrice = useCollateralAmountPrice(
+    collateralInfo ? [collateralInfo] : [],
+  );
+  const borrowerLt = useBorrowerLt(
+    collateralInfo ? [collateralInfo] : [],
+    collateralAmountPrice,
+  );
 
-	const collateralPoolBalances = useCollateralPoolBalances(
-		collateralInfo ? [collateralInfo] : [],
-	);
-	const collateralProportions = useGetCollateralProportions(
-		collateralInfo ? [collateralInfo] : [],
-		collateralAmountPrice,
-	);
-	const userBalance = useBalanceCoins(
-		collateralInfo ? [{ address: collateralInfo.addressLP }] : [],
-	);
+  const collateralPoolBalances = useCollateralPoolBalances(
+    collateralInfo ? [collateralInfo] : [],
+  );
+  const collateralProportions = useGetCollateralProportions(
+    collateralInfo ? [collateralInfo] : [],
+    collateralAmountPrice,
+  );
+  const userBalance = useBalanceCoins(
+    collateralInfo ? [{ address: collateralInfo.addressLP }] : [],
+  );
 
-	const { balanceLDTokens } = useLDtokens(reservesInfo ? reservesInfo : []);
+  const { balanceLDTokens } = useLDtokens(reservesInfo ? reservesInfo : []);
 
-	useEffect(() => {
-		useFarmAddressStore.setState({
-			reservesInfo,
-			collateralInfo,
-			collateralAmountPrice: collateralAmountPrice[address],
-			coinPrices,
-			balanceLDTokens,
-			borrowerLt: borrowerLt[address],
-			collateralPoolBalance: collateralPoolBalances[address],
-			collateralProportions: collateralProportions[address],
-			userBalance: userBalance[address],
-		});
-	}, [reservesInfo, collateralInfo, collateralAmountPrice, coinPrices, borrowerLt, collateralPoolBalances, address, collateralProportions, userBalance, balanceLDTokens]);
-	return children;
+  useEffect(() => {
+    useFarmAddressStore.setState({
+      reservesInfo,
+      collateralInfo,
+      collateralAmountPrice: collateralAmountPrice[address] ?? {},
+      coinPrices,
+      balanceLDTokens,
+      borrowerLt: borrowerLt[address] ?? 0n,
+      collateralProportions: collateralProportions[address]
+        ? {
+            proportions: {
+              tokenA: collateralProportions[address]?.proportions.tokenA ?? 0n,
+              tokenB: collateralProportions[address]?.proportions.tokenB ?? 0n,
+            },
+            collateralPrice:
+              collateralProportions[address]?.collateralPrice ?? 0n,
+          }
+        : {
+            proportions: { tokenA: 0n, tokenB: 0n },
+            collateralPrice: 0n,
+          },
+      userBalance: userBalance[address] ?? 0n,
+    });
+  }, [
+    reservesInfo,
+    collateralInfo,
+    collateralAmountPrice,
+    coinPrices,
+    borrowerLt,
+    collateralPoolBalances,
+    address,
+    collateralProportions,
+    userBalance,
+    balanceLDTokens,
+  ]);
+  return children;
 }

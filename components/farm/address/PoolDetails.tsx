@@ -115,7 +115,7 @@ export default function PoolDetails() {
 		<>
 			<h2 className="text-2xl font-bold text-primary mt-4">Pool Details</h2>
 			<MenuTabs className="mt-8" defaultValue="pool">
-				<MenuTabsList className="h-[4.25rem]">
+				<MenuTabsList className="h-17">
 					<MenuTabsTrigger value="pool" className="p-8">
 						{collateralInfo?.symbol}
 					</MenuTabsTrigger>

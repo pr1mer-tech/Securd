@@ -129,7 +129,7 @@ export default function Collateral() {
 						resetInput();
 					}}
 				>
-					<MenuTabsList className="h-[3.25rem]">
+					<MenuTabsList className="h-13">
 						<MenuTabsTrigger value="lock" className="p-6">
 							Lock
 						</MenuTabsTrigger>
@@ -164,7 +164,7 @@ export default function Collateral() {
 								userCollateralsInfo={collateralInfo}
 								size="small"
 								symbol={false}
-								className="translate-y-[0.375rem] ml-1"
+								className="translate-y-1.5 ml-1"
 							/>
 						) : (
 							<Skeleton className="w-8 h-6" />
@@ -197,7 +197,7 @@ export default function Collateral() {
 								userCollateralsInfo={collateralInfo}
 								size="small"
 								symbol={false}
-								className="translate-y-[0.375rem] ml-1"
+								className="translate-y-1.5 ml-1"
 							/>
 						) : (
 							<Skeleton className="w-8 h-6" />

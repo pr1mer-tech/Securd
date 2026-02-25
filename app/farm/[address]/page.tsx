@@ -13,13 +13,15 @@ export default async function FarmAddress({
 	params,
 	searchParams,
 }: {
-	params: { address: Address };
-	searchParams: { [key: string]: string | string[] | undefined };
+	params: Promise<{ address: Address }>;
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+	const { address } = await params;
+	const resolvedSearchParams = await searchParams;
 	const chain =
-		typeof searchParams.chain === "string" ? searchParams.chain : "1";
+		typeof resolvedSearchParams.chain === "string" ? resolvedSearchParams.chain : "1";
 	const _token = await db.query.pool.findFirst({
-		where: (row, { eq }) => eq(row.pool_address, params.address),
+		where: (row, { eq }) => eq(row.pool_address, address),
 		with: {
 			token_0: true,
 			token_1: true,
@@ -52,7 +54,7 @@ export default async function FarmAddress({
 
 	return (
 		<FarmAddressSync
-			address={params.address}
+			address={address}
 			pool={token}
 			preReservesInfo={reservesInfo}
 			chainId={chain}

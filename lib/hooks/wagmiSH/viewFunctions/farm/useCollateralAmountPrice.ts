@@ -15,7 +15,7 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
   const { isConnected, address } = useAccount();
 
   const { data } = useReadContracts({
-    contracts: collateralInfos.flatMap(info => ([
+    contracts: collateralInfos.flatMap((info) => [
       {
         ...collateralPoolContract,
         functionName: "borrowerBalances",
@@ -36,7 +36,7 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
         functionName: "getLeverageFactor",
         args: [address, info.addressLP],
       },
-    ])),
+    ]),
     query: {
       enabled: isConnected,
       refetchInterval: 10000,
@@ -51,17 +51,21 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
     collateralInfos
       .filter((info, index) => {
         const baseIndex = index * 4;
+        const result = data[baseIndex]?.result;
         return (
-          Array.isArray(data[baseIndex].result) &&
-          (data[baseIndex].result as unknown as any[]).length === 3
+          Array.isArray(result) && (result as unknown as any[]).length === 3
         );
       })
       .map((info, index) => {
         const baseIndex = index * 4;
-        const [collateralAmount, tokenA, tokenB] = data[baseIndex].result as unknown as [bigint, bigint, bigint];
-        const collateralValue = data[baseIndex + 1].result;
-        const collateralFactor = data[baseIndex + 2].result;
-        const leverageFactor = data[baseIndex + 3].result;
+        const result0 = data[baseIndex]?.result;
+        const [collateralAmount, tokenA, tokenB] = Array.isArray(result0)
+          ? (result0 as unknown as [bigint, bigint, bigint])
+          : [0n, 0n, 0n];
+
+        const collateralValue = data[baseIndex + 1]?.result;
+        const collateralFactor = data[baseIndex + 2]?.result;
+        const leverageFactor = data[baseIndex + 3]?.result;
 
         return [
           info.addressLP,
@@ -76,7 +80,7 @@ const useCollateralAmountPrice = (collateralInfos: CollateralInfos[]) => {
             leverageFactor,
           },
         ];
-      })
+      }),
   );
 
   return collateralAmountPrice as Record<Address, CollateralAmountPrice>;

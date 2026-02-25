@@ -124,7 +124,7 @@ export default function InfoCard() {
 		!collateralAmountPrice
 	) {
 		return (
-			<Skeleton className="w-full rounded-xl h-24 max-w-screen-xl mx-auto" />
+			<Skeleton className="w-full rounded-xl h-24 max-w-(--breakpoint-xl) mx-auto" />
 		);
 	}
 

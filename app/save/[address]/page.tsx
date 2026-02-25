@@ -8,10 +8,12 @@ import PoolDetails from "@/components/save/address/PoolDetails";
 import { db } from "@/db/db";
 import { tokenToReserveInfo } from "@/lib/helpers/analytics.helper";
 
-export default async function SaveAddress({ params, searchParams }: { params: { address: Address }; searchParams: { [key: string]: string | string[] | undefined } }) {
-    const chain = typeof searchParams.chain === "string" ? searchParams.chain : "1"
+export default async function SaveAddress({ params, searchParams }: { params: Promise<{ address: Address }>; searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+    const { address } = await params;
+    const resolvedSearchParams = await searchParams;
+    const chain = typeof resolvedSearchParams.chain === "string" ? resolvedSearchParams.chain : "1"
     const token = await db.query.token.findFirst({
-        where: (row, { eq }) => eq(row.token_address, params.address),
+        where: (row, { eq }) => eq(row.token_address, address),
         with: {
             blockchain: true
         }
@@ -19,7 +21,7 @@ export default async function SaveAddress({ params, searchParams }: { params: { 
 
     const reservesInfo = await tokenToReserveInfo(token, token?.blockchain);
 
-    return <SaveAddressSync address={params.address} preReservesInfo={[reservesInfo]} chainId={chain}>
+    return <SaveAddressSync address={address} preReservesInfo={[reservesInfo]} chainId={chain}>
         <Link href="/save" className="absolute left-5 top-5 text-white text-lg flex flex-row gap-2 items-center font-poppins hover:scale-110">
             <ArrowLeft className="w-6 h-6" />
             Back

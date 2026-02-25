@@ -43,12 +43,10 @@ export default function QuickView({
 	const tvlDollars =
 		qToken0 *
 			(poolInfo?.token_0?.prices?.[poolInfo?.token_0?.prices?.length - 1]
-				?.price ?? 0) ??
-		0 +
-			qToken1 *
-				(poolInfo?.token_1?.prices?.[poolInfo?.token_1?.prices?.length - 1]
-					?.price ?? 0) ??
-		0;
+				?.price ?? 0) +
+		qToken1 *
+			(poolInfo?.token_1?.prices?.[poolInfo?.token_1?.prices?.length - 1]
+				?.price ?? 0);
 
 	// let lpApy = lastAnalytics?.[`lp_apy_${timeRange}`] ?? 0;
 	// const holdApy = lastAnalytics?.[`hold_apy_${timeRange}`] ?? 0;
@@ -110,7 +108,7 @@ export default function QuickView({
 	return (
 		<Card className="p-4">
 			<div className="flex justify-between">
-				<MenuTabsList className="h-[3.25rem]">
+				<MenuTabsList className="h-13">
 					<MenuTabsTrigger value="pool" className="p-6">
 						Pool
 					</MenuTabsTrigger>
