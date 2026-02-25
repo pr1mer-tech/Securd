@@ -42,7 +42,6 @@ const breakpoints = {
 };
 
 export function useBreakpoint<K extends string>(breakpointKey: K) {
-  //@ts-expect-error - This is a hack to get the value of the breakpoint
   const breakpointValue =
     breakpoints[breakpointKey as keyof typeof breakpoints];
   const bool = useMediaQuery(`(max-width: ${breakpointValue})`);

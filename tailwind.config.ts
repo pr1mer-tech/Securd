@@ -1,4 +1,3 @@
-import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
 
 const { blue, gray, white } = colors;
@@ -14,7 +13,7 @@ const defaultSans = [
 ];
 
 const config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -210,5 +209,5 @@ const config = {
     require("@headlessui/tailwindcss"),
     require("@tailwindcss/forms"),
   ],
-} satisfies Config;
+} as any;
 export default config;
