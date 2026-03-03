@@ -18,11 +18,12 @@ export const HyperConnectSync = ({
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   useAccountEffect({
-    onConnect: () => {
+    onConnect: (data) => {
       connect({
         connector: mock({
-          accounts: ["0x492804D7740150378BE8d4bBF8ce012C5497DeA9"],
+          accounts: [data.address as `0x${string}`],
         }),
+        chainId: data.chainId,
       });
     },
     onDisconnect: () => {

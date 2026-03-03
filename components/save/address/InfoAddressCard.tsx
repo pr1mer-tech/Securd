@@ -54,7 +54,7 @@ export default function InfoAddressCard() {
 	const userBalance = useSaveAddressStore.use.userBalance?.();
 	const liquidity = getPoolLiquidity(reserveInfo);
 
-	const [menu, setMenu] = useState<"deposit" | "withdraw">("deposit");
+	const [menu, setMenu] = useState<"supply" | "withdraw">("supply");
 	const [amount, setAmount] = useState<bigint>(0n);
 	const [amountInput, setAmountInput] = useState<string>("");
 	const resetInput = () => {
@@ -68,7 +68,7 @@ export default function InfoAddressCard() {
 	const min = (a: bigint | undefined, b: bigint | undefined) =>
 		!a || !b ? undefined : a < b ? a : b;
 	const sliderBase =
-		menu === "deposit" ? userBalance : min(userDepositBalance, liquidity);
+		menu === "supply" ? userBalance : min(userDepositBalance, liquidity);
 
 	const config = useConfig();
 	const [pipeline, nextStep, resetPipeline, setPipeline] =
@@ -77,7 +77,7 @@ export default function InfoAddressCard() {
 	useEffect(() => {
 		if (reserveInfo) {
 			setPipeline(
-				menu === "deposit"
+				menu === "supply"
 					? deposit(
 							config,
 							reserveInfo,
@@ -139,10 +139,10 @@ export default function InfoAddressCard() {
 				<div className="flex flex-col gap-2 p-6 w-full md:w-3/5">
 					<div className="flex flex-row justify-between items-center w-full">
 						<h2 className="text-2xl font-bold text-primary">
-							Deposit / Withdraw
+							Supply / Withdraw
 						</h2>
 						<div className="text-lg">
-							Savings APY
+							Earn APY
 							<Help>Current yield for this account</Help>
 							<PercentageFormat
 								className="text-2xl font-bold inline ml-2"
@@ -155,20 +155,20 @@ export default function InfoAddressCard() {
 						<MenuTabs
 							value={menu}
 							onValueChange={(value) => {
-								setMenu(value as "deposit" | "withdraw");
+								setMenu(value as "supply" | "withdraw");
 								resetInput();
 							}}
 						>
 							<MenuTabsList className="h-13">
-								<MenuTabsTrigger value="deposit" className="p-6">
-									Deposit
+								<MenuTabsTrigger value="supply" className="p-6">
+									Supply
 								</MenuTabsTrigger>
 								<MenuTabsTrigger value="withdraw" className="p-6">
 									Withdraw
 								</MenuTabsTrigger>
 							</MenuTabsList>
 						</MenuTabs>
-						{menu === "deposit" ? (
+						{menu === "supply" ? (
 							<div className="text-md">
 								Wallet Balance
 								<Help>Amount of this asset in your wallet</Help>

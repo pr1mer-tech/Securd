@@ -44,7 +44,7 @@ export default function PoolDetails() {
 							(bigIntToDecimal(lendingPool, reserveInfo.decimals) ?? 0) *
 							(coinPrice ?? 0)
 						}
-						name="lending pool"
+						name="total earning"
 						tooltip="Total Savings value (Deposit+Interest) for all depositors of this asset"
 					/>
 					<Info
@@ -54,7 +54,7 @@ export default function PoolDetails() {
 							(bigIntToDecimal(deposit, reserveInfo.decimals) ?? 0) *
 							(coinPrice ?? 0)
 						}
-						name="deposit"
+						name="total supply"
 						tooltip="Total deposited amount for all depositors of this asset"
 					/>
 					<Info
@@ -64,7 +64,7 @@ export default function PoolDetails() {
 							(bigIntToDecimal(interest, reserveInfo.decimals) ?? 0) *
 							(coinPrice ?? 0)
 						}
-						name="interest"
+						name="total accrued interest"
 						tooltip="Total accrued interest for all depositors of this asset"
 					/>
 					<Info
@@ -74,7 +74,7 @@ export default function PoolDetails() {
 							(bigIntToDecimal(liquidity, reserveInfo.decimals) ?? 0) *
 							(coinPrice ?? 0)
 						}
-						name="liquidity"
+						name="total liquidity"
 						tooltip="Amount of this asset available for immediate withdrawal"
 					/>
 					<Info
@@ -85,7 +85,7 @@ export default function PoolDetails() {
 					/>
 					<Info
 						value={savingsApy}
-						name="savings apy"
+						name="earn apy"
 						type="percentage"
 						tooltip="Current yield for this asset"
 					/>

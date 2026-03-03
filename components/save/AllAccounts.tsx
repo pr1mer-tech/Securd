@@ -29,7 +29,7 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import GridIconBlack from "@/assets/icons/grid-icon-black.svg";
 import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { ArrowDown, ArrowUp, Search } from "lucide-react";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useBreakpoint } from "@/lib/media-queries";
 
@@ -70,7 +70,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     },
     header: ({ column }) => (
       <>
-        Lending Pool
+        Total Earning
         <Help>
           Total Savings value (Deposit+Interest) for all depositors of this
           asset
@@ -85,13 +85,15 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         row.original.decimals,
       );
       const price = coinPrices[row.original.symbol as keyof Coins];
+      const usdValue = (depositBalance ?? 0) * price;
+      const usdDecimals = usdValue < 100 ? 2 : 0;
       return (
         <div className="flex flex-col">
           <div className="text-xl font-bold">
-            {securdFormat(depositBalance, 2)}
+            ${securdFormat(usdValue, usdDecimals)}
           </div>
           <div className="text-sm text-secondary">
-            ${securdFormat((depositBalance ?? 0) * price)}
+            {securdFormat(depositBalance, 2)} {row.original.symbol}
           </div>
         </div>
       );
@@ -102,7 +104,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     accessorFn: (row) => getDeposit(row),
     header: ({ column }) => (
       <>
-        Deposit
+        Total Supply
         <Help>Total deposited amount for all depositors of this asset</Help>
       </>
     ),
@@ -113,13 +115,15 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         row.original.decimals,
       );
       const price = coinPrices[row.original.symbol as keyof Coins];
+      const usdValue = (globalDeposit ?? 0) * price;
+      const usdDecimals = usdValue < 100 ? 2 : 0;
       return (
         <div className="flex flex-col">
           <div className="text-xl font-bold">
             {securdFormat(globalDeposit, 2)}
           </div>
           <div className="text-sm text-secondary">
-            ${securdFormat((globalDeposit ?? 0) * price)}
+            ${securdFormat(usdValue, usdDecimals)}
           </div>
         </div>
       );
@@ -131,7 +135,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
       getInterestAmount(getDepositBalance(row), getDeposit(row)),
     header: ({ column }) => (
       <>
-        Interest
+        Total Accrued Interest
         <Help>Total accrued interest for all depositors of this asset</Help>
       </>
     ),
@@ -143,13 +147,15 @@ export const columns: ColumnDef<ReserveInfo>[] = [
         row.original.decimals,
       );
       const price = coinPrices[row.original.symbol as keyof Coins];
+      const usdValue = (globalInterest ?? 0) * price;
+      const usdDecimals = usdValue < 100 ? 2 : 0;
       return (
         <div className="flex flex-col">
           <div className="text-xl font-bold">
             {securdFormat(globalInterest, 2)}
           </div>
           <div className="text-sm text-secondary">
-            ${securdFormat((globalInterest ?? 0) * price)}
+            ${securdFormat(usdValue, usdDecimals)}
           </div>
         </div>
       );
@@ -160,7 +166,7 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     accessorFn: (row) => getPoolLiquidity(row),
     header: ({ column }) => (
       <>
-        Liquidity
+        Total Liquidity
         <Help>Amount of this asset available for immediate withdrawal</Help>
       </>
     ),
@@ -169,11 +175,13 @@ export const columns: ColumnDef<ReserveInfo>[] = [
       const _liquidity = row.getValue("liquidity") as bigint;
       const liquidity = bigIntToDecimal(_liquidity, row.original.decimals);
       const price = coinPrices[row.original.symbol as keyof Coins];
+      const usdValue = (liquidity ?? 0) * price;
+      const usdDecimals = usdValue < 100 ? 2 : 0;
       return (
         <div className="flex flex-col">
           <div className="text-xl font-bold">{securdFormat(liquidity, 2)}</div>
           <div className="text-sm text-secondary">
-            ${securdFormat((liquidity ?? 0) * price)}
+            ${securdFormat(usdValue, usdDecimals)}
           </div>
         </div>
       );
@@ -199,9 +207,21 @@ export const columns: ColumnDef<ReserveInfo>[] = [
   {
     id: "savingsApy",
     accessorFn: (row) => getSavingApy(row),
+    sortUndefined: "last",
+    sortingFn: (a, b) => {
+      const valueA = a.getValue("savingsApy");
+      const valueB = b.getValue("savingsApy");
+
+      const numA =
+        typeof valueA === "number" && !Number.isNaN(valueA) ? valueA : 0;
+      const numB =
+        typeof valueB === "number" && !Number.isNaN(valueB) ? valueB : 0;
+
+      return numA > numB ? 1 : numA < numB ? -1 : 0;
+    },
     header: ({ column }) => (
       <>
-        Savings APY
+        Earn APY
         <Help>Current yield for this asset</Help>
       </>
     ),
@@ -232,6 +252,24 @@ export default function AllAccounts() {
     }
   }, [isAboveMd]);
 
+  const getSortFor = (columnId: string) =>
+    sorting.find((s) => s.id === columnId);
+
+  const toggleSortFor = (columnId: string) => {
+    const current = getSortFor(columnId);
+    if (!current) {
+      setSorting([{ id: columnId, desc: true }]);
+      return;
+    }
+
+    if (current.desc) {
+      setSorting([{ id: columnId, desc: false }]);
+      return;
+    }
+
+    setSorting([]);
+  };
+
   return (
     <Tabs value={mode} onValueChange={(v) => setMode(v as "table" | "grid")}>
       <div className="mt-4 mb-16">
@@ -254,32 +292,46 @@ export default function AllAccounts() {
             <Button
               className={cn(
                 "ml-2 rounded-full px-2 h-6",
-                sorting[0]?.id === "savingsApy"
+                getSortFor("savingsApy")
                   ? "bg-securdPrimary text-white"
                   : "bg-secondary",
               )}
-              onClick={() =>
-                sorting[0]?.id === "savingsApy"
-                  ? setSorting([])
-                  : setSorting([{ id: "savingsApy", desc: true }])
-              }
+              onClick={() => toggleSortFor("savingsApy")}
             >
-              APY
+              <span className="inline-flex items-center gap-1">
+                APY
+                {(() => {
+                  const s = getSortFor("savingsApy");
+                  if (!s) return null;
+                  return s.desc ? (
+                    <ArrowDown className="w-3 h-3" />
+                  ) : (
+                    <ArrowUp className="w-3 h-3" />
+                  );
+                })()}
+              </span>
             </Button>
             <Button
               className={cn(
                 "ml-2 rounded-full px-2 h-6",
-                sorting[0]?.id === "lendingPool"
+                getSortFor("lendingPool")
                   ? "bg-securdPrimary text-white"
                   : "bg-secondary",
               )}
-              onClick={() =>
-                sorting[0]?.id === "lendingPool"
-                  ? setSorting([])
-                  : setSorting([{ id: "lendingPool", desc: true }])
-              }
+              onClick={() => toggleSortFor("lendingPool")}
             >
-              Lending Pool
+              <span className="inline-flex items-center gap-1">
+                Lending Pool
+                {(() => {
+                  const s = getSortFor("lendingPool");
+                  if (!s) return null;
+                  return s.desc ? (
+                    <ArrowDown className="w-3 h-3" />
+                  ) : (
+                    <ArrowUp className="w-3 h-3" />
+                  );
+                })()}
+              </span>
             </Button>
           </div>
           <div className="relative flex items-center">

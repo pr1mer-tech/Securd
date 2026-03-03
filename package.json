@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@gemwallet/api": "^3.8.0",
     "@headlessui/react": "^1.7.18",
     "@headlessui/tailwindcss": "^0.2.0",
     "@hyper-gate/connectkit": "^0.1.1",

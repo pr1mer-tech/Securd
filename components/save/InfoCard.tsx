@@ -123,22 +123,22 @@ export default function InfoCard() {
 					<div className="flex flex-row justify-evenly">
 						<Info
 							value={totalUserBalance}
-							name="balance"
+							name="total balance"
 							tooltip="Total Savings value (Deposit+Interest) in all your accounts"
 						/>
 						<Info
 							value={totalUserDeposit}
-							name="deposit"
+							name="total earning"
 							tooltip="Total deposited amount in all your accounts"
 						/>
 						<Info
 							value={totalInterest}
-							name="interest"
+							name="total accrued interest"
 							tooltip="Total accrued interest in all your accounts"
 						/>
 						<Info
 							value={averageApy}
-							name="average apy"
+							name="earn apy"
 							type="percentage"
 							tooltip="Current average yield in all your accounts"
 						/>

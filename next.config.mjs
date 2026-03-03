@@ -30,8 +30,7 @@ const nextConfig = {
     "lokijs",
     "encoding",
     "bufferutil",
-    "utf-8-validate",
-    "websocket",
+    "utf-8-validate"
   ],
   turbopack: {
     resolveAlias: {

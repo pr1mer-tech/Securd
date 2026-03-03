@@ -45,7 +45,7 @@ export function AccountTable({
             </TableRow>
             <TableRow>
                 <TableCell className="font-normal pl-0">
-                    Deposit
+                    Supply
                     <Help>
                         Deposited amount in this account
                     </Help>
@@ -62,7 +62,7 @@ export function AccountTable({
             </TableRow>
             <TableRow>
                 <TableCell className="font-normal pl-0">
-                    Interest
+                    Accrued Interest
                     <Help>
                         Accrued interest in this account
                     </Help>

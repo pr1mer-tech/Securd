@@ -153,7 +153,7 @@ export default function InfoCard() {
 						/>
 						<Info
 							value={averageApy}
-							name="average apy"
+							name="average annual yield"
 							type="percentage"
 							tooltip="Current average yield of the position (Collateral - Loan) in all your accounts"
 						/>
