@@ -23,20 +23,37 @@ import { useSaveStore } from "@/lib/data/saveStore";
 import { DataTable } from "../layout/DataTable";
 import { getInterestAmount } from "@/lib/helpers/lenderDeposit.helpers";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import GridIconBlack from "@/assets/icons/grid-icon-black.svg";
 import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
 import { Input } from "../ui/input";
-import { ArrowDown, ArrowUp, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useBreakpoint } from "@/lib/media-queries";
 
 export const columns: ColumnDef<ReserveInfo>[] = [
   {
     accessorKey: "symbol",
-    header: "Asset",
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Asset</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+        </button>
+      );
+    },
     cell: ({ row }) => (
       <div className="flex flex-row items-center">
         <Image
@@ -68,15 +85,30 @@ export const columns: ColumnDef<ReserveInfo>[] = [
 
       return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
     },
-    header: ({ column }) => (
-      <>
-        Total Earning
-        <Help>
-          Total Savings value (Deposit+Interest) for all depositors of this
-          asset
-        </Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Total Earning</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>
+            Total Savings value (Deposit+Interest) for all depositors of this
+            asset
+          </Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const coinPrices = useSaveStore.use.coinPrices();
       const _depositBalance = row.getValue("lendingPool") as bigint;
@@ -102,12 +134,27 @@ export const columns: ColumnDef<ReserveInfo>[] = [
   {
     id: "deposit",
     accessorFn: (row) => getDeposit(row),
-    header: ({ column }) => (
-      <>
-        Total Supply
-        <Help>Total deposited amount for all depositors of this asset</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Total Supply</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Total deposited amount for all depositors of this asset</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const coinPrices = useSaveStore.use.coinPrices();
       const globalDeposit = bigIntToDecimal(
@@ -133,12 +180,27 @@ export const columns: ColumnDef<ReserveInfo>[] = [
     id: "interest",
     accessorFn: (row) =>
       getInterestAmount(getDepositBalance(row), getDeposit(row)),
-    header: ({ column }) => (
-      <>
-        Total Accrued Interest
-        <Help>Total accrued interest for all depositors of this asset</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Total Accrued Interest</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Total accrued interest for all depositors of this asset</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const coinPrices = useSaveStore.use.coinPrices();
       const _globalInterest = row.getValue("interest") as bigint;
@@ -164,12 +226,27 @@ export const columns: ColumnDef<ReserveInfo>[] = [
   {
     id: "liquidity",
     accessorFn: (row) => getPoolLiquidity(row),
-    header: ({ column }) => (
-      <>
-        Total Liquidity
-        <Help>Amount of this asset available for immediate withdrawal</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Total Liquidity</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Amount of this asset available for immediate withdrawal</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const coinPrices = useSaveStore.use.coinPrices();
       const _liquidity = row.getValue("liquidity") as bigint;
@@ -190,12 +267,27 @@ export const columns: ColumnDef<ReserveInfo>[] = [
   {
     id: "utilization",
     accessorFn: (row) => getPoolUtilization(row),
-    header: ({ column }) => (
-      <>
-        Utilization
-        <Help>Proportion of borrowed assets in this lending pool</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Utilization</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Proportion of borrowed assets in this lending pool</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       return (
         <div className="text-xl font-bold">
@@ -219,12 +311,27 @@ export const columns: ColumnDef<ReserveInfo>[] = [
 
       return numA > numB ? 1 : numA < numB ? -1 : 0;
     },
-    header: ({ column }) => (
-      <>
-        Earn APY
-        <Help>Current yield for this asset</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Earn APY</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Current yield for this asset</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       return (
         <div className="text-xl font-bold">
@@ -252,24 +359,6 @@ export default function AllAccounts() {
     }
   }, [isAboveMd]);
 
-  const getSortFor = (columnId: string) =>
-    sorting.find((s) => s.id === columnId);
-
-  const toggleSortFor = (columnId: string) => {
-    const current = getSortFor(columnId);
-    if (!current) {
-      setSorting([{ id: columnId, desc: true }]);
-      return;
-    }
-
-    if (current.desc) {
-      setSorting([{ id: columnId, desc: false }]);
-      return;
-    }
-
-    setSorting([]);
-  };
-
   return (
     <Tabs value={mode} onValueChange={(v) => setMode(v as "table" | "grid")}>
       <div className="mt-4 mb-16">
@@ -287,53 +376,6 @@ export default function AllAccounts() {
           </TabsList>
         </div>
         <div className="w-full flex flex-col-reverse gap-2 md:gap-0 md:flex-row justify-between my-4">
-          <div className="text-secondary text-sm">
-            Sort by
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                getSortFor("savingsApy")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSortFor("savingsApy")}
-            >
-              <span className="inline-flex items-center gap-1">
-                APY
-                {(() => {
-                  const s = getSortFor("savingsApy");
-                  if (!s) return null;
-                  return s.desc ? (
-                    <ArrowDown className="w-3 h-3" />
-                  ) : (
-                    <ArrowUp className="w-3 h-3" />
-                  );
-                })()}
-              </span>
-            </Button>
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                getSortFor("lendingPool")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSortFor("lendingPool")}
-            >
-              <span className="inline-flex items-center gap-1">
-                Lending Pool
-                {(() => {
-                  const s = getSortFor("lendingPool");
-                  if (!s) return null;
-                  return s.desc ? (
-                    <ArrowDown className="w-3 h-3" />
-                  ) : (
-                    <ArrowUp className="w-3 h-3" />
-                  );
-                })()}
-              </span>
-            </Button>
-          </div>
           <div className="relative flex items-center">
             <Input
               placeholder="Search"

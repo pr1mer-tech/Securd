@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { ActiveTab } from "@/lib/types/enums";
 import { ConnectKitButton } from "@hyper-gate/connectkit";
 import { MenuIcon, XIcon } from "lucide-react";
-import { isInstalled, getAddress, getNetwork } from "@gemwallet/api";
 
 const Header = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.SAVE);
@@ -25,27 +24,6 @@ const Header = () => {
       setActiveTab(2);
     }
   }, [pathname]);
-
-  /**
-   * Connect to GemWallet
-   */
-  const [address, setAddress] = useState<string | undefined>();
-  const [network, setNetwork] = useState<string | undefined>();
-
-  const connectWallet = async () => {
-    const { result } = await isInstalled();
-
-    if (!result.isInstalled) {
-      alert("GemWallet n'est pas installé !");
-      return;
-    }
-
-    const addressRes = await getAddress();
-    const networkRes = await getNetwork();
-
-    setAddress(addressRes.result?.address);
-    setNetwork(networkRes.result?.network); // "Mainnet" | "Testnet" | "Devnet"
-  };
 
   return (
     <div className="relative z-49 bg-black">
@@ -93,15 +71,6 @@ const Header = () => {
         </div>
         <div className="hidden sm:block">
           <ConnectKitButton />
-          {/* <button
-            type="button"
-            className="cursor-pointer"
-            onClick={connectWallet}
-          >
-            Connecter
-          </button>
-          {address && <p>Adresse : {address}</p>}
-          {network && <p>Réseau : {network}</p>} */}
         </div>
         <button
           type="button"
