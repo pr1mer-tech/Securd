@@ -15,18 +15,35 @@ import {
 	analyticsToCollateralInfoClient,
 } from "@/lib/helpers/analytics.helper";
 import MrmScore from "./score";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 
 const columns: ColumnDef<PoolTableRows>[] = [
 	{
 		id: "pool",
 		accessorFn: (row: PoolTableRows) =>
 			`${row.pool?.token_0?.token_symbol}/${row.pool?.token_1?.token_symbol}`,
-		header: "Pool",
+		header: ({ column }) => {
+			const sorted = column.getIsSorted();
+			const canSort = column.getCanSort();
+			return (
+				<button
+					type="button"
+					className="inline-flex items-center gap-1"
+					onClick={column.getToggleSortingHandler()}
+				>
+					<span>Pool</span>
+					{canSort && (
+						<>
+							{sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+							{sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+							{!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+						</>
+					)}
+				</button>
+			);
+		},
 		cell: ({ row }) => {
 			const userCollateralInfo = analyticsToCollateralInfoClient(
 				row.original.pool,
@@ -57,7 +74,26 @@ const columns: ColumnDef<PoolTableRows>[] = [
 
 			return tvl;
 		},
-		header: "TVL",
+		header: ({ column }) => {
+			const sorted = column.getIsSorted();
+			const canSort = column.getCanSort();
+			return (
+				<button
+					type="button"
+					className="inline-flex items-center gap-1"
+					onClick={column.getToggleSortingHandler()}
+				>
+					<span>TVL</span>
+					{canSort && (
+						<>
+							{sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+							{sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+							{!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+						</>
+					)}
+				</button>
+			);
+		},
 		cell: ({ row }) => (
 			<div className="w-full text-left">
 				<SecurdFormat value={row.getValue("tvl")} />
@@ -67,7 +103,26 @@ const columns: ColumnDef<PoolTableRows>[] = [
 	{
 		id: "score",
 		accessorFn: (row: PoolTableRows) => row.mrm,
-		header: "Score",
+		header: ({ column }) => {
+			const sorted = column.getIsSorted();
+			const canSort = column.getCanSort();
+			return (
+				<button
+					type="button"
+					className="inline-flex items-center gap-1"
+					onClick={column.getToggleSortingHandler()}
+				>
+					<span>Score</span>
+					{canSort && (
+						<>
+							{sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+							{sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+							{!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+						</>
+					)}
+				</button>
+			);
+		},
 		cell: ({ row }) => (
 			<div className="w-full text-left">
 				<MrmScore score={row.getValue("score")} />
@@ -77,7 +132,26 @@ const columns: ColumnDef<PoolTableRows>[] = [
 	{
 		id: "apy",
 		accessorFn: (row: PoolTableRows) => row.lp_vs_hold_apy_3m,
-		header: "APY",
+		header: ({ column }) => {
+			const sorted = column.getIsSorted();
+			const canSort = column.getCanSort();
+			return (
+				<button
+					type="button"
+					className="inline-flex items-center gap-1"
+					onClick={column.getToggleSortingHandler()}
+				>
+					<span>APY</span>
+					{canSort && (
+						<>
+							{sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+							{sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+							{!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+						</>
+					)}
+				</button>
+			);
+		},
 		cell: ({ row }) => (
 			<div className="w-full text-left">
 				<PercentageFormat value={row.getValue("apy")} />
@@ -90,55 +164,9 @@ export default function PoolsTableClient({ data }: { data: PoolTableRows[] }) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-	const toggleSorting = (id: string) => {
-		setSorting((prev) => {
-			const isAlreadySorted = prev.some((s) => s.id === id);
-			if (isAlreadySorted) {
-				return [];
-			}
-			return [{ id, desc: id !== "score" }];
-		});
-	};
-
 	return (
 		<Tabs defaultValue="table" className="text-xl font-bold">
 			<div className="w-full flex flex-col-reverse gap-2 md:gap-0 md:flex-row justify-between my-4">
-				<div className="text-secondary text-sm">
-					Sort by
-					<Button
-						className={cn(
-							"ml-2 rounded-full px-2 h-6",
-							sorting.find((s) => s.id === "tvl")
-								? "bg-securdPrimary text-white"
-								: "bg-secondary",
-						)}
-						onClick={() => toggleSorting("tvl")}
-					>
-						TVL
-					</Button>
-					<Button
-						className={cn(
-							"ml-2 rounded-full px-2 h-6",
-							sorting.find((s) => s.id === "score")
-								? "bg-securdPrimary text-white"
-								: "bg-secondary",
-						)}
-						onClick={() => toggleSorting("score")}
-					>
-						Score
-					</Button>
-					<Button
-						className={cn(
-							"ml-2 rounded-full px-2 h-6",
-							sorting.find((s) => s.id === "apy")
-								? "bg-securdPrimary text-white"
-								: "bg-secondary",
-						)}
-						onClick={() => toggleSorting("apy")}
-					>
-						APY
-					</Button>
-				</div>
 				<div className="relative flex items-center">
 					<Input
 						placeholder="Search"

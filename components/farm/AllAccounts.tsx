@@ -10,13 +10,11 @@ import type { Coins, ReserveInfo } from "@/lib/types/save.types";
 import Image from "next/image";
 import { DataTable } from "../layout/DataTable";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import GridIconBlack from "@/assets/icons/grid-icon-black.svg";
 import MenuIconBlack from "@/assets/icons/menu-icon-black.svg";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { bigIntToDecimal } from "@/lib/helpers/main.helpers";
 import { useFarmStore } from "@/lib/data/farmStore";
 import type { CollateralInfos } from "@/lib/types/farm.types";
@@ -48,7 +46,26 @@ export const columns: ColumnDef<{
   {
     id: "symbol",
     accessorFn: (row) => row.collateralInfos.symbol,
-    header: "LP Token",
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>LP Token</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+        </button>
+      );
+    },
     cell: ({ row }) => (
       <PairIcon
         userCollateralsInfo={row.original.collateralInfos}
@@ -60,12 +77,27 @@ export const columns: ColumnDef<{
   },
   {
     accessorKey: "collateralPoolBalance",
-    header: ({ column }) => (
-      <>
-        Collateral Pool
-        <Help>Total Collateral value for all Farmers of this LP Token</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Collateral Pool</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Total Collateral value for all Farmers of this LP Token</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const collateralPoolBalance =
         (row.getValue("collateralPoolBalance") as bigint) ?? 0n;
@@ -93,15 +125,30 @@ export const columns: ColumnDef<{
   {
     id: "minLT",
     accessorFn: (row) => getBorrowerPoolBalanceLT(row.collateralInfos),
-    header: ({ column }) => (
-      <>
-        Min LT
-        <Help>
-          Liquidation Threshold that applies when your loans value in both
-          assets are equal
-        </Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Min LT</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>
+            Liquidation Threshold that applies when your loans value in both
+            assets are equal
+          </Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const minLT = row.getValue("minLT") as number;
       return (
@@ -114,14 +161,29 @@ export const columns: ColumnDef<{
   {
     id: "maxLT",
     accessorFn: (row) => getMaxLT(row.collateralInfos),
-    header: ({ column }) => (
-      <>
-        Max LT
-        <Help>
-          Liquidation Threshold that applies when you only borrow one asset
-        </Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Max LT</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>
+            Liquidation Threshold that applies when you only borrow one asset
+          </Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const maxLT = row.getValue("maxLT") as number;
       return (
@@ -134,12 +196,27 @@ export const columns: ColumnDef<{
   {
     id: "maxLeverage",
     accessorFn: (row) => getBorrowerPoolMaxLeverage(row.collateralInfos),
-    header: ({ column }) => (
-      <>
-        Max Leverage
-        <Help>Maximum position multiplier allowed for this LP Token</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Max Leverage</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Maximum position multiplier allowed for this LP Token</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const maxLeverage = row.getValue("maxLeverage") as number;
       return (
@@ -159,12 +236,27 @@ export const columns: ColumnDef<{
 
       return getBorrowAPYLP(borrowPoolAPYA, borrowPoolAPYB);
     },
-    header: ({ column }) => (
-      <>
-        Borrow APY
-        <Help>Current average borrowing rate for this token pair</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Borrow APY</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Current average borrowing rate for this token pair</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const borrowApy = row.getValue("borrowApy") as number;
       if (!borrowApy) return <Skeleton className="w-8 h-4" />;
@@ -184,14 +276,30 @@ export const columns: ColumnDef<{
         lpApr !== undefined ? getPoolAPY(undefined, lpApr) : undefined;
       return lpApy;
     },
-    header: ({ column }) => (
-      <>
-        LP APY
-        <Help>
-          Estimated yield for this LP Token based on last 3 months trading fees
-        </Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>LP APY</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>
+            Estimated yield for this LP Token based on last 3 months trading
+            fees
+          </Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const lpApy = row.getValue("lpApy") as number;
       if (!lpApy) return <Skeleton className="w-8 h-4" />;
@@ -221,12 +329,27 @@ export const columns: ColumnDef<{
 
       return getMaxLpApy(maxLeverage, borrowLpApy, lpApy);
     },
-    header: ({ column }) => (
-      <>
-        Max Leverage APY
-        <Help>Estimated Farming APY when using Max Leverage</Help>
-      </>
-    ),
+    header: ({ column }) => {
+      const sorted = column.getIsSorted();
+      const canSort = column.getCanSort();
+      return (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1"
+          onClick={column.getToggleSortingHandler()}
+        >
+          <span>Max Leverage APY</span>
+          {canSort && (
+            <>
+              {sorted === "asc" && <ArrowUp className="w-3 h-3" />}
+              {sorted === "desc" && <ArrowDown className="w-3 h-3" />}
+              {!sorted && <ArrowUpDown className="w-3 h-3 opacity-40" />}
+            </>
+          )}
+          <Help>Estimated Farming APY when using Max Leverage</Help>
+        </button>
+      );
+    },
     cell: ({ row }) => {
       const maxLeverageAPY = row.getValue("maxLeverageAPY") as number;
       if (!maxLeverageAPY) return <Skeleton className="w-8 h-4" />;
@@ -272,16 +395,6 @@ export default function AllAccounts() {
     };
   });
 
-  const toggleSorting = (id: string) => {
-    setSorting((prev) => {
-      const isAlreadySorted = prev.some((s) => s.id === id);
-      if (isAlreadySorted) {
-        return [];
-      }
-      return [{ id, desc: true }];
-    });
-  };
-
   return (
     <Tabs value={mode} onValueChange={(v) => setMode(v as "table" | "grid")}>
       <div className="mt-4 mb-16">
@@ -299,53 +412,6 @@ export default function AllAccounts() {
           </TabsList>
         </div>
         <div className="w-full flex flex-col-reverse gap-2 md:gap-0 md:flex-row justify-between my-4">
-          <div className="text-secondary text-sm">
-            Sort by
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                sorting.find((s) => s.id === "borrowApy")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSorting("borrowApy")}
-            >
-              Borrow APY
-            </Button>
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                sorting.find((s) => s.id === "lpApy")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSorting("lpApy")}
-            >
-              LP APY
-            </Button>
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                sorting.find((s) => s.id === "maxLeverageAPY")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSorting("maxLeverageAPY")}
-            >
-              Max Leverage APY
-            </Button>
-            <Button
-              className={cn(
-                "ml-2 rounded-full px-2 h-6",
-                sorting.find((s) => s.id === "collateralPoolBalance")
-                  ? "bg-securdPrimary text-white"
-                  : "bg-secondary",
-              )}
-              onClick={() => toggleSorting("collateralPoolBalance")}
-            >
-              Collateral Pool
-            </Button>
-          </div>
           <div className="relative flex items-center">
             <Input
               placeholder="Search"
