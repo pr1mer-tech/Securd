@@ -12,9 +12,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@headlessui/tailwindcss": "^0.2.0",
-    "@hyper-gate/connectkit": "^0.1.1",
-    "@hyper-gate/core": "^0.1.1",
-    "@hyper-gate/react": "^0.1.1",
+    "@hyper-gate/connectkit": "^0.1.2",
+    "@hyper-gate/core": "^0.1.2",
+    "@hyper-gate/react": "^0.1.2",
     "@neondatabase/serverless": "^0.9.3",
     "@nomicfoundation/ethereumjs-block": "5.0.4",
     "@nomicfoundation/ethereumjs-blockchain": "7.0.4",

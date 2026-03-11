@@ -7,9 +7,9 @@
       "dependencies": {
         "@headlessui/react": "^1.7.18",
         "@headlessui/tailwindcss": "^0.2.0",
-        "@hyper-gate/connectkit": "^0.1.1",
-        "@hyper-gate/core": "^0.1.1",
-        "@hyper-gate/react": "^0.1.1",
+        "@hyper-gate/connectkit": "^0.1.2",
+        "@hyper-gate/core": "^0.1.2",
+        "@hyper-gate/react": "^0.1.2",
         "@neondatabase/serverless": "^0.9.3",
         "@nomicfoundation/ethereumjs-block": "5.0.4",
         "@nomicfoundation/ethereumjs-blockchain": "7.0.4",
@@ -282,11 +282,11 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@hyper-gate/connectkit": ["@hyper-gate/connectkit@0.1.1", "", { "dependencies": { "@hyper-gate/core": "*", "@hyper-gate/react": "*", "detect-browser": "^5.3.0", "framer-motion": "^12.10.4", "qrcode": "^1.5.4", "react-transition-state": "^1.1.4", "react-use-measure": "^2.1.1", "resize-observer-polyfill": "^1.5.1", "styled-components": "^5.3.5" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-jEq1j96YlbA9trylC2b153HhH2NugtjiyhENZFbkzTbl9pJsWQ6uhfmnXc1QJVVLO6s6yBklWvMBLMA3RAUj2Q=="],
+    "@hyper-gate/connectkit": ["@hyper-gate/connectkit@0.1.2", "", { "dependencies": { "@hyper-gate/core": "*", "@hyper-gate/react": "*", "@tanstack/query-core": "^5.52.1", "@tanstack/react-query": "^5.52.1", "buffer": "^6.0.3", "detect-browser": "^5.3.0", "framer-motion": "^12.10.4", "qrcode": "^1.5.4", "react-transition-state": "^1.1.4", "react-use-measure": "^2.1.1", "resize-observer-polyfill": "^1.5.1", "styled-components": "^5.3.5" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-+VU+sHkow6d6GntT1Mi6N/F5bx5/yDDb1muE6sLxXOY0UJ96agjU1fBCPMehokMGZgULkC7uAfSGo49qIfFdig=="],
 
-    "@hyper-gate/core": ["@hyper-gate/core@0.1.1", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "eventemitter3": "^5.0.1", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^4.5.5" } }, "sha512-9/Ftc/ixP3VYm3c7w4PomnaZNN5YjQJDgTYnNuyh76N83s4438AFDl8MLiKPWOgKQNY59YSV3aI5hY7Eyzld7Q=="],
+    "@hyper-gate/core": ["@hyper-gate/core@0.1.2", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "@tanstack/query-core": "^5.52.1", "eventemitter3": "^5.0.1", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^4.5.5" } }, "sha512-/+uxThFPR5GNiPSMtmUd+iRPi/iUXN/mBUHVzS/eQYZTc7Q9u68wQXvTdtCWjmYqvy/VQrgw0gVWFW/7DaAzjA=="],
 
-    "@hyper-gate/react": ["@hyper-gate/react@0.1.1", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "@tanstack/react-query": "^5.52.1", "@types/use-sync-external-store": "^0.0.6", "use-sync-external-store": "^1.2.2", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^5.0.4" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-VhG+RBV2EB1666LeJooarY0D3/Nacr910crEI6alt2r64Ep0yJAZkpdoldD5vCRnFk4vpv08C4kyOc+Udo7ykA=="],
+    "@hyper-gate/react": ["@hyper-gate/react@0.1.2", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "@tanstack/query-core": "^5.52.1", "@tanstack/react-query": "^5.52.1", "@types/use-sync-external-store": "^0.0.6", "use-sync-external-store": "^1.2.2", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^5.0.4" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-9pLFOAFbR/N6wF3GPV8xvXhegho2orQuZnDC1wwEYzBMcZveWltXXCjJPEQ6xRGRoJOqa83+uLxNU2SFPd0NvA=="],
 
     "@img/colour": ["@img/colour@1.1.0", "", {}, "sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ=="],
 
@@ -2634,6 +2634,12 @@
 
     "http-errors/statuses": ["statuses@2.0.2", "", {}, "sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw=="],
 
+    "hypergate/@hyper-gate/connectkit": ["@hyper-gate/connectkit@0.1.1", "", { "dependencies": { "@hyper-gate/core": "*", "@hyper-gate/react": "*", "detect-browser": "^5.3.0", "framer-motion": "^12.10.4", "qrcode": "^1.5.4", "react-transition-state": "^1.1.4", "react-use-measure": "^2.1.1", "resize-observer-polyfill": "^1.5.1", "styled-components": "^5.3.5" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-jEq1j96YlbA9trylC2b153HhH2NugtjiyhENZFbkzTbl9pJsWQ6uhfmnXc1QJVVLO6s6yBklWvMBLMA3RAUj2Q=="],
+
+    "hypergate/@hyper-gate/core": ["@hyper-gate/core@0.1.1", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "eventemitter3": "^5.0.1", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^4.5.5" } }, "sha512-9/Ftc/ixP3VYm3c7w4PomnaZNN5YjQJDgTYnNuyh76N83s4438AFDl8MLiKPWOgKQNY59YSV3aI5hY7Eyzld7Q=="],
+
+    "hypergate/@hyper-gate/react": ["@hyper-gate/react@0.1.1", "", { "dependencies": { "@gemwallet/api": "^3.8.0", "@tanstack/react-query": "^5.52.1", "@types/use-sync-external-store": "^0.0.6", "use-sync-external-store": "^1.2.2", "xrpl": "^4.2.5", "xumm": "^1.8.0", "zustand": "^5.0.4" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0" } }, "sha512-VhG+RBV2EB1666LeJooarY0D3/Nacr910crEI6alt2r64Ep0yJAZkpdoldD5vCRnFk4vpv08C4kyOc+Udo7ykA=="],
+
     "inngest/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
 
     "inngest/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
@@ -2845,6 +2851,8 @@
     "hash-base/readable-stream/safe-buffer": ["safe-buffer@5.1.2", "", {}, "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="],
 
     "hash-base/readable-stream/string_decoder": ["string_decoder@1.1.1", "", { "dependencies": { "safe-buffer": "~5.1.0" } }, "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg=="],
+
+    "hypergate/@hyper-gate/core/zustand": ["zustand@4.5.7", "", { "dependencies": { "use-sync-external-store": "^1.2.2" }, "peerDependencies": { "@types/react": ">=16.8", "immer": ">=9.0.6", "react": ">=16.8" }, "optionalPeers": ["@types/react", "immer", "react"] }, "sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw=="],
 
     "inngest/chalk/ansi-styles": ["ansi-styles@4.3.0", "", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
 
