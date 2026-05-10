@@ -9,101 +9,91 @@ import { ActiveTab } from "@/lib/types/enums";
 import { ConnectKitButton } from "@hyper-gate/connectkit";
 import { MenuIcon, XIcon } from "lucide-react";
 
+const NAV = [
+  { label: "Markets", href: "/markets", tab: ActiveTab.MARKETS },
+  { label: "Analytics", href: "/analytics", tab: ActiveTab.ANALYTICS },
+];
+
 const Header = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.SAVE);
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.MARKETS);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (pathname?.includes("/save")) {
-      setActiveTab(0);
-    } else if (pathname?.includes("farm")) {
-      setActiveTab(1);
-    } else if (pathname?.includes("analytics")) {
-      setActiveTab(2);
+    if (pathname?.startsWith("/analytics")) {
+      setActiveTab(ActiveTab.ANALYTICS);
+    } else {
+      setActiveTab(ActiveTab.MARKETS);
     }
   }, [pathname]);
 
   return (
-    <div className="relative z-49 bg-black">
-      <div className="flex items-center justify-between bg-securdBlack text-white px-8 h-[72px] sm:px-4">
-        <div className="flex items-center gap-16 h-full">
+    <div className="relative z-50 bg-securdBlack">
+      <div className="flex items-center justify-between px-6 lg:px-8 h-[72px]">
+        {/* Logo + Nav */}
+        <div className="flex items-center gap-10 h-full">
           <button
             type="button"
-            className="cursor-pointer"
-            onClick={() => router.push("/save")}
+            className="cursor-pointer shrink-0"
+            onClick={() => router.push("/markets")}
           >
-            <Image priority={true} alt="securd logo" src={SecurdLogo} />
+            <Image priority alt="Securd" src={SecurdLogo} />
           </button>
-          <div className="hidden sm:flex items-center gap-4 h-full">
-            <Link
-              href="/save"
-              className={`px-4 h-full leading-[72px] font-bold ${
-                activeTab === ActiveTab.SAVE
-                  ? "border-b-4 border-b-securdWhite"
-                  : "text-securdWhite"
-              }`}
-            >
-              Save
-            </Link>
-            <Link
-              href="/farm"
-              className={`px-4 h-full leading-[72px] font-bold ${
-                activeTab === ActiveTab.FARM
-                  ? "border-b-4 border-b-securdWhite"
-                  : "text-securdWhite"
-              }`}
-            >
-              Farm
-            </Link>
-            <Link
-              href="/analytics"
-              className={`px-4 h-full leading-[72px] font-bold ${
-                activeTab === ActiveTab.ANALYTICS
-                  ? "border-b-4 border-b-securdWhite"
-                  : "text-securdWhite"
-              }`}
-            >
-              Analytics
-            </Link>
-          </div>
+
+          <nav className="hidden sm:flex items-center gap-1 h-full">
+            {NAV.map(({ label, href, tab }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`
+                  px-4 h-full flex items-center text-sm font-bold tracking-wide transition-colors
+                  ${activeTab === tab
+                    ? "text-securdWhite border-b-2 border-securdPrimaryLight"
+                    : "text-securdGrey hover:text-securdWhite"
+                  }
+                `}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
+
+        {/* Connect button — desktop */}
         <div className="hidden sm:block">
           <ConnectKitButton />
         </div>
+
+        {/* Hamburger — mobile */}
         <button
           type="button"
-          className="sm:hidden block"
+          className="sm:hidden text-securdWhite"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {isMenuOpen ? <XIcon /> : <MenuIcon />}
+          {isMenuOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
         </button>
       </div>
+
+      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="sm:hidden bg-securdBlack text-white py-4">
-          <Link
-            href="/save"
-            className={`block px-8 py-2 ${
-              activeTab === ActiveTab.SAVE
-                ? "bg-securdWhite text-securdBlack"
-                : "text-securdWhite"
-            }`}
-          >
-            Save
-          </Link>
-          <Link
-            href="/farm"
-            className={`block px-8 py-2 ${
-              activeTab === ActiveTab.FARM
-                ? "bg-securdWhite text-securdBlack"
-                : "text-securdWhite"
-            }`}
-          >
-            Farm
-          </Link>
-          <div className="px-8 pt-4">
+        <div className="sm:hidden bg-securdBlack border-t border-white/10 py-4 px-6 flex flex-col gap-3">
+          {NAV.map(({ label, href, tab }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setIsMenuOpen(false)}
+              className={`py-2 text-sm font-bold ${
+                activeTab === tab
+                  ? "text-securdWhite"
+                  : "text-securdGrey"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+          <div className="pt-2">
             <ConnectKitButton />
           </div>
         </div>

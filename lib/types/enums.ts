@@ -1,7 +1,6 @@
 export enum ActiveTab {
-  SAVE = 0,
-  FARM = 1,
-  ANALYTICS = 2,
+  MARKETS = 0,
+  ANALYTICS = 1,
 }
 
 export enum ButtonType {
