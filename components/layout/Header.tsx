@@ -11,7 +11,6 @@ import { MenuIcon, XIcon } from "lucide-react";
 
 const NAV = [
   { label: "Markets", href: "/markets", tab: ActiveTab.MARKETS },
-  { label: "Analytics", href: "/analytics", tab: ActiveTab.ANALYTICS },
 ];
 
 const Header = () => {
@@ -22,11 +21,7 @@ const Header = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (pathname?.startsWith("/analytics")) {
-      setActiveTab(ActiveTab.ANALYTICS);
-    } else {
-      setActiveTab(ActiveTab.MARKETS);
-    }
+    setActiveTab(ActiveTab.MARKETS);
   }, [pathname]);
 
   return (
