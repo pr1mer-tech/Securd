@@ -25,17 +25,24 @@ The highest priority. All TypeScript compiles clean but the cross-chain flow mus
 
 ---
 
-## 2. Collateral toggle
+## 2. Collateral toggle ⏳ Blocked on smart contract update
 
-Users can supply assets but cannot yet toggle whether a supplied asset counts as collateral. This is a UX gap — without it users cannot actively manage their risk profile.
+`enterMarkets` is already handled automatically by the BridgeAdapter inside `_supply()` — every supply automatically enters the market as collateral. No dapp change needed for that.
 
-### What needs to be built
+`exitMarket` is **not yet bridgeable**. The Comptroller's `exitMarket()` uses `msg.sender` as the account, so only the proxy can call it. There is currently no action type in `XRPLSecurdTypes.sol` that routes an XRPL Ledger intent to `exitMarket`. This requires a smart contract update first.
 
-- A toggle switch in `SupplyMarketsTable` and the market detail page
-- Two new action types in `lib/xrpl/types.ts`: `ENTER_MARKET` and `EXIT_MARKET`
-- Corresponding memo/payment builders in `lib/xrpl/xrplPayment.ts`
-- BridgeAdapter support for these action types on the contract side
-- UI guard: prevent exiting a market if doing so would put the account into shortfall (check `getHypotheticalAccountLiquidity`)
+### Smart contract changes needed (in the smart-contracts repo)
+
+- Add `EXIT_MARKET = 4` to the `ActionType` enum in `XRPLSecurdTypes.sol`
+- Add a handler in `XRPLSecurdBridgeAdapter.sol` that calls `proxy.execute(comptroller, exitMarket(cToken))`
+- Add the safety check: reject if removing the market would create a shortfall
+
+### Dapp changes needed (after smart contract update)
+
+- Add `EXIT_MARKET: 4` to `ACTION_TYPE` in `lib/xrpl/types.ts`
+- Add GMP payment builder for the new action type in `lib/xrpl/xrplPayment.ts`
+- Add a collateral toggle switch in `SupplyMarketsTable` and the market detail page
+- Guard the toggle: call `getHypotheticalAccountLiquidity` to check shortfall before enabling exit
 
 ---
 
