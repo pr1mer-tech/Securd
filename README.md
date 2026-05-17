@@ -34,7 +34,7 @@ Each XRPL address gets a deterministic **proxy contract** on XRPL EVM (salt = `k
 | Smart contracts | Solidity — lending core + Axelar adapters |
 | XRPL EVM reads | viem `publicClient` (chain ID 1449000) |
 | XRPL wallet | HyperGate (Xumm + Gem) via `@hyper-gate/react` |
-| Cross-chain bridge | Axelar GMP (borrow/withdraw) + ITS (supply/repay) |
+| Cross-chain bridge | Axelar GMP (enter/exit collateral, borrow/withdraw) + ITS (supply/repay) |
 | Frontend | Next.js 14 App Router, Tailwind CSS, Zustand |
 | Tx tracking | Axelarscan GMP API |
 
@@ -44,11 +44,11 @@ Each XRPL address gets a deterministic **proxy contract** on XRPL EVM (salt = `k
 
 | Contract | Address |
 |----------|---------|
-| Comptroller | `0x14B5F9CB7F5b43E8b45C71d260B5aF78b80D01f` |
-| SecurdPriceOracle | `0x4F4e9763F7A2daf4d2bDf705F7Ea63b6440C1aC` |
-| XRPLUserProxyFactory | `0x18DE4d2EF4dBf2a9FE07B1e3D4Ee9B91a9E75d9` |
-| BridgeAdapter | `0x2a4B3e7F9CA1dE8FbD0E6c5A7B2F4D8E1C3A9B5` |
-| sXRP (cToken) | `0xcD881baC550Ae161942c93CF393822E97c745811` |
+| Comptroller | `0x46d364257112230022E72b086Df85a6b0f8D3F86` |
+| SecurdPriceOracle | `0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80` |
+| XRPLUserProxyFactory | `0xB7f3ECe856063F48BC3bcC7A381aE875841663aA` |
+| BridgeAdapter | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
+| sXRP (cToken) | `0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318` |
 | XRPL Axelar Gateway | `rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2` |
 
 - XRPL EVM Explorer: https://explorer.testnet.xrplevm.org

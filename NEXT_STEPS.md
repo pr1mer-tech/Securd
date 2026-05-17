@@ -1,15 +1,20 @@
 # Next Steps
 
-## 1. Testnet validation
+## 1. Dapp validation against v4 contracts
 
-The highest priority. All TypeScript compiles clean but the cross-chain flow must be verified end-to-end with a real Xumm or Gem wallet before any production work begins.
+The smart contracts now support all six XRPL Ledger actions: SUPPLY, ENTER_MARKET,
+EXIT_MARKET, BORROW, REPAY, and WITHDRAW. The frontend must be verified against the
+v4 deployment from `smart-contracts/deployments/xrpl-evm-testnet.json`.
 
 ### Checklist
 
 - [ ] Connect Xumm wallet on XRPL testnet
 - [ ] Supply XRP → confirm Axelar relay completes → confirm sXRP balance on XRPL EVM proxy
+- [ ] Confirm supply does **not** automatically enable collateral
+- [ ] Enter market → confirm sXRP appears in `getAssetsIn(proxy)`
 - [ ] Borrow XRP → confirm funds received on XRPL Ledger
 - [ ] Repay XRP → confirm borrow balance decreases on-chain
+- [ ] Exit market after debt is cleared → confirm sXRP is removed from `getAssetsIn(proxy)`
 - [ ] Withdraw XRP → confirm supply balance decreases and XRP returned to XRPL Ledger
 - [ ] Verify `AccountSummary` reflects correct balances after each action
 - [ ] Verify health factor and borrow limit update correctly
@@ -22,27 +27,31 @@ The highest priority. All TypeScript compiles clean but the cross-chain flow mus
 - Gas drop amounts too low → Axelar relay times out
 - Intent signature mismatch → BridgeAdapter reverts
 - Nonce desync after a failed tx → next tx rejected
+- Exit market rejected when the position has debt or would create a shortfall
 
 ---
 
-## 2. Collateral toggle ⏳ Blocked on smart contract update
+## 2. Collateral UX
 
-`enterMarkets` is already handled automatically by the BridgeAdapter inside `_supply()` — every supply automatically enters the market as collateral. No dapp change needed for that.
+`enterMarkets` and `exitMarket` are now bridgeable through the v4 BridgeAdapter:
 
-`exitMarket` is **not yet bridgeable**. The Comptroller's `exitMarket()` uses `msg.sender` as the account, so only the proxy can call it. There is currently no action type in `XRPLSecurdTypes.sol` that routes an XRPL Ledger intent to `exitMarket`. This requires a smart contract update first.
+- `ENTER_MARKET = 4`
+- `EXIT_MARKET = 5`
 
-### Smart contract changes needed (in the smart-contracts repo)
+SUPPLY intentionally no longer auto-enters collateral. Users must explicitly enter
+the market before borrowing.
 
-- Add `EXIT_MARKET = 4` to the `ActionType` enum in `XRPLSecurdTypes.sol`
-- Add a handler in `XRPLSecurdBridgeAdapter.sol` that calls `proxy.execute(comptroller, exitMarket(cToken))`
-- Add the safety check: reject if removing the market would create a shortfall
+### Dapp work
 
-### Dapp changes needed (after smart contract update)
-
-- Add `EXIT_MARKET: 4` to `ACTION_TYPE` in `lib/xrpl/types.ts`
-- Add GMP payment builder for the new action type in `lib/xrpl/xrplPayment.ts`
-- Add a collateral toggle switch in `SupplyMarketsTable` and the market detail page
-- Guard the toggle: call `getHypotheticalAccountLiquidity` to check shortfall before enabling exit
+- [x] Update v4 addresses in `lib/constants/contracts.ts`
+- [x] Update sXRP market address and ITS token ID in `lib/constants/markets.ts`
+- [x] Add `ENTER_MARKET` and `EXIT_MARKET` to `ACTION_TYPE`
+- [x] Add collateral action button in `SupplyMarketsTable`
+- [x] Add the same collateral control to the market detail page
+- [x] Disable/clarify exit when the user has debt
+- [x] Estimate per-market exit shortfall from current positions and collateral factors
+- [x] Improve exit-market guard with `getHypotheticalAccountLiquidity`
+- [x] Replace the local exit estimate with exact on-chain hypothetical liquidity
 
 ---
 
@@ -75,13 +84,18 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the exact fields required.
 
 ## 5. Precise impact preview (hypothetical liquidity)
 
-The borrow/supply modals currently show an approximate impact preview. For full accuracy, each modal should call `getHypotheticalAccountLiquidity` on the Comptroller before submission to show the exact post-action borrow limit and health factor.
+The modals now use `getHypotheticalAccountLiquidity` where the Comptroller supports exact previews.
 
-### What needs to be built
+### Completed
 
-- A read helper that calls `comptroller.getHypotheticalAccountLiquidity(proxy, cToken, redeemTokens, borrowAmount)`
-- Hook that triggers on amount input change (debounced)
-- Replace the approximate math in `SupplyModal` and `BorrowModal` with the on-chain result
+- [x] Add a debounced read helper for `comptroller.getHypotheticalAccountLiquidity(proxy, cToken, redeemTokens, borrowAmount)`
+- [x] Use exact on-chain preview for Borrow
+- [x] Use exact on-chain preview for Withdraw
+- [x] Block Borrow/Withdraw submission when the preview returns a shortfall
+
+### Notes
+
+- Supply and Repay remain deterministic projected previews because Compound's hypothetical liquidity API has parameters for borrow and redeem, but not mint or repay.
 
 ---
 

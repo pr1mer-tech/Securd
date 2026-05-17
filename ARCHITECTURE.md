@@ -65,6 +65,8 @@ Two memo patterns are used:
 |--------|-----------------|---------------------|
 | Supply | **ITS** (Interchain Token Service) | XRP drops + gas fee drops |
 | Repay | **ITS** | XRP drops + gas fee drops |
+| Enter market | **GMP** (General Message Passing) | Gas fee drops only |
+| Exit market | **GMP** | Gas fee drops only |
 | Borrow | **GMP** (General Message Passing) | Gas fee drops only |
 | Withdraw | **GMP** | Gas fee drops only |
 
@@ -115,7 +117,7 @@ Browser                 Next.js API (/api/sign-intent)       XRPL EVM
 | `xrplAccount` | `bytes32` | `keccak256(utf8(xrplAddress))` — matches proxy salt |
 | `market` | `address` | cToken contract address |
 | `underlying` | `address` | Underlying token address |
-| `actionType` | `uint8` | 0=SUPPLY 1=BORROW 2=REPAY 3=WITHDRAW |
+| `actionType` | `uint8` | 0=SUPPLY 1=BORROW 2=REPAY 3=WITHDRAW 4=ENTER_MARKET 5=EXIT_MARKET |
 | `amount` | `uint256` | 18-decimal EVM wei |
 | `nonce` | `uint64` | Fetched from `adapter.nextNonceByXrplAccount` |
 | `deadline` | `uint256` | Unix timestamp (now + 30 min) |
