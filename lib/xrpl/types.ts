@@ -5,6 +5,8 @@ export const ACTION_TYPE = {
   BORROW: 1,
   REPAY: 2,
   WITHDRAW: 3,
+  ENTER_MARKET: 4,
+  EXIT_MARKET: 5,
 } as const;
 export type ActionType = (typeof ACTION_TYPE)[keyof typeof ACTION_TYPE];
 
@@ -28,7 +30,7 @@ export const XRPL_AXELAR_GATEWAY = "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2";
 export const AXELAR_DESTINATION_CHAIN = "xrpl-evm";
 // Gas for ITS ingress (added on top of deposit/repay amount)
 export const ITS_GAS_FEE_DROPS = 2_000_000n;
-// Gas for GMP call (borrow/withdraw — no token transfer)
+// Gas for GMP call (enter/exit collateral, borrow/withdraw — no token transfer inbound)
 export const GMP_GAS_DROPS = 3_000_000n;
 
 // 1 XRP drop = 1e-6 XRP = 1e12 EVM wei (ITS multiplies by 10^12)

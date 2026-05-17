@@ -22,14 +22,13 @@ export type MarketConfig = {
 // Registry of all active markets on XRPL EVM testnet
 export const MARKETS: MarketConfig[] = [
   {
-    cToken:             "0xcD881baC550Ae161942c93CF393822E97c745811",
+    cToken:             "0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318",
     underlying:         NATIVE_UNDERLYING,
     symbol:             "sXRP",
-    name:               "Securd XRPL",
+    name:               "Securd XRP",
     underlyingSymbol:   "XRP",
     underlyingDecimals: 6,
-    // Axelar ITS token ID — set from bridge adapter marketConfigOf mapping
-    bridgeTokenId:      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    bridgeTokenId:      "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
     // Native XRP — no xrplCurrency / xrplIssuer needed
   },
   // Future IOU markets — add xrplCurrency and xrplIssuer from the XRPL Ledger issuer:

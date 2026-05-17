@@ -8,12 +8,12 @@ import { abiBridgeAdapter } from "./abi/abiBridgeAdapter";
 
 // XRPL EVM Testnet — deployed contract addresses
 export const ADDRESSES = {
-  comptroller:      "0x26Cf3D5c8832D77eadF0a76d36E33a92200EE883" as Address,
-  oracle:           "0x3e4B7874A46815F49eBebE598213ecEda260ca04" as Address,
-  interestRateModel:"0x64ccEa09e73171EE78eb382EE89fc72150e812ab" as Address,
-  proxyFactory:     "0x04a8A4b4C26a81764Bcc7610072aA8A22e165559" as Address,
-  bridgeAdapter:    "0xf1CBD0f07580ff9A0961cB97758363f42D95df20" as Address,
-  liquidationKeeper:"0x870A7fCF5591a20Ff64868bF9aBa740d0318FdCD" as Address,
+  comptroller:      "0x46d364257112230022E72b086Df85a6b0f8D3F86" as Address,
+  oracle:           "0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80" as Address,
+  interestRateModel:"0xDd31C1db90AB0b094d73E0b4c8dae2296a7d8C0d" as Address,
+  proxyFactory:     "0xB7f3ECe856063F48BC3bcC7A381aE875841663aA" as Address,
+  bridgeAdapter:    "0x7AC8Df85448037c6fE1eD5732c6ca71060069237" as Address,
+  liquidationKeeper:"0xF87Bda7207B629789abaaCcef366Ba853BA11399" as Address,
 } as const;
 
 export const comptrollerContract = {

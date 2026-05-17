@@ -19,8 +19,8 @@ export type SubmitIntentParams = {
   market: Address;
   underlying: Address;
   actionType: ActionType;
-  /** Amount in XRP (float, e.g. 1.5). Internally converted to drops then EVM wei. */
-  amountXrp: number;
+  /** Amount in XRP (float, e.g. 1.5). ENTER/EXIT_MARKET use zero. */
+  amountXrp?: number;
 };
 
 export type SubmitIntentState = {
@@ -75,7 +75,7 @@ export function useSubmitIntent() {
         const nonce = await getNextNonce(xrplAddress);
 
         // 2. Convert XRP float to drops (6-decimal)
-        const amountDrops = BigInt(Math.floor(params.amountXrp * 1_000_000));
+        const amountDrops = BigInt(Math.floor((params.amountXrp ?? 0) * 1_000_000));
 
         // 3. Build the intent envelope
         const envelope = buildEnvelope({
