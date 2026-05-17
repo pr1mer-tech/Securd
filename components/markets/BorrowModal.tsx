@@ -25,9 +25,14 @@ type Props = {
   onClose: () => void;
 };
 
+// Accrual buffer applied to MAX repay to cover interest that accumulates
+// during the Axelar relay window (typically 2-5 minutes).
+const REPAY_MAX_BUFFER = 1.005;
+
 export function BorrowModal({ market, position, userAccount, defaultAction, onClose }: Props) {
   const [tab, setTab] = useState<"borrow" | "repay">(defaultAction);
   const [amount, setAmount] = useState("");
+  const [isMaxRepay, setIsMaxRepay] = useState(false);
 
   const borrowedUnderlying =
     Number(position?.borrowBalance ?? 0n) / 10 ** market.underlyingDecimals;
@@ -99,7 +104,7 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={tab} onValueChange={(v) => { setTab(v as typeof tab); setAmount(""); }}>
+        <Tabs value={tab} onValueChange={(v) => { setTab(v as typeof tab); setAmount(""); setIsMaxRepay(false); }}>
           <TabsList className="w-full rounded-none bg-white/5 border-b border-white/10 p-0 h-auto">
             <TabsTrigger
               value="borrow"
@@ -164,12 +169,20 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
             <AmountInput
               symbol={market.underlyingSymbol}
               value={amount}
-              onChange={setAmount}
+              onChange={(v) => { setIsMaxRepay(false); setAmount(v); }}
               label="Repay amount"
               maxLabel="Borrowed"
               maxValue={`${borrowedUnderlying.toFixed(4)} ${market.underlyingSymbol}`}
-              onMax={() => setAmount(borrowedUnderlying.toFixed(6))}
+              onMax={() => {
+                setIsMaxRepay(true);
+                setAmount((borrowedUnderlying * REPAY_MAX_BUFFER).toFixed(6));
+              }}
             />
+            {isMaxRepay && (
+              <p className="text-xs text-securdGrey text-center -mt-3">
+                +0.5% buffer included to cover interest accrued during bridge relay
+              </p>
+            )}
             <ImpactRows
               rows={[
                 { label: "Borrow APY", value: formatAPY(market.borrowAPY), valueClass: "text-systemRed" },

@@ -4,10 +4,7 @@ import { useState } from "react";
 import { useUserAccount } from "@/lib/hooks/useUserAccount";
 import { SupplyModal } from "@/components/markets/SupplyModal";
 import { BorrowModal } from "@/components/markets/BorrowModal";
-import { TxStatusModal } from "@/components/markets/TxStatusModal";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
-import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
-import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MarketData } from "@/lib/types/market.types";
 
@@ -17,29 +14,11 @@ export function UserPosition({ market }: Props) {
   const { userAccount, isLoading } = useUserAccount();
   const [supplyModal, setSupplyModal] = useState<"supply" | "withdraw" | null>(null);
   const [borrowModal, setBorrowModal] = useState<"borrow" | "repay" | null>(null);
-  const { submit, state, reset } = useSubmitIntent();
-  const isCollateralPending = state.status === "signing" || state.status === "submitting";
-
   const position = userAccount?.positions.find(
     (p) => p.cToken.toLowerCase() === market.cToken.toLowerCase(),
   );
   const hasSupply = (position?.supplyBalanceUSD ?? 0) > 0;
   const isCollateral = position?.isCollateral ?? false;
-  const exitGuard = useExitMarketGuard(market, position, userAccount);
-  const collateralActionLabel = isCollateral
-    ? `Exit ${market.underlyingSymbol} collateral`
-    : `Enter ${market.underlyingSymbol} collateral`;
-  const isCollateralActionDisabled =
-    isCollateralPending || exitGuard.isChecking || !hasSupply || (isCollateral && exitGuard.isBlocked);
-
-  function submitCollateralToggle() {
-    if (isCollateralActionDisabled) return;
-    void submit({
-      market: market.cToken,
-      underlying: market.underlying,
-      actionType: isCollateral ? ACTION_TYPE.EXIT_MARKET : ACTION_TYPE.ENTER_MARKET,
-    });
-  }
 
   if (isLoading) {
     return <PositionSkeleton />;
@@ -75,12 +54,11 @@ export function UserPosition({ market }: Props) {
             <div className="flex flex-wrap justify-end gap-2">
               {hasSupply && (
                 <button
-                  onClick={submitCollateralToggle}
-                  disabled={isCollateralActionDisabled}
-                  title={exitGuard.reason ?? collateralActionLabel}
-                  className="px-4 py-2 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  disabled
+                  title="Collateral toggle coming soon — requires a direct EVM interaction not yet supported"
+                  className="px-4 py-2 text-xs font-bold rounded-lg border border-white/20 text-securdWhite transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {isCollateralPending || exitGuard.isChecking ? "..." : isCollateral ? "Exit" : "Collateral"}
+                  {isCollateral ? "Exit" : "Collateral"}
                 </button>
               )}
               {hasSupply && (
@@ -151,13 +129,6 @@ export function UserPosition({ market }: Props) {
           userAccount={userAccount}
           defaultAction={borrowModal}
           onClose={() => setBorrowModal(null)}
-        />
-      )}
-      {state.txHash && (
-        <TxStatusModal
-          txHash={state.txHash}
-          actionLabel={collateralActionLabel}
-          onClose={reset}
         />
       )}
     </>
