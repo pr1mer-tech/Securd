@@ -126,5 +126,6 @@ lib/
 
 ## Further reading
 
+- [DEPLOYMENT.md](DEPLOYMENT.md) — step-by-step guide to run, test, and deploy the dapp
 - [ARCHITECTURE.md](ARCHITECTURE.md) — full technical deep-dive
 - [CONTRIBUTING.md](CONTRIBUTING.md) — adding markets, local development guide

@@ -53,6 +53,16 @@ the market before borrowing.
 - [x] Improve exit-market guard with `getHypotheticalAccountLiquidity`
 - [x] Replace the local exit estimate with exact on-chain hypothetical liquidity
 
+### Current status — collateral toggle disabled
+
+The collateral toggle button in `UserPosition` (market detail page) is intentionally disabled. The `/api/sign-intent` endpoint correctly blocks `ENTER_MARKET` and `EXIT_MARKET` action types as a security measure — these require a separate owner-authenticated flow that is not yet built.
+
+The button renders as disabled with a tooltip. To complete this feature:
+
+- [ ] Design and implement the owner-authentication flow for collateral toggle (see item 6 — session auth)
+- [ ] Once auth is complete, add `ENTER_MARKET` and `EXIT_MARKET` to `SIGNABLE_ACTION_TYPES` in `app/api/sign-intent/route.ts`
+- [ ] Re-enable the button in `components/markets/MarketDetail/UserPosition.tsx`
+
 ---
 
 ## 3. Vercel deployment
@@ -99,13 +109,38 @@ The modals now use `getHypotheticalAccountLiquidity` where the Comptroller suppo
 
 ---
 
-## 6. Production mainnet
+## 6. Intent signer authentication (remaining security work)
 
-Once testnet validation is complete and all the above steps are done:
+A security audit of the `smart_contracts_integration` branch identified and fixed three vulnerabilities in `/api/sign-intent`:
+
+| Finding | Status |
+|---------|--------|
+| Market and underlying not validated against the allowlist | ✅ Fixed — `getMarketByAddress()` check added |
+| `actionType` accepted without validation (ENTER/EXIT_MARKET signable) | ✅ Fixed — `SIGNABLE_ACTION_TYPES` allowlist added |
+| Intent deadline was always `0` (no expiry) despite docs stating 30 min | ✅ Fixed — `buildEnvelope` now sets `now + 1800s` |
+| Signing endpoint has no authentication — any caller can sign for any account | ⚠️ Partially mitigated — `x-xrpl-address` header added; not a cryptographic proof |
+
+### Remaining work — full caller authentication
+
+The `x-xrpl-address` header check ensures the declared address derives to the envelope's `xrplAccount`, but does not prove the caller controls that address.
+
+A complete fix requires a session layer:
+
+- [ ] Add `iron-session` (or equivalent) to the Next.js app
+- [ ] Issue a signed session cookie when the user connects their HyperGate wallet
+- [ ] In `/api/sign-intent`, verify the session and reject requests where the session address does not match `envelope.xrplAccount`
+
+This should be completed before mainnet launch.
+
+---
+
+## 7. Production mainnet
+
+Once testnet validation and all the above steps are done:
 
 - [ ] Deploy smart contracts to XRPL EVM mainnet
 - [ ] Register new contract addresses in `lib/constants/contracts.ts` and `lib/constants/markets.ts`
 - [ ] Switch XRPL RPC from `s.altnet.rippletest.net` to a mainnet node
 - [ ] Switch Axelarscan polling URL from `testnet.api.axelarscan.io` to `api.axelarscan.io`
 - [ ] Switch chain ID from `1449000` (testnet) to the XRPL EVM mainnet chain ID
-- [ ] Audit the intent signing flow and BridgeAdapter before opening to public
+- [ ] Complete intent signer authentication (item 6 above) before opening to public

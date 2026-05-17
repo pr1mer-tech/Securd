@@ -80,18 +80,21 @@ Action types are defined in `lib/xrpl/types.ts`:
 
 ```typescript
 export const ACTION_TYPE = {
-  SUPPLY:   0,
-  BORROW:   1,
-  REPAY:    2,
-  WITHDRAW: 3,
+  SUPPLY:       0,
+  BORROW:       1,
+  REPAY:        2,
+  WITHDRAW:     3,
+  ENTER_MARKET: 4,
+  EXIT_MARKET:  5,
 } as const;
 ```
 
 To add a new action:
-1. Add the constant here
+1. Add the constant to `ACTION_TYPE` in `lib/xrpl/types.ts`
 2. Update `buildXrplPayment` in `lib/xrpl/xrplPayment.ts` — decide if it uses GMP or ITS
 3. Update `buildEnvelope` in `lib/xrpl/intentBuilder.ts` — set `destinationAddress` appropriately
-4. Update the BridgeAdapter contract to handle the new `actionType` value
+4. **Add the new value to `SIGNABLE_ACTION_TYPES` in `app/api/sign-intent/route.ts`** — the endpoint rejects any action type not in this allowlist
+5. Update the BridgeAdapter contract to handle the new `actionType` value
 
 ---
 
@@ -142,3 +145,16 @@ Do not add ethers.js as a dependency.
 ### Server-side signing only
 
 The `INTENT_SIGNER_PRIVATE_KEY` must never be imported in any file under `app/` (except `app/api/`), `components/`, or `lib/`. Signing happens exclusively in `app/api/sign-intent/route.ts`.
+
+### `/api/sign-intent` validation rules
+
+The signing endpoint enforces these checks before issuing a signature. Any new feature that routes through it must satisfy all of them:
+
+| Rule | Enforcement |
+|------|-------------|
+| `x-xrpl-address` header must be present | `fetchSignature` in `useSubmitIntent.ts` sets this automatically from the connected wallet address |
+| `envelope.xrplAccount` must equal `keccak256(utf8(header address))` | Ensures the signed account matches the declared caller |
+| `envelope.market` must be in `MARKETS` (see `lib/constants/markets.ts`) | New markets must be registered there before they can be used |
+| `envelope.underlying` must match the registered market's `underlying` | Cannot be overridden per-call |
+| `envelope.actionType` must be in `SIGNABLE_ACTION_TYPES` | Currently `SUPPLY(0)`, `BORROW(1)`, `REPAY(2)`, `WITHDRAW(3)` |
+| `envelope.amount` must be `> 0` | Zero-amount intents are rejected |

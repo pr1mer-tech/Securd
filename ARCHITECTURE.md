@@ -120,7 +120,7 @@ Browser                 Next.js API (/api/sign-intent)       XRPL EVM
 | `actionType` | `uint8` | 0=SUPPLY 1=BORROW 2=REPAY 3=WITHDRAW 4=ENTER_MARKET 5=EXIT_MARKET |
 | `amount` | `uint256` | 18-decimal EVM wei |
 | `nonce` | `uint64` | Fetched from `adapter.nextNonceByXrplAccount` |
-| `deadline` | `uint256` | Unix timestamp (now + 30 min) |
+| `deadline` | `uint64` | Unix timestamp — `now + 1800s` (30 min), set in `buildEnvelope` |
 | `destinationAddress` | `bytes` | SUPPLY/REPAY: `0x`; BORROW/WITHDRAW: UTF-8 bytes of r-address |
 | `version` | `uint8` | Always `1` |
 
@@ -233,7 +233,33 @@ useSubmitIntent.submit()
 
 ## Security notes
 
-- **Intent signer key** lives only in `INTENT_SIGNER_PRIVATE_KEY` on the server. The browser never sees it. The Next.js API route `/api/sign-intent` is the only signer.
-- **Nonce** is fetched on-chain before each transaction. Replaying an old payload is not possible.
-- **Deadline** is 30 minutes from signing. Stale payloads are rejected by the BridgeAdapter.
-- **Proxy isolation** — each user's proxy is independent. A bug in one user's intent cannot affect another user's positions.
+### Intent signer key
+Lives only in `INTENT_SIGNER_PRIVATE_KEY` on the server. The browser never sees it. The Next.js API route `/app/api/sign-intent/route.ts` is the only place it is used.
+
+### `/api/sign-intent` input validation
+Before signing, the endpoint enforces:
+
+| Check | Detail |
+|-------|--------|
+| `x-xrpl-address` header required | Missing header → 400 |
+| `xrplAccount` consistency | `keccak256(utf8(header))` must equal `envelope.xrplAccount` → 403 on mismatch |
+| Market allowlist | `envelope.market` must be a registered cToken in `lib/constants/markets.ts` → 400 if unknown |
+| Underlying match | `envelope.underlying` must match `marketConfig.underlying` → 400 if mismatched |
+| Action type allowlist | Only `SUPPLY(0)`, `BORROW(1)`, `REPAY(2)`, `WITHDRAW(3)` are signable via this endpoint. `ENTER_MARKET(4)` and `EXIT_MARKET(5)` are blocked → 400 |
+| Amount | `envelope.amount` must be `> 0` → 400 |
+
+> **Known limitation — caller identity:** The `x-xrpl-address` header is self-declared. It prevents accidental cross-account signing and ensures envelope consistency, but does not cryptographically prove the caller owns the XRPL address. A full fix requires a session layer (e.g. `iron-session`) issued at wallet-connect time. This is tracked in [NEXT_STEPS.md](NEXT_STEPS.md).
+
+### Nonce
+Fetched on-chain from `BridgeAdapter.nextNonceByXrplAccount` before every transaction. Each nonce can only be consumed once on-chain, preventing replay of executed intents.
+
+### Deadline
+Every intent envelope is signed with a **30-minute deadline** (`now + 1800s`). The BridgeAdapter rejects any intent where `block.timestamp > deadline`. Stale or intercepted payloads cannot be submitted after the window closes.
+
+### Proxy isolation
+Each user's proxy is independent (one per XRPL address, CREATE2 deterministic). An action signed for `xrplAccount A` operates exclusively on proxy A. The market allowlist and action type allowlist ensure the server only signs for known, safe operations.
+
+### Max repay accrual buffer
+`getAccountSnapshot` returns `borrowBalanceStored` — the balance as of the last `accrueInterest()` call, not the real-time debt. The Axelar relay window (typically 2–5 minutes) allows additional interest to accrue between the user initiating a repay and the transaction executing on XRPL EVM.
+
+When the user clicks MAX on the Repay tab, `BorrowModal` applies a **0.5% buffer** (`REPAY_MAX_BUFFER = 1.005`) on top of the displayed borrow balance. This ensures the repay amount exceeds the actual accrued debt at execution time, preventing a dust balance from remaining after a full repay. Any excess XRP sent stays in the proxy as a supply position.
