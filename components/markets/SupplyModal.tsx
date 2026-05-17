@@ -12,6 +12,7 @@ import { MarketAssetIcon } from "./MarketAssetIcon";
 import { BorrowLimitBar } from "./BorrowLimitBar";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
 import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useHypotheticalLiquidity } from "@/lib/hooks/useHypotheticalLiquidity";
 import { TxStatusModal } from "./TxStatusModal";
 import type { MarketData, UserMarketPosition, UserAccount } from "@/lib/types/market.types";
 
@@ -33,21 +34,44 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
   const supplyBalance = position?.supplyBalanceUSD ?? 0;
   const supplyBalanceUnderlying =
     Number(position?.supplyBalanceUnderlying ?? 0n) / 10 ** market.underlyingDecimals;
+  const inputAmount = parseFloat(amount || "0");
+  const inputUSD = inputAmount * market.priceUSD;
+  const collateralDeltaUSD =
+    (position?.isCollateral ?? false)
+      ? inputUSD * Number(market.collateralFactor) / 1e18
+      : 0;
+  const withdrawPreview = useHypotheticalLiquidity({
+    action: "withdraw",
+    amount,
+    market,
+    userAccount,
+    enabled: tab === "withdraw" && inputAmount > 0,
+  });
 
-  // Impact preview — Step 4 will compute real impact
-  const newBorrowLimit =
+  const estimatedBorrowLimit =
     tab === "supply"
-      ? (userAccount?.borrowLimitUSD ?? 0) +
-        (parseFloat(amount || "0") * market.priceUSD * Number(market.collateralFactor) / 1e18)
+      ? (userAccount?.borrowLimitUSD ?? 0) + collateralDeltaUSD
       : (userAccount?.borrowLimitUSD ?? 0) -
-        (parseFloat(amount || "0") * market.priceUSD * Number(market.collateralFactor) / 1e18);
+        collateralDeltaUSD;
+  const newBorrowLimit =
+    tab === "withdraw"
+      ? withdrawPreview.borrowLimitUSD ?? estimatedBorrowLimit
+      : estimatedBorrowLimit;
 
   const newBorrowLimitUsed =
-    newBorrowLimit > 0
-      ? (userAccount?.totalBorrowUSD ?? 0) / newBorrowLimit
-      : 0;
+    tab === "withdraw" && withdrawPreview.borrowLimitUsed !== undefined
+      ? withdrawPreview.borrowLimitUsed
+      : newBorrowLimit > 0
+        ? (userAccount?.totalBorrowUSD ?? 0) / newBorrowLimit
+        : 0;
 
-  const isValid = parseFloat(amount) > 0;
+  const isValid = inputAmount > 0;
+  const withdrawBlocked = tab === "withdraw" && withdrawPreview.isBlocked;
+  const previewLabel = withdrawPreview.isLoading
+    ? "Checking on-chain..."
+    : withdrawPreview.isExact
+      ? "On-chain preview"
+      : "Projected preview";
 
   // Show Axelar tracking modal once we have a txHash
   if (state.txHash) {
@@ -109,6 +133,7 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
               rows={[
                 { label: "Supply APY", value: formatAPY(market.supplyAPY), valueClass: "text-systemGreen" },
                 { label: "Borrow Limit", value: formatUSD(newBorrowLimit) },
+                { label: "Preview", value: previewLabel },
               ]}
             />
             {userAccount && (
@@ -144,6 +169,7 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
                 { label: "Supply APY", value: formatAPY(market.supplyAPY), valueClass: "text-systemGreen" },
                 { label: "Currently Supplied", value: formatUSD(supplyBalance) },
                 { label: "New Borrow Limit", value: formatUSD(newBorrowLimit) },
+                { label: "Preview", value: previewLabel },
               ]}
             />
             {userAccount && (
@@ -151,7 +177,8 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
             )}
             <ActionButton
               label={isPending ? "Submitting…" : `Withdraw ${market.underlyingSymbol}`}
-              disabled={!isValid || isPending}
+              disabled={!isValid || isPending || withdrawPreview.isLoading || withdrawBlocked}
+              warning={withdrawBlocked ? withdrawPreview.reason : undefined}
               onClick={() =>
                 submit({
                   market: market.cToken,
@@ -237,23 +264,30 @@ function ImpactRows({
 function ActionButton({
   label,
   disabled,
+  warning,
   onClick,
 }: {
   label: string;
   disabled: boolean;
+  warning?: string;
   onClick?: () => void;
 }) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="w-full py-3 rounded-xl font-bold text-sm transition-all
-        bg-securdPrimary text-securdWhite
-        hover:bg-securdPrimary/80
-        disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      {label}
-    </button>
+    <div className="flex flex-col gap-2">
+      {warning && (
+        <p className="text-systemYellow text-xs text-center">{warning}</p>
+      )}
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onClick}
+        className="w-full py-3 rounded-xl font-bold text-sm transition-all
+          bg-securdPrimary text-securdWhite
+          hover:bg-securdPrimary/80
+          disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {label}
+      </button>
+    </div>
   );
 }

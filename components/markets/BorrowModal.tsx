@@ -13,6 +13,7 @@ import { BorrowLimitBar } from "./BorrowLimitBar";
 import { HealthFactor } from "./HealthFactor";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
 import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useHypotheticalLiquidity } from "@/lib/hooks/useHypotheticalLiquidity";
 import { TxStatusModal } from "./TxStatusModal";
 import type { MarketData, UserMarketPosition, UserAccount } from "@/lib/types/market.types";
 
@@ -34,21 +35,35 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
 
   const inputAmount = parseFloat(amount || "0");
   const inputUSD = inputAmount * market.priceUSD;
+  const borrowPreview = useHypotheticalLiquidity({
+    action: "borrow",
+    amount,
+    market,
+    userAccount,
+    enabled: tab === "borrow" && inputAmount > 0,
+  });
 
-  // Approximate impact — Step 4 will compute precisely via getHypotheticalAccountLiquidity
   const newBorrowUSD =
     tab === "borrow"
       ? (userAccount?.totalBorrowUSD ?? 0) + inputUSD
       : Math.max(0, (userAccount?.totalBorrowUSD ?? 0) - inputUSD);
 
-  const borrowLimitUSD = userAccount?.borrowLimitUSD ?? 0;
-  const newBorrowUsed = borrowLimitUSD > 0 ? newBorrowUSD / borrowLimitUSD : 0;
+  const borrowLimitUSD =
+    tab === "borrow"
+      ? borrowPreview.borrowLimitUSD ?? userAccount?.borrowLimitUSD ?? 0
+      : userAccount?.borrowLimitUSD ?? 0;
+  const newBorrowUsed =
+    tab === "borrow" && borrowPreview.borrowLimitUsed !== undefined
+      ? borrowPreview.borrowLimitUsed
+      : borrowLimitUSD > 0 ? newBorrowUSD / borrowLimitUSD : 0;
 
   // Health factor approximation: (borrowLimit - newBorrow) / newBorrow
   const newHF =
-    newBorrowUSD > 0 && borrowLimitUSD > 0
-      ? borrowLimitUSD / newBorrowUSD
-      : Infinity;
+    tab === "borrow" && borrowPreview.healthFactor !== undefined
+      ? borrowPreview.healthFactor
+      : newBorrowUSD > 0 && borrowLimitUSD > 0
+        ? borrowLimitUSD / newBorrowUSD
+        : Infinity;
 
   const maxBorrowUSD = Math.max(0, (borrowLimitUSD - (userAccount?.totalBorrowUSD ?? 0)) * 0.8);
   const maxBorrowUnderlying = market.priceUSD > 0 ? maxBorrowUSD / market.priceUSD : 0;
@@ -56,6 +71,12 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
   const isValid = inputAmount > 0;
   const { submit, state, reset } = useSubmitIntent();
   const isPending = state.status === "signing" || state.status === "submitting";
+  const borrowBlocked = tab === "borrow" && borrowPreview.isBlocked;
+  const previewLabel = borrowPreview.isLoading
+    ? "Checking on-chain..."
+    : borrowPreview.isExact
+      ? "On-chain preview"
+      : "Projected preview";
 
   // Show Axelar tracking modal once we have a txHash
   if (state.txHash) {
@@ -110,6 +131,7 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
                 { label: "Borrow APY", value: formatAPY(market.borrowAPY), valueClass: "text-systemRed" },
                 { label: "Borrow Balance", value: formatUSD(newBorrowUSD) },
                 { label: "Borrow Limit Used", value: `${(newBorrowUsed * 100).toFixed(1)}%` },
+                { label: "Preview", value: previewLabel },
               ]}
             />
             {userAccount && (
@@ -120,8 +142,12 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
             )}
             <ActionButton
               label={isPending ? "Submitting…" : `Borrow ${market.underlyingSymbol}`}
-              disabled={!isValid || newBorrowUsed >= 1 || isPending}
-              warning={newBorrowUsed >= 0.8 ? "High utilization — liquidation risk" : undefined}
+              disabled={!isValid || newBorrowUsed >= 1 || isPending || borrowPreview.isLoading || borrowBlocked}
+              warning={
+                borrowBlocked
+                  ? borrowPreview.reason
+                  : newBorrowUsed >= 0.8 ? "High utilization — liquidation risk" : undefined
+              }
               onClick={() =>
                 submit({
                   market: market.cToken,
@@ -149,6 +175,7 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
                 { label: "Borrow APY", value: formatAPY(market.borrowAPY), valueClass: "text-systemRed" },
                 { label: "Currently Borrowed", value: formatUSD(borrowedUSD) },
                 { label: "Remaining After Repay", value: formatUSD(Math.max(0, borrowedUSD - inputUSD)) },
+                { label: "Preview", value: "Projected preview" },
               ]}
             />
             {userAccount && (
