@@ -6,9 +6,12 @@ import { useUserAccount } from "@/lib/hooks/useUserAccount";
 import { useXrplBalance } from "@/lib/hooks/useXrplBalance";
 import { MarketAssetIcon } from "./MarketAssetIcon";
 import { SupplyModal } from "./SupplyModal";
+import { TxStatusModal } from "./TxStatusModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
-import type { MarketData, UserMarketPosition } from "@/lib/types/market.types";
+import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
+import type { MarketData, UserAccount, UserMarketPosition } from "@/lib/types/market.types";
 import type { Address } from "viem";
 
 export function SupplyMarketsTable() {
@@ -59,6 +62,7 @@ export function SupplyMarketsTable() {
                       key={market.cToken}
                       market={market}
                       position={userPositions.get(market.cToken)}
+                      userAccount={userAccount}
                       walletBalance={getWalletBalance(market)}
                       onSupply={() =>
                         setModalMarket({ market, defaultAction: "supply" })
@@ -100,90 +104,133 @@ export function SupplyMarketsTable() {
 function SupplyRow({
   market,
   position,
+  userAccount,
   walletBalance,
   onSupply,
   onWithdraw,
 }: {
   market: MarketData;
   position?: UserMarketPosition;
+  userAccount?: UserAccount | null;
   walletBalance: number | null;
   onSupply: () => void;
   onWithdraw: () => void;
 }) {
   const supplied = position?.supplyBalanceUSD ?? 0;
   const hasPosition = supplied > 0;
+  const isCollateral = position?.isCollateral ?? false;
+  const { submit, state, reset } = useSubmitIntent();
+  const exitGuard = useExitMarketGuard(market, position, userAccount);
+  const isPending = state.status === "signing" || state.status === "submitting";
+  const collateralActionLabel = isCollateral
+    ? `Exit ${market.underlyingSymbol} collateral`
+    : `Enter ${market.underlyingSymbol} collateral`;
+  const isCollateralActionDisabled = isPending || exitGuard.isChecking || (isCollateral && exitGuard.isBlocked);
+
+  const submitCollateralToggle = () => {
+    if (isCollateralActionDisabled) return;
+    void submit({
+      market: market.cToken,
+      underlying: market.underlying,
+      actionType: isCollateral ? ACTION_TYPE.EXIT_MARKET : ACTION_TYPE.ENTER_MARKET,
+    });
+  };
 
   return (
-    <tr className="border-b border-white/5 hover:bg-white/[0.03] transition-colors group">
-      {/* Asset */}
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-3">
-          <MarketAssetIcon symbol={market.underlyingSymbol} size="md" />
-          <div className="flex flex-col">
-            <span className="text-securdWhite font-medium text-sm">
-              {market.underlyingSymbol}
-            </span>
-            <span className="text-securdGrey text-xs">{market.name}</span>
+    <>
+      <tr className="border-b border-white/5 hover:bg-white/[0.03] transition-colors group">
+        {/* Asset */}
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <MarketAssetIcon symbol={market.underlyingSymbol} size="md" />
+            <div className="flex flex-col">
+              <span className="text-securdWhite font-medium text-sm">
+                {market.underlyingSymbol}
+              </span>
+              <span className="text-securdGrey text-xs">{market.name}</span>
+            </div>
           </div>
-        </div>
-      </td>
+        </td>
 
-      {/* APY */}
-      <td className="px-4 py-4 text-right">
-        <span className="text-systemGreen font-bold text-sm tabular-nums">
-          {formatAPY(market.supplyAPY)}
-        </span>
-      </td>
+        {/* APY */}
+        <td className="px-4 py-4 text-right">
+          <span className="text-systemGreen font-bold text-sm tabular-nums">
+            {formatAPY(market.supplyAPY)}
+          </span>
+        </td>
 
-      {/* Total Supply */}
-      <td className="px-4 py-4 text-right hidden md:table-cell">
-        <span className="text-securdWhite text-sm tabular-nums">
-          {formatUSD(market.totalSupplyUSD)}
-        </span>
-      </td>
-
-      {/* Wallet balance */}
-      <td className="px-4 py-4 text-right hidden lg:table-cell">
-        {walletBalance !== null ? (
+        {/* Total Supply */}
+        <td className="px-4 py-4 text-right hidden md:table-cell">
           <span className="text-securdWhite text-sm tabular-nums">
-            {walletBalance.toFixed(2)} {market.underlyingSymbol}
+            {formatUSD(market.totalSupplyUSD)}
           </span>
-        ) : (
-          <span className="text-securdGrey text-sm tabular-nums">—</span>
-        )}
-      </td>
+        </td>
 
-      {/* Supplied */}
-      <td className="px-6 py-4 text-right">
-        {hasPosition ? (
-          <span className="text-securdWhite font-medium text-sm tabular-nums">
-            {formatUSD(supplied)}
-          </span>
-        ) : (
-          <span className="text-securdGrey text-sm">—</span>
-        )}
-      </td>
-
-      {/* Actions */}
-      <td className="px-4 py-4">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          {hasPosition && (
-            <button
-              onClick={onWithdraw}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors"
-            >
-              Withdraw
-            </button>
+        {/* Wallet balance */}
+        <td className="px-4 py-4 text-right hidden lg:table-cell">
+          {walletBalance !== null ? (
+            <span className="text-securdWhite text-sm tabular-nums">
+              {walletBalance.toFixed(2)} {market.underlyingSymbol}
+            </span>
+          ) : (
+            <span className="text-securdGrey text-sm tabular-nums">—</span>
           )}
-          <button
-            onClick={onSupply}
-            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-securdPrimary text-securdWhite hover:bg-securdPrimary/80 transition-colors"
-          >
-            Supply
-          </button>
-        </div>
-      </td>
-    </tr>
+        </td>
+
+        {/* Supplied */}
+        <td className="px-6 py-4 text-right">
+          {hasPosition ? (
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-securdWhite font-medium text-sm tabular-nums">
+                {formatUSD(supplied)}
+              </span>
+              <span className={isCollateral ? "text-systemGreen text-xs" : "text-securdGrey text-xs"}>
+                {isCollateral ? "Collateral on" : "Collateral off"}
+              </span>
+            </div>
+          ) : (
+            <span className="text-securdGrey text-sm">—</span>
+          )}
+        </td>
+
+        {/* Actions */}
+        <td className="px-4 py-4">
+          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {hasPosition && (
+              <button
+                onClick={submitCollateralToggle}
+                disabled={isCollateralActionDisabled}
+                title={exitGuard.reason ?? collateralActionLabel}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isPending || exitGuard.isChecking ? "..." : isCollateral ? "Exit" : "Collateral"}
+              </button>
+            )}
+            {hasPosition && (
+              <button
+                onClick={onWithdraw}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors"
+              >
+                Withdraw
+              </button>
+            )}
+            <button
+              onClick={onSupply}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-securdPrimary text-securdWhite hover:bg-securdPrimary/80 transition-colors"
+            >
+              Supply
+            </button>
+          </div>
+        </td>
+      </tr>
+      {state.txHash && (
+        <TxStatusModal
+          txHash={state.txHash}
+          actionLabel={collateralActionLabel}
+          onClose={reset}
+        />
+      )}
+    </>
   );
 }
 
