@@ -39,6 +39,9 @@ const SIGNED_INTENT_ABI = [
 
 // ─── Build ────────────────────────────────────────────────────────────────────
 
+// 30-minute window — matches the BridgeAdapter's enforced deadline policy.
+const INTENT_TTL_SECONDS = 1800n;
+
 export function buildEnvelope(params: {
   xrplAddress: string;
   market: Address;
@@ -75,7 +78,7 @@ export function buildEnvelope(params: {
     actionType: params.actionType,
     amount: amountEvm,
     nonce: params.nonce,
-    deadline: params.deadline ?? 0n,
+    deadline: params.deadline ?? (BigInt(Math.floor(Date.now() / 1000)) + INTENT_TTL_SECONDS),
     destinationAddress,
     version: ENVELOPE_VERSION,
   };

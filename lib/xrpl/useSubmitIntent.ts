@@ -30,7 +30,10 @@ export type SubmitIntentState = {
   error?: string;
 };
 
-async function fetchSignature(envelope: IntentEnvelope): Promise<`0x${string}`> {
+async function fetchSignature(
+  envelope: IntentEnvelope,
+  xrplAddress: string,
+): Promise<`0x${string}`> {
   // Serialize bigints as strings for JSON
   const body = {
     envelope: {
@@ -43,7 +46,10 @@ async function fetchSignature(envelope: IntentEnvelope): Promise<`0x${string}`> 
 
   const res = await fetch("/api/sign-intent", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-xrpl-address": xrplAddress,
+    },
     body: JSON.stringify(body),
   });
 
@@ -88,7 +94,7 @@ export function useSubmitIntent() {
         });
 
         // 4. Get signature from the server-side signing service
-        const signature = await fetchSignature(envelope);
+        const signature = await fetchSignature(envelope, xrplAddress);
 
         // 5. Build the XRPL Payment transaction
         const payment = buildXrplPayment({
