@@ -85,7 +85,7 @@ export function useAxelarStatus(txHash: string | undefined) {
   const poll = useCallback(async (hash: string) => {
     try {
       const res = await fetch(
-        `${AXELARSCAN_API}/gmp/search?txHash=${hash}&size=1`,
+        `${AXELARSCAN_API}/gmp/searchGMP?txHash=${hash}&size=1`,
         { cache: "no-store" },
       );
       if (!res.ok) return;
@@ -98,8 +98,9 @@ export function useAxelarStatus(txHash: string | undefined) {
       if (parsed.isComplete || parsed.isFailed) {
         if (timerRef.current) clearInterval(timerRef.current);
       }
-    } catch {
-      // silently ignore transient errors and keep polling
+    } catch (err) {
+      // Keep polling on transient errors, but surface for debugging
+      console.error("useAxelarStatus: poll failed", err);
     }
   }, []);
 

@@ -3,6 +3,7 @@
 import { mock, useConnect, useDisconnect } from "wagmi";
 import { useAccountEffect } from "@hyper-gate/react";
 import { ConnectKitProvider } from "@hyper-gate/connectkit";
+import { xrplEvmTestnet } from "@/lib/constants/xrplEvmChain";
 
 export const HyperConnectSync = ({
   children,
@@ -17,7 +18,7 @@ export const HyperConnectSync = ({
         connector: mock({
           accounts: [data.address as `0x${string}`],
         }),
-        chainId: data.chainId,
+        chainId: xrplEvmTestnet.id,
       });
     },
     onDisconnect: () => {

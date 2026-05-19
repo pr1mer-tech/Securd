@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUserAccount } from "@/lib/hooks/useUserAccount";
+import { useXrplBalance } from "@/lib/hooks/useXrplBalance";
 import { SupplyModal } from "@/components/markets/SupplyModal";
 import { BorrowModal } from "@/components/markets/BorrowModal";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
@@ -12,6 +13,7 @@ type Props = { market: MarketData };
 
 export function UserPosition({ market }: Props) {
   const { userAccount, isLoading } = useUserAccount();
+  const { getWalletBalance } = useXrplBalance();
   const [supplyModal, setSupplyModal] = useState<"supply" | "withdraw" | null>(null);
   const [borrowModal, setBorrowModal] = useState<"borrow" | "repay" | null>(null);
   const position = userAccount?.positions.find(
@@ -119,6 +121,7 @@ export function UserPosition({ market }: Props) {
           position={position}
           defaultAction={supplyModal}
           userAccount={userAccount}
+          walletBalance={getWalletBalance(market)}
           onClose={() => setSupplyModal(null)}
         />
       )}

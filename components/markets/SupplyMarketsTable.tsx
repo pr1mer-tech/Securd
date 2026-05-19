@@ -170,7 +170,7 @@ function SupplyRow({
         <td className="px-4 py-4 text-right hidden lg:table-cell">
           {walletBalance !== null ? (
             <span className="text-securdWhite text-sm tabular-nums">
-              {walletBalance.toFixed(2)} {market.underlyingSymbol}
+              {walletBalance.toFixed(4)} {market.underlyingSymbol}
             </span>
           ) : (
             <span className="text-securdGrey text-sm tabular-nums">—</span>

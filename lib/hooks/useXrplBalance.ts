@@ -4,8 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAccount } from "@hyper-gate/react";
 import type { MarketConfig } from "@/lib/constants/markets";
 
-const XRPL_RPC = "https://s.altnet.rippletest.net:51234";
-
 type XrplBalances = {
   // Native XRP in drops (bigint)
   xrpDrops: bigint | null;
@@ -13,43 +11,26 @@ type XrplBalances = {
   lines: Map<string, string>;
 };
 
+// Calls the same-origin /api/xrpl-balance route, which proxies the XRPL
+// Ledger RPC server-side (the public node sends no CORS headers, so a
+// direct browser fetch is blocked).
 async function fetchXrplBalances(address: string): Promise<XrplBalances> {
-  const [infoRes, linesRes] = await Promise.all([
-    fetch(XRPL_RPC, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        method: "account_info",
-        params: [{ account: address, ledger_index: "current" }],
-      }),
-    }),
-    fetch(XRPL_RPC, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        method: "account_lines",
-        params: [{ account: address, ledger_index: "current" }],
-      }),
-    }),
-  ]);
+  const res = await fetch(
+    `/api/xrpl-balance?address=${encodeURIComponent(address)}`,
+  );
+  if (!res.ok) {
+    throw new Error(`XRPL balance request failed: ${res.status}`);
+  }
 
-  const [infoJson, linesJson] = await Promise.all([
-    infoRes.json() as Promise<{
-      result: { account_data?: { Balance?: string }; error?: string };
-    }>,
-    linesRes.json() as Promise<{
-      result: {
-        lines?: { account: string; currency: string; balance: string }[];
-        error?: string;
-      };
-    }>,
-  ]);
+  const data = (await res.json()) as {
+    xrpDrops: string | null;
+    lines: { account: string; currency: string; balance: string }[];
+  };
 
-  const rawBalance = infoJson.result.account_data?.Balance;
-  const xrpDrops = rawBalance ? BigInt(rawBalance) : null;
+  const xrpDrops = data.xrpDrops ? BigInt(data.xrpDrops) : null;
 
   const lines = new Map<string, string>();
-  for (const line of linesJson.result.lines ?? []) {
+  for (const line of data.lines) {
     const key = `${line.currency}:${line.account}`;
     lines.set(key, line.balance);
   }
@@ -77,8 +58,9 @@ export function useXrplBalance() {
     try {
       const result = await fetchXrplBalances(addressRef.current);
       setBalances(result);
-    } catch {
+    } catch (err) {
       // Keep previous balances on transient error
+      console.error("useXrplBalance: failed to fetch XRPL balances", err);
     } finally {
       setIsLoading(false);
     }

@@ -33,9 +33,21 @@ const wagmiConfig = createConfig(
   }),
 );
 
+// XRPL Ledger Testnet — networkId 1, what Xumm/Gem report when connected
+// to the test network. Registered here so HyperGate/ConnectKit recognises
+// the connected chain; without it the chain is flagged unsupported.
+const xrplTestnet = {
+  id: 1,
+  rpc: "wss://s.altnet.rippletest.net:51233",
+  explorer: "https://testnet.xrpl.org",
+  name: "XRPL Testnet",
+  nativeCurrency: { name: "XRP", symbol: "XRP", decimals: 6 },
+};
+
 const hgConfig = createHGConfig(
   getDefaultHGConfig({
     appName: "Secur·d",
+    chains: [xrplTestnet],
     connectors: [
       new XummConnector(process.env.NEXT_PUBLIC_XUMM_API_KEY ?? ""),
       new GemConnector(),

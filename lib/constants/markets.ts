@@ -25,7 +25,7 @@ export const MARKETS: MarketConfig[] = [
     cToken:             "0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318",
     underlying:         NATIVE_UNDERLYING,
     symbol:             "sXRP",
-    name:               "Securd XRP",
+    name:               "XRP",
     underlyingSymbol:   "XRP",
     underlyingDecimals: 6,
     bridgeTokenId:      "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
