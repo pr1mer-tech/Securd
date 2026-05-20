@@ -27,7 +27,7 @@ export const MARKETS: MarketConfig[] = [
     symbol:             "sXRP",
     name:               "XRP",
     underlyingSymbol:   "XRP",
-    underlyingDecimals: 6,
+    underlyingDecimals: 18,
     bridgeTokenId:      "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
     // Native XRP — no xrplCurrency / xrplIssuer needed
   },

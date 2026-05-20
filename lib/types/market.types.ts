@@ -24,6 +24,7 @@ export type MarketData = {
   borrowAPY: number;
   utilization: number;
   totalSupplyUSD: number;
+  totalSupplyUnderlying: number;
   totalBorrowsUSD: number;
   availableLiquidityUSD: number;
   priceUSD: number;

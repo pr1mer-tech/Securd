@@ -8,11 +8,10 @@ import { MarketAssetIcon } from "./MarketAssetIcon";
 import { SupplyModal } from "./SupplyModal";
 import { TxStatusModal } from "./TxStatusModal";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
+import { formatUSD, formatAPY, formatTokenAmount } from "@/lib/helpers/market.helpers";
 import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
 import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
 import type { MarketData, UserAccount, UserMarketPosition } from "@/lib/types/market.types";
-import type { Address } from "viem";
 
 export function SupplyMarketsTable() {
   const { markets, isLoading } = useMarkets();
@@ -23,8 +22,8 @@ export function SupplyMarketsTable() {
     defaultAction: "supply" | "withdraw";
   } | null>(null);
 
-  const userPositions = new Map<Address, UserMarketPosition>(
-    userAccount?.positions.map((p) => [p.cToken, p]) ?? [],
+  const userPositions = new Map<string, UserMarketPosition>(
+    userAccount?.positions.map((p) => [p.cToken.toLowerCase(), p]) ?? [],
   );
 
   return (
@@ -55,23 +54,23 @@ export function SupplyMarketsTable() {
             <tbody>
               {isLoading
                 ? Array.from({ length: 3 }).map((_, i) => (
-                    <SupplyRowSkeleton key={i} />
-                  ))
+                  <SupplyRowSkeleton key={i} />
+                ))
                 : markets.map((market) => (
-                    <SupplyRow
-                      key={market.cToken}
-                      market={market}
-                      position={userPositions.get(market.cToken)}
-                      userAccount={userAccount}
-                      walletBalance={getWalletBalance(market)}
-                      onSupply={() =>
-                        setModalMarket({ market, defaultAction: "supply" })
-                      }
-                      onWithdraw={() =>
-                        setModalMarket({ market, defaultAction: "withdraw" })
-                      }
-                    />
-                  ))}
+                  <SupplyRow
+                    key={market.cToken}
+                    market={market}
+                    position={userPositions.get(market.cToken.toLowerCase())}
+                    userAccount={userAccount}
+                    walletBalance={getWalletBalance(market)}
+                    onSupply={() =>
+                      setModalMarket({ market, defaultAction: "supply" })
+                    }
+                    onWithdraw={() =>
+                      setModalMarket({ market, defaultAction: "withdraw" })
+                    }
+                  />
+                ))}
               {!isLoading && markets.length === 0 && (
                 <tr>
                   <td
@@ -90,7 +89,7 @@ export function SupplyMarketsTable() {
       {modalMarket && (
         <SupplyModal
           market={modalMarket.market}
-          position={userPositions.get(modalMarket.market.cToken)}
+          position={userPositions.get(modalMarket.market.cToken.toLowerCase())}
           defaultAction={modalMarket.defaultAction}
           userAccount={userAccount}
           walletBalance={getWalletBalance(modalMarket.market)}
@@ -116,8 +115,11 @@ function SupplyRow({
   onSupply: () => void;
   onWithdraw: () => void;
 }) {
-  const supplied = position?.supplyBalanceUSD ?? 0;
-  const hasPosition = supplied > 0;
+  const suppliedUSD = position?.supplyBalanceUSD ?? 0;
+  const suppliedUnderlying = position
+    ? Number(position.supplyBalanceUnderlying) / 10 ** market.underlyingDecimals
+    : 0;
+  const hasPosition = (position?.cTokenBalance ?? 0n) > 0n;
   const isCollateral = position?.isCollateral ?? false;
   const { submit, state, reset } = useSubmitIntent();
   const exitGuard = useExitMarketGuard(market, position, userAccount);
@@ -161,17 +163,27 @@ function SupplyRow({
 
         {/* Total Supply */}
         <td className="px-4 py-4 text-right hidden md:table-cell">
-          <span className="text-securdWhite text-sm tabular-nums">
-            {formatUSD(market.totalSupplyUSD)}
-          </span>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-securdWhite text-sm tabular-nums">
+              {formatTokenAmount(market.totalSupplyUnderlying)} {market.underlyingSymbol}
+            </span>
+            <span className="text-securdGrey text-xs tabular-nums">
+              {formatUSD(market.totalSupplyUSD)}
+            </span>
+          </div>
         </td>
 
         {/* Wallet balance */}
         <td className="px-4 py-4 text-right hidden lg:table-cell">
           {walletBalance !== null ? (
-            <span className="text-securdWhite text-sm tabular-nums">
-              {walletBalance.toFixed(4)} {market.underlyingSymbol}
-            </span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-securdWhite text-sm tabular-nums">
+                {walletBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })} {market.underlyingSymbol}
+              </span>
+              <span className="text-securdGrey text-xs tabular-nums">
+                {formatUSD(walletBalance * market.priceUSD)}
+              </span>
+            </div>
           ) : (
             <span className="text-securdGrey text-sm tabular-nums">—</span>
           )}
@@ -182,11 +194,17 @@ function SupplyRow({
           {hasPosition ? (
             <div className="flex flex-col items-end gap-1">
               <span className="text-securdWhite font-medium text-sm tabular-nums">
-                {formatUSD(supplied)}
+                {suppliedUnderlying.toLocaleString(undefined, { maximumFractionDigits: 4 })} {market.underlyingSymbol}
               </span>
-              <span className={isCollateral ? "text-systemGreen text-xs" : "text-securdGrey text-xs"}>
-                {isCollateral ? "Collateral on" : "Collateral off"}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-securdGrey text-xs tabular-nums">
+                  {formatUSD(suppliedUSD)}
+                </span>
+                <span className="text-securdGrey text-xs">•</span>
+                <span className={isCollateral ? "text-systemGreen text-xs" : "text-securdGrey text-xs"}>
+                  {isCollateral ? "Collateral on" : "Collateral off"}
+                </span>
+              </div>
             </div>
           ) : (
             <span className="text-securdGrey text-sm">—</span>

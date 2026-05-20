@@ -65,8 +65,9 @@ async function fetchOneMarket(m: MarketConfig): Promise<MarketData> {
   const utilization = calcUtilization(totalCash, totalBorrows, totalReserves);
 
   // cToken totalSupply → underlying: totalSupply_cToken * exchangeRate / 1e18
-  const totalSupplyUnderlying = (totalSupply * exchangeRate) / 10n ** 18n;
-  const totalSupplyUSD = toUSD(totalSupplyUnderlying, m.underlyingDecimals, priceUSD);
+  const totalSupplyUnderlyingRaw = (totalSupply * exchangeRate) / 10n ** 18n;
+  const totalSupplyUnderlying = Number(totalSupplyUnderlyingRaw) / 10 ** m.underlyingDecimals;
+  const totalSupplyUSD = toUSD(totalSupplyUnderlyingRaw, m.underlyingDecimals, priceUSD);
   const totalBorrowsUSD = toUSD(totalBorrows, m.underlyingDecimals, priceUSD);
   const availableLiquidityUSD = toUSD(totalCash, m.underlyingDecimals, priceUSD);
 
@@ -90,6 +91,7 @@ async function fetchOneMarket(m: MarketConfig): Promise<MarketData> {
     borrowAPY,
     utilization,
     totalSupplyUSD,
+    totalSupplyUnderlying,
     totalBorrowsUSD,
     availableLiquidityUSD,
     priceUSD,
