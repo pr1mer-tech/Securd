@@ -58,6 +58,21 @@ export function useUserData() {
       const shortfall = liq[2];
       const snapshots = allResults.slice(2) as ([bigint, bigint, bigint, bigint] | undefined)[];
 
+      // DEBUG — remove once supply position bug is resolved
+      console.log("[useUserData] xrplAddress:", xrplAddress);
+      console.log("[useUserData] proxyAddress:", proxyAddress);
+      console.log("[useUserData] assetsIn:", assetsIn);
+      console.log("[useUserData] liquidity/shortfall:", liquidity.toString(), shortfall.toString());
+      markets.forEach((m, i) => {
+        const s = snapshots[i];
+        console.log(`[useUserData] ${m.underlyingSymbol} @${m.cToken} snapshot:`, {
+          error: s?.[0]?.toString(),
+          cTokenBalance: s?.[1]?.toString(),
+          borrowBalance: s?.[2]?.toString(),
+          exchangeRate: s?.[3]?.toString(),
+        });
+      });
+
       const accountLiquidity: AccountLiquidity = {
         error: 0n,
         liquidity,
