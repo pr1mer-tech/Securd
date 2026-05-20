@@ -21,22 +21,40 @@ export type AxelarStatus = {
   xrplLink?: string;
   isComplete: boolean;
   isFailed: boolean;
+  errorMessage?: string;
 };
 
 type GmpEvent = {
   status?: string;
+  simplified_status?: string;
   call?: { transactionHash?: string };
   gas_paid?: object;
   approved?: { transactionHash?: string };
-  executed?: { transactionHash?: string };
-  error?: object | null;
+  executed?: { transactionHash?: string; childMessageIDs?: string[] };
+  error?:
+    | {
+        error?: { reason?: string; code?: string; message?: string };
+      }
+    | null;
 };
 
-function parseStatus(event: GmpEvent | null, txHash: string): AxelarStatus {
+function formatError(event: GmpEvent | null): string | undefined {
+  const e = event?.error?.error;
+  if (!e) return undefined;
+  // CANNOT_EXECUTE_MESSAGE/V2 / EstimationReverted / ERROR → "EstimationReverted (ERROR)"
+  const parts = [e.message, e.reason && `(${e.reason})`].filter(Boolean);
+  return parts.join(" ") || e.code;
+}
+
+function parseStatus(
+  source: GmpEvent | null,
+  child: GmpEvent | null,
+  txHash: string,
+): AxelarStatus {
   const xrplLink = `https://testnet.xrpl.org/transactions/${txHash}`;
   const axelarLink = `https://testnet.axelarscan.io/gmp/${txHash.toLowerCase()}`;
 
-  if (!event) {
+  if (!source) {
     return {
       xrplSubmitted: "done",
       relayDetected: "pending",
@@ -49,31 +67,41 @@ function parseStatus(event: GmpEvent | null, txHash: string): AxelarStatus {
     };
   }
 
-  const hasFailed = !!event.error;
-  const status = event.status ?? "";
+  // For Hub-routed (ITS) flows the destination state lives on the child message.
+  // For direct GMP, the source message carries it. `dest` picks whichever exists.
+  const dest = child ?? source;
 
-  const relayDetected: AxelarStep = event.call || event.gas_paid ? "done" : "pending";
+  const sourceFailed = source.simplified_status === "failed" || !!source.error;
+  const destFailed = dest.simplified_status === "failed" || !!dest.error;
+  const hasFailed = sourceFailed || destFailed;
+
+  const destExecuted =
+    dest.simplified_status === "executed" || !!dest.executed?.transactionHash;
+
+  const relayDetected: AxelarStep = source.call || source.gas_paid ? "done" : "pending";
   const axelarApproved: AxelarStep =
-    event.approved || status === "executed" ? "done" : hasFailed ? "error" : "pending";
-  const evmExecuted: AxelarStep =
-    event.executed && !hasFailed
+    dest.approved || destExecuted
       ? "done"
-      : hasFailed
+      : destFailed
         ? "error"
         : "pending";
-
-  const evmTxHash = event.executed?.transactionHash;
+  const evmExecuted: AxelarStep = destExecuted
+    ? "done"
+    : destFailed
+      ? "error"
+      : "pending";
 
   return {
     xrplSubmitted: "done",
     relayDetected,
     axelarApproved,
     evmExecuted,
-    evmTxHash,
+    evmTxHash: dest.executed?.transactionHash,
     xrplLink,
     axelarLink,
     isComplete: evmExecuted === "done",
     isFailed: hasFailed,
+    errorMessage: formatError(dest) ?? formatError(source),
   };
 }
 
@@ -84,15 +112,34 @@ export function useAxelarStatus(txHash: string | undefined) {
 
   const poll = useCallback(async (hash: string) => {
     try {
-      const res = await fetch(
-        `${AXELARSCAN_API}/gmp/searchGMP?txHash=${hash}&size=1`,
-        { cache: "no-store" },
-      );
-      if (!res.ok) return;
+      const fetchByTxHash = (h: string) =>
+        fetch(`${AXELARSCAN_API}/gmp/searchGMP?txHash=${h}&size=1`, {
+          cache: "no-store",
+        });
+      const fetchByMessageId = (id: string) =>
+        fetch(`${AXELARSCAN_API}/gmp/searchGMP?messageId=${encodeURIComponent(id)}&size=1`, {
+          cache: "no-store",
+        });
 
-      const json = await res.json();
-      const event: GmpEvent | null = json?.data?.[0] ?? null;
-      const parsed = parseStatus(event, hash);
+      const sourceRes = await fetchByTxHash(hash);
+      if (!sourceRes.ok) return;
+      const sourceJson = await sourceRes.json();
+      const source: GmpEvent | null = sourceJson?.data?.[0] ?? null;
+
+      // ITS Hub flows produce a child message that carries the destination-chain
+      // execution status. Fetch it so we can detect EstimationReverted / failures
+      // that don't surface on the source GMP.
+      let child: GmpEvent | null = null;
+      const childId = source?.executed?.childMessageIDs?.[0];
+      if (childId) {
+        const childRes = await fetchByMessageId(childId);
+        if (childRes.ok) {
+          const childJson = await childRes.json();
+          child = childJson?.data?.[0] ?? null;
+        }
+      }
+
+      const parsed = parseStatus(source, child, hash);
       setStatus(parsed);
 
       if (parsed.isComplete || parsed.isFailed) {
@@ -111,7 +158,7 @@ export function useAxelarStatus(txHash: string | undefined) {
     }
 
     // Immediately show step 1 as done
-    setStatus(parseStatus(null, txHash));
+    setStatus(parseStatus(null, null, txHash));
     startTimeRef.current = Date.now();
 
     poll(txHash);

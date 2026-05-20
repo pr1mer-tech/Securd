@@ -127,7 +127,7 @@ The `x-xrpl-address` header check ensures the declared address derives to the en
 A complete fix requires a session layer:
 
 - [ ] Add `iron-session` (or equivalent) to the Next.js app
-- [ ] Issue a signed session cookie when the user connects their HyperGate wallet
+- [ ] Issue a signed session cookie when the user connects their XRPL wallet (via XRPL Connect)
 - [ ] In `/api/sign-intent`, verify the session and reject requests where the session address does not match `envelope.xrplAccount`
 
 This should be completed before mainnet launch.

@@ -1,6 +1,6 @@
 # Securd — XRPL Lending Protocol
 
-Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 1449000). Users supply assets to earn interest and borrow against their collateral. All interaction happens from the **XRPL Ledger** using Xumm or Gem wallets — no EVM wallet is ever required. Cross-chain communication is handled by **Axelar GMP and ITS**.
+Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 1449000). Users supply assets to earn interest and borrow against their collateral. All interaction happens from the **XRPL Ledger** using any XRPL wallet (Xaman, Crossmark, GemWallet, or WalletConnect) — no EVM wallet is ever required. Cross-chain communication is handled by **Axelar GMP and ITS**.
 
 ---
 
@@ -10,7 +10,7 @@ Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 14
 XRPL Ledger (user)
       │
       │  XRPL Payment with Axelar memo
-      │  (signed by Xumm / Gem via HyperGate)
+      │  (signed via XRPL Connect — Xaman / Crossmark / Gem / WC)
       ▼
 Axelar Network
       │
@@ -33,7 +33,7 @@ Each XRPL address gets a deterministic **proxy contract** on XRPL EVM (salt = `k
 |-------|-----------|
 | Smart contracts | Solidity — lending core + Axelar adapters |
 | XRPL EVM reads | viem `publicClient` (chain ID 1449000) |
-| XRPL wallet | HyperGate (Xumm + Gem) via `@hyper-gate/react` |
+| XRPL wallet | XRPL Connect (Xaman, Crossmark, GemWallet, WalletConnect) via `xrpl-connect` |
 | Cross-chain bridge | Axelar GMP (enter/exit collateral, borrow/withdraw) + ITS (supply/repay) |
 | Frontend | Next.js 14 App Router, Tailwind CSS, Zustand |
 | Tx tracking | Axelarscan GMP API |
@@ -83,10 +83,10 @@ Edit `.env.local`:
 # On testnet this is the deployer key.
 INTENT_SIGNER_PRIVATE_KEY=0x<your-evm-private-key>
 
-# WalletConnect project ID (required by HyperGate)
+# WalletConnect project ID (used by the WalletConnect adapter)
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
 
-# Optional — Xumm API key for the Xumm connector
+# Optional — Xaman/Xumm API key for the Xaman adapter
 NEXT_PUBLIC_XUMM_API_KEY=<your-xumm-api-key>
 ```
 
@@ -96,7 +96,7 @@ NEXT_PUBLIC_XUMM_API_KEY=<your-xumm-api-key>
 npm run dev
 ```
 
-Open http://localhost:3000, connect your Xumm or Gem wallet, and navigate to **Markets**.
+Open http://localhost:3000, connect any supported XRPL wallet, and navigate to **Markets**.
 
 ---
 

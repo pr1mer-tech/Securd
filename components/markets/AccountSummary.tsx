@@ -1,7 +1,6 @@
 "use client";
 
-import { useAccount } from "@hyper-gate/react";
-import { useModal } from "@hyper-gate/connectkit";
+import { useAccount, useWallet } from "@/lib/xrpl/walletContext";
 import { useUserAccount } from "@/lib/hooks/useUserAccount";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
 import { HealthFactor } from "./HealthFactor";
@@ -11,14 +10,14 @@ import { Wallet } from "lucide-react";
 
 export function AccountSummary() {
   const { address } = useAccount();
-  const { setOpen } = useModal();
+  const { openPicker } = useWallet();
   const { userAccount, isLoading } = useUserAccount();
 
   return (
     <div className="bg-securdPrimary">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         {!address ? (
-          <DisconnectedState onConnect={() => setOpen(true)} />
+          <DisconnectedState onConnect={openPicker} />
         ) : isLoading || !userAccount ? (
           <AccountSummarySkeleton />
         ) : (

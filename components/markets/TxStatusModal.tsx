@@ -98,9 +98,19 @@ export function TxStatusModal({ txHash, actionLabel, onClose }: Props) {
             </p>
           )}
           {status?.isFailed && (
-            <p className="text-systemRed text-sm font-medium text-center pt-1">
-              Transaction failed on XRPL EVM. Check Axelarscan for details.
-            </p>
+            <div className="flex flex-col gap-1 text-center pt-1">
+              <p className="text-systemRed text-sm font-medium">
+                Transaction failed on XRPL EVM.
+              </p>
+              {status.errorMessage && (
+                <p className="text-systemRed/80 text-xs font-mono break-words">
+                  {status.errorMessage}
+                </p>
+              )}
+              <p className="text-securdGrey text-xs">
+                Open Axelarscan for full details and recovery options.
+              </p>
+            </div>
           )}
 
           {/* Close button */}

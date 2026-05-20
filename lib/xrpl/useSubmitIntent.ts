@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useAccount } from "@hyper-gate/react";
-import { useSendTransaction } from "@hyper-gate/react";
+import { useWallet } from "@/lib/xrpl/walletContext";
 import { toast } from "sonner";
 import { getNextNonce } from "./nonce";
 import { buildEnvelope } from "./intentBuilder";
@@ -63,13 +62,13 @@ async function fetchSignature(
 }
 
 export function useSubmitIntent() {
-  const { address: xrplAddress } = useAccount();
-  const { signMessageAsync: sendTx } = useSendTransaction();
+  const { account, manager } = useWallet();
+  const xrplAddress = account?.address;
   const [state, setState] = useState<SubmitIntentState>({ status: "idle" });
 
   const submit = useCallback(
     async (params: SubmitIntentParams) => {
-      if (!xrplAddress) {
+      if (!xrplAddress || !manager) {
         toast.error("Connect your XRPL wallet first.");
         return;
       }
@@ -104,24 +103,23 @@ export function useSubmitIntent() {
           depositDrops: amountDrops, // only relevant for SUPPLY/REPAY
         });
 
-        // 6. Submit via HyperGate (Xumm / Gem wallet)
+        // 6. Submit via XRPL Connect (wallet user picked at connect time)
         setState({ status: "submitting" });
-        const txHash = await sendTx(payment as Parameters<typeof sendTx>[0]);
+        const result = await manager.signAndSubmit(payment);
+        const txHash = result.hash;
 
-        setState({ status: "success", txHash: txHash as string });
+        setState({ status: "success", txHash });
         toast.success("Transaction submitted!", {
-          description: txHash
-            ? `TX: ${(txHash as string).slice(0, 16)}…`
-            : undefined,
+          description: txHash ? `TX: ${txHash.slice(0, 16)}…` : undefined,
         });
-        return txHash as string;
+        return txHash;
       } catch (err) {
         const message = err instanceof Error ? err.message : "Transaction failed";
         setState({ status: "error", error: message });
         toast.error("Transaction failed", { description: message });
       }
     },
-    [xrplAddress, sendTx],
+    [xrplAddress, manager],
   );
 
   const reset = useCallback(() => setState({ status: "idle" }), []);

@@ -6,8 +6,8 @@ import Image from "next/image";
 import SecurdLogo from "@/assets/logos/securd-logo.svg";
 import { usePathname, useRouter } from "next/navigation";
 import { ActiveTab } from "@/lib/types/enums";
-import { ConnectKitButton } from "@hyper-gate/connectkit";
-import { MenuIcon, XIcon } from "lucide-react";
+import { useWallet } from "@/lib/xrpl/walletContext";
+import { MenuIcon, XIcon, Wallet } from "lucide-react";
 
 const NAV = [
   { label: "Markets", href: "/markets", tab: ActiveTab.MARKETS },
@@ -58,7 +58,7 @@ const Header = () => {
 
         {/* Connect button — desktop */}
         <div className="hidden sm:block">
-          <ConnectKitButton />
+          <ConnectButton />
         </div>
 
         {/* Hamburger — mobile */}
@@ -89,7 +89,7 @@ const Header = () => {
             </Link>
           ))}
           <div className="pt-2">
-            <ConnectKitButton />
+            <ConnectButton />
           </div>
         </div>
       )}
@@ -98,3 +98,33 @@ const Header = () => {
 };
 
 export default Header;
+
+function ConnectButton() {
+  const { account, connected, openPicker, disconnect } = useWallet();
+
+  if (!connected || !account) {
+    return (
+      <button
+        type="button"
+        onClick={openPicker}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-securdPrimaryLight text-securdBlack font-bold text-sm hover:opacity-90 transition-opacity"
+      >
+        <Wallet size={16} />
+        Connect Wallet
+      </button>
+    );
+  }
+
+  const truncated = `${account.address.slice(0, 6)}…${account.address.slice(-4)}`;
+  return (
+    <button
+      type="button"
+      onClick={() => disconnect()}
+      title="Click to disconnect"
+      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-securdWhite text-sm font-medium hover:bg-white/10 transition-colors"
+    >
+      <Wallet size={16} />
+      {truncated}
+    </button>
+  );
+}

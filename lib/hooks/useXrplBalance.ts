@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount } from "@hyper-gate/react";
+import { useAccount } from "@/lib/xrpl/walletContext";
 import type { MarketConfig } from "@/lib/constants/markets";
 
 type XrplBalances = {

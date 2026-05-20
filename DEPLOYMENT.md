@@ -38,8 +38,8 @@ Before starting, make sure you have all of the following:
 |------|-----|---------------|
 | **XRPL testnet account** | The wallet users connect with (Xumm/Gem) | [XRPL Testnet Faucet](https://faucet.altnet.rippletest.net/) — generates a funded r-address |
 | **EVM private key (intent signer)** | Signs intent envelopes server-side so the BridgeAdapter trusts them | Generate a fresh EVM keypair (see below) |
-| **WalletConnect project ID** | Required by HyperGate for wallet discovery | [cloud.walletconnect.com](https://cloud.walletconnect.com) — free account, create a project |
-| **Xumm API key** *(optional)* | Enables native Xumm connector (without it Xumm still works via WalletConnect) | [developer.xumm.dev](https://developer.xumm.dev) |
+| **WalletConnect project ID** | Used by the WalletConnect adapter in XRPL Connect | [cloud.walletconnect.com](https://cloud.walletconnect.com) — free account, create a project |
+| **Xaman/Xumm API key** *(optional)* | Enables the native Xaman adapter (without it Xaman still works via WalletConnect) | [developer.xumm.dev](https://developer.xumm.dev) |
 
 #### Generate a fresh EVM intent signer keypair
 
@@ -120,7 +120,7 @@ On testnet, the deployer key is typically registered as the global signer. In pr
 
 ### `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
 
-Required by HyperGate to show the wallet discovery modal. Without it, wallet connection will fail silently or show an error.
+Required by the WalletConnect adapter so wallets that connect over WalletConnect (mobile apps, Xaman, etc.) can pair with the dapp. Without it, the WalletConnect adapter will fail to initialise.
 
 Get a free project ID at [cloud.walletconnect.com](https://cloud.walletconnect.com):
 1. Create an account
@@ -129,9 +129,9 @@ Get a free project ID at [cloud.walletconnect.com](https://cloud.walletconnect.c
 
 ### `NEXT_PUBLIC_XUMM_API_KEY` *(optional)*
 
-Enables the native Xumm connector tab inside HyperGate. Without it:
-- Xumm still works via WalletConnect (users scan a QR code)
-- The native Xumm flow (deep link / push notification) is unavailable
+Enables the native Xaman adapter in XRPL Connect. Without it:
+- Xaman still works via the WalletConnect adapter (users scan a QR code)
+- The native Xaman flow (deep link / push notification) is unavailable
 
 Get an API key at [developer.xumm.dev](https://developer.xumm.dev).
 
@@ -206,11 +206,13 @@ The returned address should match the signer address you put in `INTENT_SIGNER_P
 
 ### Install a wallet
 
-Install one of:
-- **Xumm** — [xumm.app](https://xumm.app) (iOS / Android)
-- **Gem Wallet** — [gemwallet.app](https://gemwallet.app) (browser extension)
+Install any one of:
+- **Xaman / Xumm** — [xumm.app](https://xumm.app) (iOS / Android)
+- **Crossmark** — [crossmark.io](https://crossmark.io) (browser extension)
+- **GemWallet** — [gemwallet.app](https://gemwallet.app) (browser extension)
+- Any wallet that supports XRPL via **WalletConnect**
 
-Both are supported by HyperGate.
+All of the above are supported by XRPL Connect through their respective adapters.
 
 ### Fund your XRPL testnet account
 
@@ -466,11 +468,12 @@ Re-register by calling `setIntentSigner` again with the correct address.
 - If the relay shows "Insufficient fee" — the gas drops constants in `lib/xrpl/types.ts` (`ITS_GAS_FEE_DROPS`, `GMP_GAS_DROPS`) may need to be increased
 - If the relay shows "Error" — check the memo encoding by reading the raw transaction on [testnet.xrpl.org](https://testnet.xrpl.org)
 
-### HyperGate wallet modal does not open
+### Wallet picker modal does not open
 
-- Confirm `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is set and valid
-- Check the browser console for a WalletConnect error
+- Confirm `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is set and valid (required for the WalletConnect adapter to register)
+- Check the browser console for an XRPL Connect or WalletConnect error
 - The project ID is tied to a domain — localhost should work by default, but if deploying you may need to add the Vercel domain to the allowed origins in the WalletConnect dashboard
+- If the modal opens but lists no wallets, `manager.getAvailableWallets()` returned empty — likely a browser-side adapter availability issue (no extension installed, etc.)
 
 ### XRP balance shows 0 in the Wallet column
 

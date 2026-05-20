@@ -39,8 +39,9 @@ const SIGNED_INTENT_ABI = [
 
 // ─── Build ────────────────────────────────────────────────────────────────────
 
-// 30-minute window — matches the BridgeAdapter's enforced deadline policy.
-const INTENT_TTL_SECONDS = 1800n;
+// 6-hour window — long enough to absorb Axelar testnet relay delays
+// without expiring the intent before delivery to xrpl-evm.
+const INTENT_TTL_SECONDS = 21600n;
 
 export function buildEnvelope(params: {
   xrplAddress: string;

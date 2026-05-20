@@ -103,8 +103,8 @@ To add a new action:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `INTENT_SIGNER_PRIVATE_KEY` | Yes | EVM private key of the intent signer. Must match the address registered in `BridgeAdapter.intentSignerOfXrplAccount` for each user. On testnet this is the deployer key. |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Yes | WalletConnect project ID — required by HyperGate for wallet discovery. Get one at https://cloud.walletconnect.com |
-| `NEXT_PUBLIC_XUMM_API_KEY` | No | Xumm API key for the native Xumm connector. Without it, Xumm still works via WalletConnect. |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Yes | WalletConnect project ID — used by the WalletConnect adapter in XRPL Connect. Get one at https://cloud.walletconnect.com |
+| `NEXT_PUBLIC_XUMM_API_KEY` | No | Xaman/Xumm API key for the native Xaman adapter. Without it, Xaman still works via the WalletConnect adapter. |
 
 ---
 

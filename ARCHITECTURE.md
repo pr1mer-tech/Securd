@@ -11,7 +11,8 @@ Securd bridges two networks: the **XRPL Ledger** (where users hold assets and si
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    USER (XRPL Ledger)                   │
-│           Xumm / Gem wallet via HyperGate               │
+│      XRPL wallet (Xaman, Crossmark, Gem, WC) via        │
+│                       XRPL Connect                      │
 └─────────────────────┬───────────────────────────────────┘
                       │ XRPL Payment (with Axelar memo)
                       ▼
@@ -49,10 +50,12 @@ Securd bridges two networks: the **XRPL Ledger** (where users hold assets and si
 
 ### Wallets
 
-Users connect Xumm or Gem via **HyperGate** (`@hyper-gate/react`). The dapp only ever sees the user's XRPL `r-address` — no EVM private key exists on the client side.
+Users connect any XRPL wallet — Xaman/Xumm, Crossmark, GemWallet, or WalletConnect — via **XRPL Connect** (`xrpl-connect`). The provider is `WalletProvider` in `lib/xrpl/walletContext.tsx`. The dapp only ever sees the user's XRPL `r-address` — no EVM private key exists on the client side.
 
 ```typescript
 const { address } = useAccount();  // e.g. "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+// or, when the manager is needed (e.g. to submit a tx):
+const { manager, account } = useWallet();
 ```
 
 ### XRPL Payments
@@ -106,7 +109,7 @@ Browser                 Next.js API (/api/sign-intent)       XRPL EVM
    │                            │── signMessage(digest) ───────►│
    │◄── { signature } ──────────│                               │
    │── buildXrplPayment() ──────│                               │
-   │── HyperGate.submit() ──────────────────────────────────────►
+   │── manager.signAndSubmit() ─────────────────────────────────►
 ```
 
 ### IntentEnvelope fields
@@ -120,7 +123,7 @@ Browser                 Next.js API (/api/sign-intent)       XRPL EVM
 | `actionType` | `uint8` | 0=SUPPLY 1=BORROW 2=REPAY 3=WITHDRAW 4=ENTER_MARKET 5=EXIT_MARKET |
 | `amount` | `uint256` | 18-decimal EVM wei |
 | `nonce` | `uint64` | Fetched from `adapter.nextNonceByXrplAccount` |
-| `deadline` | `uint64` | Unix timestamp — `now + 1800s` (30 min), set in `buildEnvelope` |
+| `deadline` | `uint64` | Unix timestamp — `now + 21600s` (6h), set in `buildEnvelope` |
 | `destinationAddress` | `bytes` | SUPPLY/REPAY: `0x`; BORROW/WITHDRAW: UTF-8 bytes of r-address |
 | `version` | `uint8` | Always `1` |
 
@@ -217,7 +220,7 @@ useSubmitIntent.submit()
       ├── 2. buildEnvelope(...)                  [local]
       ├── 3. POST /api/sign-intent               [server signs]
       ├── 4. buildXrplPayment(envelope, sig)     [local]
-      └── 5. HyperGate.signMessageAsync(payment) [Xumm/Gem popup]
+      └── 5. manager.signAndSubmit(payment)     [wallet prompt]
                     │
                     ▼ txHash returned
       TxStatusModal opens
@@ -254,7 +257,7 @@ Before signing, the endpoint enforces:
 Fetched on-chain from `BridgeAdapter.nextNonceByXrplAccount` before every transaction. Each nonce can only be consumed once on-chain, preventing replay of executed intents.
 
 ### Deadline
-Every intent envelope is signed with a **30-minute deadline** (`now + 1800s`). The BridgeAdapter rejects any intent where `block.timestamp > deadline`. Stale or intercepted payloads cannot be submitted after the window closes.
+Every intent envelope is signed with a **6-hour deadline** (`now + 21600s`). The BridgeAdapter rejects any intent where `block.timestamp > deadline`. The window is sized to absorb Axelar testnet relay delays — too short and slow relays expire the intent before delivery (see Axelar relay troubleshooting in DEPLOYMENT.md); too long widens the replay attack surface for stolen payloads.
 
 ### Proxy isolation
 Each user's proxy is independent (one per XRPL address, CREATE2 deterministic). An action signed for `xrplAccount A` operates exclusively on proxy A. The market allowlist and action type allowlist ensure the server only signs for known, safe operations.
