@@ -12,7 +12,7 @@ import { MarketAssetIcon } from "./MarketAssetIcon";
 import { BorrowLimitBar } from "./BorrowLimitBar";
 import { HealthFactor } from "./HealthFactor";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
-import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useSubmitIntent, ACTION_TYPE, marketIou } from "@/lib/xrpl/useSubmitIntent";
 import { useHypotheticalLiquidity } from "@/lib/hooks/useHypotheticalLiquidity";
 import { TxStatusModal } from "./TxStatusModal";
 import type { MarketData, UserMarketPosition, UserAccount } from "@/lib/types/market.types";
@@ -74,7 +74,7 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
   const maxBorrowUnderlying = market.priceUSD > 0 ? maxBorrowUSD / market.priceUSD : 0;
 
   const isValid = inputAmount > 0;
-  const { submit, state, reset } = useSubmitIntent();
+  const { submit, state, reset, isBlocked } = useSubmitIntent();
   const isPending = state.status === "signing" || state.status === "submitting";
   const borrowBlocked = tab === "borrow" && borrowPreview.isBlocked;
   const previewLabel = borrowPreview.isLoading
@@ -146,8 +146,14 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
               </div>
             )}
             <ActionButton
-              label={isPending ? "Submitting…" : `Borrow ${market.underlyingSymbol}`}
-              disabled={!isValid || newBorrowUsed >= 1 || isPending || borrowPreview.isLoading || borrowBlocked}
+              label={
+                isPending
+                  ? "Submitting…"
+                  : isBlocked
+                    ? "Transaction in progress…"
+                    : `Borrow ${market.underlyingSymbol}`
+              }
+              disabled={!isValid || newBorrowUsed >= 1 || isPending || isBlocked || borrowPreview.isLoading || borrowBlocked}
               warning={
                 borrowBlocked
                   ? borrowPreview.reason
@@ -158,7 +164,9 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
                   market: market.cToken,
                   underlying: market.underlying,
                   actionType: ACTION_TYPE.BORROW,
-                  amountXrp: inputAmount,
+                  amount,
+                  underlyingDecimals: market.underlyingDecimals,
+                  iou: marketIou(market),
                 })
               }
             />
@@ -198,14 +206,22 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
               </div>
             )}
             <ActionButton
-              label={isPending ? "Submitting…" : `Repay ${market.underlyingSymbol}`}
-              disabled={!isValid || isPending}
+              label={
+                isPending
+                  ? "Submitting…"
+                  : isBlocked
+                    ? "Transaction in progress…"
+                    : `Repay ${market.underlyingSymbol}`
+              }
+              disabled={!isValid || isPending || isBlocked}
               onClick={() =>
                 submit({
                   market: market.cToken,
                   underlying: market.underlying,
                   actionType: ACTION_TYPE.REPAY,
-                  amountXrp: inputAmount,
+                  amount,
+                  underlyingDecimals: market.underlyingDecimals,
+                  iou: marketIou(market),
                 })
               }
             />

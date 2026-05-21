@@ -24,4 +24,50 @@ export const abiBridgeAdapter = [
     ],
     stateMutability: "view",
   },
+  {
+    name: "trustedItsSource",
+    type: "function",
+    inputs: [{ name: "key", type: "bytes32" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    name: "trustedGmpSource",
+    type: "function",
+    inputs: [{ name: "key", type: "bytes32" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    name: "setIntentSigner",
+    type: "function",
+    inputs: [
+      { name: "xrplAccount", type: "bytes32" },
+      { name: "signer", type: "address" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setTrustedItsSource",
+    type: "function",
+    inputs: [
+      { name: "sourceChain", type: "string" },
+      { name: "sourceAddress", type: "bytes" },
+      { name: "trusted", type: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setTrustedGmpSource",
+    type: "function",
+    inputs: [
+      { name: "sourceChain", type: "string" },
+      { name: "sourceAddress", type: "string" },
+      { name: "trusted", type: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
 ] as const;

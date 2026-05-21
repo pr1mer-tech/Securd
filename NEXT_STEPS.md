@@ -71,7 +71,7 @@ The button renders as disabled with a tooltip. To complete this feature:
 
 1. Import the repository into Vercel
 2. Set environment variables in the Vercel dashboard:
-   - `INTENT_SIGNER_PRIVATE_KEY`
+   - `DEPLOYER_PRIVATE_KEY`
    - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
    - `NEXT_PUBLIC_XUMM_API_KEY`
 3. Deploy — the `/api/sign-intent` route runs as a serverless function automatically
@@ -113,11 +113,11 @@ The modals now use `getHypotheticalAccountLiquidity` where the Comptroller suppo
 
 A security audit of the `smart_contracts_integration` branch identified and fixed three vulnerabilities in `/api/sign-intent`:
 
-| Finding | Status |
-|---------|--------|
-| Market and underlying not validated against the allowlist | ✅ Fixed — `getMarketByAddress()` check added |
-| `actionType` accepted without validation (ENTER/EXIT_MARKET signable) | ✅ Fixed — `SIGNABLE_ACTION_TYPES` allowlist added |
-| Intent deadline was always `0` (no expiry) despite docs stating 30 min | ✅ Fixed — `buildEnvelope` now sets `now + 1800s` |
+| Finding                                                                      | Status                                                                            |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Market and underlying not validated against the allowlist                    | ✅ Fixed — `getMarketByAddress()` check added                                     |
+| `actionType` accepted without validation (ENTER/EXIT_MARKET signable)        | ✅ Fixed — `SIGNABLE_ACTION_TYPES` allowlist added                                |
+| Intent deadline was always `0` (no expiry) despite docs stating 30 min       | ✅ Fixed — `buildEnvelope` now sets `now + 1800s`                                 |
 | Signing endpoint has no authentication — any caller can sign for any account | ⚠️ Partially mitigated — `x-xrpl-address` header added; not a cryptographic proof |
 
 ### Remaining work — full caller authentication

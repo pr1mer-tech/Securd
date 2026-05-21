@@ -56,6 +56,7 @@ Smart contracts cannot verify XRPL signatures. Every write action flows through 
 ### Frontend data flow
 
 `ContractDataSync` (mounted in `app/markets/layout.tsx`) drives all polling:
+
 - `useMarketsData` — reads all cToken contracts on XRPL EVM every 30s → Zustand `markets[]`
 - `useUserData` — reads proxy snapshot on wallet connect/change → Zustand `userAccount`, `positions[]`
 - `useXrplBalance` — polls XRPL Ledger RPC every 15s for native XRP and IOU balances
@@ -93,7 +94,7 @@ Factory uses CREATE2 with salt = `keccak256(utf8(xrplAddress))`.
 
 ### Server-side signing constraint
 
-`INTENT_SIGNER_PRIVATE_KEY` is only accessed in `app/api/sign-intent/route.ts`. Never import it in `app/` (other than `app/api/`), `components/`, or `lib/`.
+`DEPLOYER_PRIVATE_KEY` is only accessed in `app/api/sign-intent/route.ts`. Never import it in `app/` (other than `app/api/`), `components/`, or `lib/`.
 
 ### UI components
 
@@ -104,9 +105,9 @@ Factory uses CREATE2 with salt = `keccak256(utf8(xrplAddress))`.
 
 ## Adding a new market
 
-1. Deploy `CErc20Delegator` on XRPL EVM, configure collateral factor and oracle
-2. Register in `lib/constants/markets.ts` (add `MarketConfig` entry with `cToken`, `underlying`, `bridgeTokenId`; add `xrplCurrency`/`xrplIssuer` for IOU tokens)
-3. `useMarketsData` and `useXrplBalance` pick it up automatically
+1. Deploy `CErc20Delegator` on XRPL EVM, configure collateral factor and oracle, list it in the Comptroller (`_supportMarket`), and register it in the BridgeAdapter
+2. For IOU markets only: add an `xrplCurrency`/`xrplIssuer` entry to `MARKET_METADATA` in `lib/constants/markets.ts`, keyed by lowercase cToken address (native XRP needs no entry)
+3. `useMarketsData` discovers it automatically via the Comptroller's `getAllMarkets()` — there is no frontend market list to edit
 
 ## Adding a new action type
 
@@ -118,21 +119,23 @@ Factory uses CREATE2 with salt = `keccak256(utf8(xrplAddress))`.
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `INTENT_SIGNER_PRIVATE_KEY` | Yes | EVM private key registered in BridgeAdapter as intent signer |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Yes | WalletConnect adapter project ID |
-| `NEXT_PUBLIC_XUMM_API_KEY` | No | Xaman/Xumm adapter (other adapters work without it) |
+| Variable                               | Required | Purpose                                                      |
+| -------------------------------------- | -------- | ------------------------------------------------------------ |
+| `DEPLOYER_PRIVATE_KEY`                 | Yes      | EVM private key registered in BridgeAdapter as intent signer |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Yes      | WalletConnect adapter project ID                             |
+| `NEXT_PUBLIC_XUMM_API_KEY`             | No       | Xaman/Xumm adapter (other adapters work without it)          |
+| `NEXT_PUBLIC_XRPL_AXELAR_GATEWAY`      | No       | Axelar gateway XRPL r-address (defaults to testnet gateway)  |
+| `NEXT_PUBLIC_AXELAR_DESTINATION_CHAIN` | No       | Axelar destination chain name (defaults to `xrpl-evm`)       |
 
 Copy `.env.local.example` to `.env.local` to get started.
 
 ## Deployed contracts (testnet — XRPL EVM chain ID 1449000)
 
-| Contract | Address |
-|----------|---------|
-| Comptroller | `0x46d364257112230022E72b086Df85a6b0f8D3F86` |
-| BridgeAdapter | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
+| Contract             | Address                                      |
+| -------------------- | -------------------------------------------- |
+| Comptroller          | `0x46d364257112230022E72b086Df85a6b0f8D3F86` |
+| BridgeAdapter        | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
 | XRPLUserProxyFactory | `0xB7f3ECe856063F48BC3bcC7A381aE875841663aA` |
-| SecurdPriceOracle | `0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80` |
-| sXRP cToken | `0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318` |
-| XRPL Axelar Gateway | `rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2` |
+| SecurdPriceOracle    | `0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80` |
+| sXRP cToken          | `0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318` |
+| XRPL Axelar Gateway  | `rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2`         |

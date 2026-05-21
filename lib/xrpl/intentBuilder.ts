@@ -3,7 +3,6 @@ import { ADDRESSES } from "@/lib/constants/contracts";
 import { xrplAddressToBytes32 } from "@/lib/utils/xrplProxy";
 import {
   ACTION_TYPE,
-  DROPS_TO_EVM,
   ENVELOPE_VERSION,
   type ActionType,
   type IntentEnvelope,
@@ -48,12 +47,11 @@ export function buildEnvelope(params: {
   market: Address;
   underlying: Address;
   actionType: ActionType;
-  amountDrops: bigint;  // in XRPL drops (6-decimal)
+  amountEvm: bigint;  // 18-decimal EVM wei (0 for ENTER/EXIT_MARKET)
   nonce: bigint;
   deadline?: bigint;
 }): IntentEnvelope {
   const xrplAccount = xrplAddressToBytes32(params.xrplAddress);
-  const amountEvm = params.amountDrops * DROPS_TO_EVM;
 
   // For SUPPLY and REPAY: no egress — destinationAddress is empty
   // For BORROW and WITHDRAW: egress to the user's XRPL address
@@ -77,7 +75,7 @@ export function buildEnvelope(params: {
     market: params.market,
     underlying: params.underlying,
     actionType: params.actionType,
-    amount: amountEvm,
+    amount: params.amountEvm,
     nonce: params.nonce,
     deadline: params.deadline ?? (BigInt(Math.floor(Date.now() / 1000)) + INTENT_TTL_SECONDS),
     destinationAddress,

@@ -7,6 +7,10 @@ export type MarketData = {
   name: string;
   underlyingSymbol: string;
   underlyingDecimals: number;
+  // XRPL Ledger identity — present only for IOU markets (absent for native XRP).
+  // Drives the IOU Amount object in SUPPLY/REPAY payments.
+  xrplCurrency?: string;
+  xrplIssuer?: string;
 
   // Raw on-chain values
   totalSupply: bigint;

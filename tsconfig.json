@@ -40,6 +40,13 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "scripts/**/*.ts",
+    "accrue-interest.ts",
+    "check-irm.ts",
+    "check-irm-owner.ts",
+    "check-irm-util.ts",
+    "check-market-values.ts",
+    "contractDebug.ts"
   ]
 }

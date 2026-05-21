@@ -1,52 +1,36 @@
 import type { Address } from "viem";
 
+// Placeholder underlying for native XRP — it has no ERC20 contract.
+// The BridgeAdapter's marketConfigOf() returns this for the native XRP market.
 export const NATIVE_UNDERLYING = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address;
 
-export type MarketConfig = {
-  cToken: Address;
-  underlying: Address;
-  symbol: string;
-  name: string;
-  underlyingSymbol: string;
-  underlyingDecimals: number;
-  // Axelar ITS token ID for cross-chain bridging
-  bridgeTokenId: `0x${string}`;
-  // XRPL Ledger identity for wallet balance lookup via account_lines.
-  // Omit both for native XRP (uses account_info Balance instead).
-  // For IOUs: currency = 3-char code (e.g. "USD") or 40-char hex for long names;
-  //           issuer   = XRPL r-address of the token issuer on the Ledger.
-  xrplCurrency?: string;
-  xrplIssuer?: string;
+/**
+ * XRPL Ledger identity for an IOU market — the one piece of market data that
+ * cannot be read from XRPL EVM. Everything else (symbol, underlying, decimals,
+ * rates, bridge token id, ...) is read from chain; `getAllMarkets()` on the
+ * Comptroller is the single source of truth for which markets exist.
+ *
+ * currency = 3-char code, or 40-char hex form for long names.
+ * issuer   = XRPL r-address of the token issuer on the Ledger.
+ * Native XRP markets need no entry here.
+ */
+export type XrplTokenIdentity = {
+  xrplCurrency: string;
+  xrplIssuer: string;
 };
 
-// Registry of all active markets on XRPL EVM testnet
-export const MARKETS: MarketConfig[] = [
-  {
-    cToken:             "0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318",
-    underlying:         NATIVE_UNDERLYING,
-    symbol:             "sXRP",
-    name:               "XRP",
-    underlyingSymbol:   "XRP",
-    underlyingDecimals: 18,
-    bridgeTokenId:      "0xba5a21ca88ef6bba2bfff5088994f90e1077e2a1cc3dcc38bd261f00fce2824f",
-    // Native XRP — no xrplCurrency / xrplIssuer needed
+// Per-cToken XRPL Ledger identity, keyed by lowercase cToken address.
+// A market absent from this map still appears (chain is the source of truth) —
+// only its IOU supply/repay path needs an entry.
+export const MARKET_METADATA: Record<string, XrplTokenIdentity> = {
+  // sSTST — IOU on XRPL Ledger, issued by the Axelar gateway.
+  // currency is the 40-char hex form of "STST".
+  "0x2f874d87e685ec28be749b781dc99119f27cf0be": {
+    xrplCurrency: "5354535400000000000000000000000000000000",
+    xrplIssuer:   "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2",
   },
-  // Future IOU markets — add xrplCurrency and xrplIssuer from the XRPL Ledger issuer:
-  // {
-  //   cToken:             "0x...",
-  //   underlying:         "0x...",
-  //   symbol:             "sUSDC",
-  //   name:               "Securd USDC",
-  //   underlyingSymbol:   "USDC",
-  //   underlyingDecimals: 6,
-  //   bridgeTokenId:      "0x...",
-  //   xrplCurrency:       "USD",
-  //   xrplIssuer:         "r<IssuerAddress>",
-  // },
-];
+};
 
-export function getMarketByAddress(cToken: Address): MarketConfig | undefined {
-  return MARKETS.find(
-    (m) => m.cToken.toLowerCase() === cToken.toLowerCase()
-  );
+export function getMarketMetadata(cToken: Address): XrplTokenIdentity | undefined {
+  return MARKET_METADATA[cToken.toLowerCase()];
 }

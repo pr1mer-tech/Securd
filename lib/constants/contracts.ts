@@ -40,6 +40,12 @@ export function cTokenContract(address: Address) {
   return { address, abi: abiCErc20 } as const;
 }
 
+// Per-market interest rate model — markets may use separate IRM instances,
+// so the address is resolved at runtime via cToken.interestRateModel().
+export function irmContract(address: Address) {
+  return { address, abi: abiJumpRateModel } as const;
+}
+
 export const bridgeAdapterContract = {
   address: ADDRESSES.bridgeAdapter,
   abi: abiBridgeAdapter,

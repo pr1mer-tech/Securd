@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAccount } from "@/lib/xrpl/walletContext";
-import type { MarketConfig } from "@/lib/constants/markets";
+import type { MarketData } from "@/lib/types/market.types";
 
 type XrplBalances = {
   // Native XRP in drops (bigint)
@@ -82,7 +82,7 @@ export function useXrplBalance() {
    * - IOU market (has xrplCurrency + xrplIssuer) → trust line balance from account_lines
    * Returns null if not connected or the trust line doesn't exist.
    */
-  function getWalletBalance(market: Pick<MarketConfig, "xrplCurrency" | "xrplIssuer" | "underlyingDecimals">): number | null {
+  function getWalletBalance(market: Pick<MarketData, "xrplCurrency" | "xrplIssuer" | "underlyingDecimals">): number | null {
     if (!market.xrplCurrency || !market.xrplIssuer) {
       // Native XRP
       return balances.xrpDrops !== null

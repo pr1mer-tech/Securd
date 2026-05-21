@@ -39,6 +39,8 @@ const STEPS = [
 ];
 
 export function TxStatusModal({ txHash, actionLabel, onClose }: Props) {
+  // Display only — usePendingIntentWatcher owns clearing the lock and
+  // refreshing user data when the relay finishes.
   const status = useAxelarStatus(txHash);
 
   return (

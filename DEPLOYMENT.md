@@ -24,22 +24,22 @@ Before starting, make sure you have all of the following:
 
 ### Tools
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Node.js | ≥ 22 | https://nodejs.org |
-| Bun | 1.3.10 | `curl -fsSL https://bun.sh/install \| bash` |
-| Git | any | system package manager |
+| Tool    | Version | Install                                     |
+| ------- | ------- | ------------------------------------------- |
+| Node.js | ≥ 22    | https://nodejs.org                          |
+| Bun     | 1.3.10  | `curl -fsSL https://bun.sh/install \| bash` |
+| Git     | any     | system package manager                      |
 
 > Bun is the package manager and runtime used by this project. Do not use `npm` or `yarn` — they will produce a different lockfile.
 
 ### Accounts and keys you need to prepare
 
-| What | Why | How to get it |
-|------|-----|---------------|
-| **XRPL testnet account** | The wallet users connect with (Xumm/Gem) | [XRPL Testnet Faucet](https://faucet.altnet.rippletest.net/) — generates a funded r-address |
-| **EVM private key (intent signer)** | Signs intent envelopes server-side so the BridgeAdapter trusts them | Generate a fresh EVM keypair (see below) |
-| **WalletConnect project ID** | Used by the WalletConnect adapter in XRPL Connect | [cloud.walletconnect.com](https://cloud.walletconnect.com) — free account, create a project |
-| **Xaman/Xumm API key** *(optional)* | Enables the native Xaman adapter (without it Xaman still works via WalletConnect) | [developer.xumm.dev](https://developer.xumm.dev) |
+| What                                | Why                                                                               | How to get it                                                                               |
+| ----------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **XRPL testnet account**            | The wallet users connect with (Xumm/Gem)                                          | [XRPL Testnet Faucet](https://faucet.altnet.rippletest.net/) — generates a funded r-address |
+| **EVM private key (intent signer)** | Signs intent envelopes server-side so the BridgeAdapter trusts them               | Generate a fresh EVM keypair (see below)                                                    |
+| **WalletConnect project ID**        | Used by the WalletConnect adapter in XRPL Connect                                 | [cloud.walletconnect.com](https://cloud.walletconnect.com) — free account, create a project |
+| **Xaman/Xumm API key** _(optional)_ | Enables the native Xaman adapter (without it Xaman still works via WalletConnect) | [developer.xumm.dev](https://developer.xumm.dev)                                            |
 
 #### Generate a fresh EVM intent signer keypair
 
@@ -50,6 +50,7 @@ cast wallet new
 ```
 
 Output example:
+
 ```
 Address:     0xAbCd...
 Private key: 0x1234...
@@ -89,7 +90,7 @@ cp .env.local.example .env.local
 Open `.env.local` and fill in the three variables (see [Section 3](#3-environment-variables-explained) for what each one means):
 
 ```env
-INTENT_SIGNER_PRIVATE_KEY=0x<your-evm-private-key>
+DEPLOYER_PRIVATE_KEY=0x<your-evm-private-key>
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-walletconnect-project-id>
 NEXT_PUBLIC_XUMM_API_KEY=<your-xumm-api-key>   # optional
 ```
@@ -106,7 +107,7 @@ bunx tsc --noEmit
 
 ## 3. Environment variables explained
 
-### `INTENT_SIGNER_PRIVATE_KEY`
+### `DEPLOYER_PRIVATE_KEY`
 
 **Server-side only. Never exposed to the browser.**
 
@@ -123,13 +124,15 @@ On testnet, the deployer key is typically registered as the global signer. In pr
 Required by the WalletConnect adapter so wallets that connect over WalletConnect (mobile apps, Xaman, etc.) can pair with the dapp. Without it, the WalletConnect adapter will fail to initialise.
 
 Get a free project ID at [cloud.walletconnect.com](https://cloud.walletconnect.com):
+
 1. Create an account
 2. Create a new project (type: "App")
 3. Copy the **Project ID** (not the secret)
 
-### `NEXT_PUBLIC_XUMM_API_KEY` *(optional)*
+### `NEXT_PUBLIC_XUMM_API_KEY` _(optional)_
 
 Enables the native Xaman adapter in XRPL Connect. Without it:
+
 - Xaman still works via the WalletConnect adapter (users scan a QR code)
 - The native Xaman flow (deep link / push notification) is unavailable
 
@@ -143,11 +146,11 @@ This is the most critical setup step. Before any transaction can succeed, the Br
 
 ### Contract details
 
-| Contract | Address |
-|----------|---------|
+| Contract      | Address                                      |
+| ------------- | -------------------------------------------- |
 | BridgeAdapter | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
-| Network | XRPL EVM Testnet (chain ID `1449000`) |
-| RPC | `https://rpc.testnet.xrplevm.org` |
+| Network       | XRPL EVM Testnet (chain ID `1449000`)        |
+| RPC           | `https://rpc.testnet.xrplevm.org`            |
 
 ### What to call
 
@@ -169,6 +172,7 @@ const xrplAccount = keccak256(toBytes("rYourXRPLAddress..."));
 ```
 
 Or in the browser console (after `bun run dev` is running):
+
 ```js
 const { keccak256, toBytes } = await import("viem");
 keccak256(toBytes("rYourXRPLAddress..."));
@@ -198,7 +202,7 @@ cast call \
   --rpc-url https://rpc.testnet.xrplevm.org
 ```
 
-The returned address should match the signer address you put in `INTENT_SIGNER_PRIVATE_KEY`.
+The returned address should match the signer address you put in `DEPLOYER_PRIVATE_KEY`.
 
 ---
 
@@ -207,6 +211,7 @@ The returned address should match the signer address you put in `INTENT_SIGNER_P
 ### Install a wallet
 
 Install any one of:
+
 - **Xaman / Xumm** — [xumm.app](https://xumm.app) (iOS / Android)
 - **Crossmark** — [crossmark.io](https://crossmark.io) (browser extension)
 - **GemWallet** — [gemwallet.app](https://gemwallet.app) (browser extension)
@@ -227,9 +232,11 @@ Confirm the balance in your wallet or on [testnet.xrpl.org](https://testnet.xrpl
 ### Configure the wallet for XRPL testnet
 
 **Xumm:**
+
 1. Settings → Advanced → Node → select **Testnet** (`wss://s.altnet.rippletest.net:51233`)
 
 **Gem Wallet:**
+
 1. Settings → Network → XRPL Testnet
 
 ---
@@ -281,7 +288,7 @@ curl -s -X POST http://localhost:3000/api/sign-intent \
 
 Expected response: `{"signature":"0x..."}` (a 65-byte hex signature).
 
-If you get `{"error":"Intent signer not configured"}` — check `INTENT_SIGNER_PRIVATE_KEY` in `.env.local`.
+If you get `{"error":"Intent signer not configured"}` — check `DEPLOYER_PRIVATE_KEY` in `.env.local`.
 If you get `{"error":"Unknown market"}` — the market address does not match `lib/constants/markets.ts`.
 
 ---
@@ -289,6 +296,7 @@ If you get `{"error":"Unknown market"}` — the market address does not match `l
 ## 7. End-to-end transaction testing
 
 Each test step should be verified at three levels:
+
 - **XRPL Ledger** — [testnet.xrpl.org](https://testnet.xrpl.org) — the XRPL payment was submitted
 - **Axelarscan** — [testnet.axelarscan.io](https://testnet.axelarscan.io) — the Axelar relay completed
 - **XRPL EVM Explorer** — [explorer.testnet.xrplevm.org](https://explorer.testnet.xrplevm.org) — the EVM transaction executed on the proxy
@@ -306,12 +314,14 @@ The dapp's **TxStatusModal** shows a 4-step progress indicator that polls Axelar
 5. The TxStatusModal opens and tracks the relay
 
 **What to verify:**
+
 - TxStatusModal reaches Step 4 "Executed on XRPL EVM" ✓
 - On XRPL EVM Explorer, your proxy address shows a cToken balance increase
 - On the Markets page, "Supplied" balance updates on the next 30-second refresh
 - Supply APY displayed matches the on-chain `supplyRatePerBlock`
 
 > **Proxy address:** If you don't know your proxy address, open the browser console and run:
+>
 > ```js
 > const { getProxyAddress } = await import("/lib/utils/xrplProxy.js");
 > await getProxyAddress("rYourXRPLAddress");
@@ -329,6 +339,7 @@ The dapp's **TxStatusModal** shows a 4-step progress indicator that polls Axelar
 4. Wait for TxStatusModal to complete
 
 **What to verify:**
+
 - Borrowed XRP arrives in your XRPL Ledger wallet (check balance in Xumm / testnet.xrpl.org)
 - "Borrowed" balance updates in the UI
 - Health factor decreases (moves closer to 1.0)
@@ -344,6 +355,7 @@ The dapp's **TxStatusModal** shows a 4-step progress indicator that polls Axelar
 4. Wait for completion
 
 **What to verify:**
+
 - "Borrowed" balance returns to 0 after relay
 - Health factor returns to ∞ (no debt)
 - On XRPL EVM Explorer, the proxy's borrow balance is 0
@@ -358,6 +370,7 @@ The dapp's **TxStatusModal** shows a 4-step progress indicator that polls Axelar
 4. Wait for completion
 
 **What to verify:**
+
 - Withdrawn XRP arrives in your XRPL Ledger wallet
 - "Supplied" balance decreases in the UI
 - On XRPL EVM Explorer, cToken balance of the proxy decreases
@@ -379,17 +392,17 @@ After running the full cycle:
 
 ### What to watch for during testing
 
-| Symptom | Likely cause | Fix |
-|---------|-------------|-----|
-| "Transaction failed — Intent signer not configured" | `INTENT_SIGNER_PRIVATE_KEY` missing or invalid in `.env.local` | Check the env var and restart `bun run dev` |
-| "Transaction failed — xrplAccount mismatch" | The connected wallet address does not match the envelope | Clear browser state, reconnect wallet |
-| "Transaction failed — Action type not permitted" | Attempting ENTER/EXIT_MARKET (collateral toggle is disabled) | Expected — this feature is not yet implemented |
-| TxStatusModal stuck at Step 1 | XRPL payment not submitted — wallet rejected or timed out | Re-submit; check wallet for a pending approval |
-| TxStatusModal stuck at Step 2 | Axelar relay not picking up the payment | Check Axelarscan manually; gas drops may be too low |
-| TxStatusModal stuck at Step 3 | Axelar approved but EVM tx reverted | Check XRPL EVM Explorer for revert reason — likely a signature or nonce mismatch |
-| UI balances do not update | Data refresh interval is 30s | Wait 30 seconds or navigate away and back |
-| "Nonce mismatch" on second transaction | Previous tx failed after nonce was incremented | Reload the page — nonce is re-fetched fresh each time |
-| Borrow limit shows 0 after supply | Collateral toggle is disabled; supply does not auto-enter collateral | Expected — collateral must be enabled separately (not yet supported in the UI) |
+| Symptom                                             | Likely cause                                                         | Fix                                                                              |
+| --------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| "Transaction failed — Intent signer not configured" | `DEPLOYER_PRIVATE_KEY` missing or invalid in `.env.local`            | Check the env var and restart `bun run dev`                                      |
+| "Transaction failed — xrplAccount mismatch"         | The connected wallet address does not match the envelope             | Clear browser state, reconnect wallet                                            |
+| "Transaction failed — Action type not permitted"    | Attempting ENTER/EXIT_MARKET (collateral toggle is disabled)         | Expected — this feature is not yet implemented                                   |
+| TxStatusModal stuck at Step 1                       | XRPL payment not submitted — wallet rejected or timed out            | Re-submit; check wallet for a pending approval                                   |
+| TxStatusModal stuck at Step 2                       | Axelar relay not picking up the payment                              | Check Axelarscan manually; gas drops may be too low                              |
+| TxStatusModal stuck at Step 3                       | Axelar approved but EVM tx reverted                                  | Check XRPL EVM Explorer for revert reason — likely a signature or nonce mismatch |
+| UI balances do not update                           | Data refresh interval is 30s                                         | Wait 30 seconds or navigate away and back                                        |
+| "Nonce mismatch" on second transaction              | Previous tx failed after nonce was incremented                       | Reload the page — nonce is re-fetched fresh each time                            |
+| Borrow limit shows 0 after supply                   | Collateral toggle is disabled; supply does not auto-enter collateral | Expected — collateral must be enabled separately (not yet supported in the UI)   |
 
 ---
 
@@ -401,14 +414,14 @@ After running the full cycle:
 2. **Import the repository** into [vercel.com](https://vercel.com)
    - Framework preset: **Next.js**
    - Root directory: `.` (repository root)
-   - Build command: `bun run build` *(Vercel detects this automatically)*
+   - Build command: `bun run build` _(Vercel detects this automatically)_
 3. **Set environment variables** in the Vercel dashboard → Settings → Environment Variables:
 
-   | Variable | Environment |
-   |----------|-------------|
-   | `INTENT_SIGNER_PRIVATE_KEY` | Production, Preview |
-   | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production, Preview |
-   | `NEXT_PUBLIC_XUMM_API_KEY` | Production, Preview *(optional)* |
+   | Variable                               | Environment                      |
+   | -------------------------------------- | -------------------------------- |
+   | `DEPLOYER_PRIVATE_KEY`                 | Production, Preview              |
+   | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production, Preview              |
+   | `NEXT_PUBLIC_XUMM_API_KEY`             | Production, Preview _(optional)_ |
 
 4. **Deploy** — click Deploy. The `/api/sign-intent` route is automatically deployed as a Vercel Serverless Function.
 5. **Verify** the deployed URL loads the Markets page and the signing endpoint responds:
@@ -425,13 +438,14 @@ After running the full cycle:
 
 ### Environment variable security on Vercel
 
-- `INTENT_SIGNER_PRIVATE_KEY` has **no** `NEXT_PUBLIC_` prefix — Vercel keeps it server-side only
+- `DEPLOYER_PRIVATE_KEY` has **no** `NEXT_PUBLIC_` prefix — Vercel keeps it server-side only
 - `NEXT_PUBLIC_*` variables are embedded in the client bundle — do not put secrets in them
 - Never commit `.env.local` to git (it is already in `.gitignore`)
 
 ### Bun version on Vercel
 
 Vercel uses its own Node.js version by default. To ensure Bun is used as the package manager:
+
 - The `packageManager` field in `package.json` is already set to `bun@1.3.10`
 - The `.tool-versions` file pins `bun 1.3.10` and `nodejs 22.22.0`
 - If Vercel defaults to npm, override the install command to `bun install`
@@ -448,17 +462,19 @@ bunx tsc --noEmit   # check for type errors first
 bun run build
 ```
 
-### `INTENT_SIGNER_PRIVATE_KEY` is set but signing fails
+### `DEPLOYER_PRIVATE_KEY` is set but signing fails
 
 The private key must start with `0x` and be 32 bytes (64 hex chars after the prefix):
+
 ```
 0x0000000000000000000000000000000000000000000000000000000000000001
 ```
+
 Viem's `privateKeyToAccount` will throw if the format is wrong.
 
 ### The intent signer address does not match on-chain
 
-Run the verification command from Section 4. If the address returned by `intentSignerOfXrplAccount` does not match the address derived from your `INTENT_SIGNER_PRIVATE_KEY`, transactions will always fail with a BridgeAdapter revert.
+Run the verification command from Section 4. If the address returned by `intentSignerOfXrplAccount` does not match the address derived from your `DEPLOYER_PRIVATE_KEY`, transactions will always fail with a BridgeAdapter revert.
 
 Re-register by calling `setIntentSigner` again with the correct address.
 

@@ -29,27 +29,27 @@ Each XRPL address gets a deterministic **proxy contract** on XRPL EVM (salt = `k
 
 ## Tech stack
 
-| Layer | Technology |
-|-------|-----------|
-| Smart contracts | Solidity — lending core + Axelar adapters |
-| XRPL EVM reads | viem `publicClient` (chain ID 1449000) |
-| XRPL wallet | XRPL Connect (Xaman, Crossmark, GemWallet, WalletConnect) via `xrpl-connect` |
-| Cross-chain bridge | Axelar GMP (enter/exit collateral, borrow/withdraw) + ITS (supply/repay) |
-| Frontend | Next.js 14 App Router, Tailwind CSS, Zustand |
-| Tx tracking | Axelarscan GMP API |
+| Layer              | Technology                                                                   |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Smart contracts    | Solidity — lending core + Axelar adapters                                    |
+| XRPL EVM reads     | viem `publicClient` (chain ID 1449000)                                       |
+| XRPL wallet        | XRPL Connect (Xaman, Crossmark, GemWallet, WalletConnect) via `xrpl-connect` |
+| Cross-chain bridge | Axelar GMP (enter/exit collateral, borrow/withdraw) + ITS (supply/repay)     |
+| Frontend           | Next.js 14 App Router, Tailwind CSS, Zustand                                 |
+| Tx tracking        | Axelarscan GMP API                                                           |
 
 ---
 
 ## Deployed contracts — testnet
 
-| Contract | Address |
-|----------|---------|
-| Comptroller | `0x46d364257112230022E72b086Df85a6b0f8D3F86` |
-| SecurdPriceOracle | `0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80` |
+| Contract             | Address                                      |
+| -------------------- | -------------------------------------------- |
+| Comptroller          | `0x46d364257112230022E72b086Df85a6b0f8D3F86` |
+| SecurdPriceOracle    | `0x517475AFaFfaE71491d9Bad598E07AAFD050Ca80` |
 | XRPLUserProxyFactory | `0xB7f3ECe856063F48BC3bcC7A381aE875841663aA` |
-| BridgeAdapter | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
-| sXRP (cToken) | `0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318` |
-| XRPL Axelar Gateway | `rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2` |
+| BridgeAdapter        | `0x7AC8Df85448037c6fE1eD5732c6ca71060069237` |
+| sXRP (cToken)        | `0x6ec503Ad093B8b8B74AD9168Acb3f547C79f0318` |
+| XRPL Axelar Gateway  | `rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2`         |
 
 - XRPL EVM Explorer: https://explorer.testnet.xrplevm.org
 - Axelarscan: https://testnet.axelarscan.io
@@ -81,7 +81,7 @@ Edit `.env.local`:
 ```env
 # EVM private key of the intent signer registered in BridgeAdapter.
 # On testnet this is the deployer key.
-INTENT_SIGNER_PRIVATE_KEY=0x<your-evm-private-key>
+DEPLOYER_PRIVATE_KEY=0x<your-evm-private-key>
 
 # WalletConnect project ID (used by the WalletConnect adapter)
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>

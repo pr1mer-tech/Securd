@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MarketAssetIcon } from "./MarketAssetIcon";
 import { BorrowLimitBar } from "./BorrowLimitBar";
 import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
-import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useSubmitIntent, ACTION_TYPE, marketIou } from "@/lib/xrpl/useSubmitIntent";
 import { useHypotheticalLiquidity } from "@/lib/hooks/useHypotheticalLiquidity";
 import { TxStatusModal } from "./TxStatusModal";
 import type { MarketData, UserMarketPosition, UserAccount } from "@/lib/types/market.types";
@@ -28,7 +28,7 @@ type Props = {
 export function SupplyModal({ market, position, defaultAction, onClose, userAccount, walletBalance }: Props) {
   const [tab, setTab] = useState<"supply" | "withdraw">(defaultAction);
   const [amount, setAmount] = useState("");
-  const { submit, state, reset } = useSubmitIntent();
+  const { submit, state, reset, isBlocked } = useSubmitIntent();
   const isPending = state.status === "signing" || state.status === "submitting";
 
   const supplyBalance = position?.supplyBalanceUSD ?? 0;
@@ -140,14 +140,22 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
               <BorrowLimitBar used={newBorrowLimitUsed} limitUSD={newBorrowLimit} />
             )}
             <ActionButton
-              label={isPending ? "Submitting…" : `Supply ${market.underlyingSymbol}`}
-              disabled={!isValid || isPending}
+              label={
+                isPending
+                  ? "Submitting…"
+                  : isBlocked
+                    ? "Transaction in progress…"
+                    : `Supply ${market.underlyingSymbol}`
+              }
+              disabled={!isValid || isPending || isBlocked}
               onClick={() =>
                 submit({
                   market: market.cToken,
                   underlying: market.underlying,
                   actionType: ACTION_TYPE.SUPPLY,
-                  amountXrp: parseFloat(amount),
+                  amount,
+                  underlyingDecimals: market.underlyingDecimals,
+                  iou: marketIou(market),
                 })
               }
             />
@@ -176,15 +184,23 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
               <BorrowLimitBar used={newBorrowLimitUsed} limitUSD={newBorrowLimit} />
             )}
             <ActionButton
-              label={isPending ? "Submitting…" : `Withdraw ${market.underlyingSymbol}`}
-              disabled={!isValid || isPending || withdrawPreview.isLoading || withdrawBlocked}
+              label={
+                isPending
+                  ? "Submitting…"
+                  : isBlocked
+                    ? "Transaction in progress…"
+                    : `Withdraw ${market.underlyingSymbol}`
+              }
+              disabled={!isValid || isPending || isBlocked || withdrawPreview.isLoading || withdrawBlocked}
               warning={withdrawBlocked ? withdrawPreview.reason : undefined}
               onClick={() =>
                 submit({
                   market: market.cToken,
                   underlying: market.underlying,
                   actionType: ACTION_TYPE.WITHDRAW,
-                  amountXrp: parseFloat(amount),
+                  amount,
+                  underlyingDecimals: market.underlyingDecimals,
+                  iou: marketIou(market),
                 })
               }
             />

@@ -1,14 +1,22 @@
-const BLOCKS_PER_YEAR = 2_102_400n; // ~4s blocks on XRPL EVM
 const MANTISSA = 10n ** 18n;
 
-export function calcSupplyAPY(supplyRatePerBlock: bigint): number {
-  const ratePerYear = Number(supplyRatePerBlock * BLOCKS_PER_YEAR) / 1e18;
-  return (Math.pow(ratePerYear / 2102400 + 1, 2102400) - 1) * 100;
+// APY = ratePerBlock × blocksPerYear × 100 / 1e18.
+// blocksPerYear is read per-market from the IRM (`irm.blocksPerYear()`) — it is
+// not hardcoded: markets may use separate IRMs and the value can be recalibrated
+// on-chain, either of which would otherwise silently skew the displayed APY.
+// The ×1e6 / ÷1e4 split keeps precision through BigInt integer division.
+export function calcSupplyAPY(
+  supplyRatePerBlock: bigint,
+  blocksPerYear: bigint,
+): number {
+  return Number((supplyRatePerBlock * blocksPerYear * 1000000n) / MANTISSA) / 10000;
 }
 
-export function calcBorrowAPY(borrowRatePerBlock: bigint): number {
-  const ratePerYear = Number(borrowRatePerBlock * BLOCKS_PER_YEAR) / 1e18;
-  return (Math.pow(ratePerYear / 2102400 + 1, 2102400) - 1) * 100;
+export function calcBorrowAPY(
+  borrowRatePerBlock: bigint,
+  blocksPerYear: bigint,
+): number {
+  return Number((borrowRatePerBlock * blocksPerYear * 1000000n) / MANTISSA) / 10000;
 }
 
 export function calcUtilization(

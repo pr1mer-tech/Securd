@@ -9,7 +9,7 @@ import { SupplyModal } from "./SupplyModal";
 import { TxStatusModal } from "./TxStatusModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatUSD, formatAPY, formatTokenAmount } from "@/lib/helpers/market.helpers";
-import { useSubmitIntent, ACTION_TYPE } from "@/lib/xrpl/useSubmitIntent";
+import { useSubmitIntent, ACTION_TYPE, marketIou } from "@/lib/xrpl/useSubmitIntent";
 import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
 import type { MarketData, UserAccount, UserMarketPosition } from "@/lib/types/market.types";
 
@@ -121,13 +121,14 @@ function SupplyRow({
     : 0;
   const hasPosition = (position?.cTokenBalance ?? 0n) > 0n;
   const isCollateral = position?.isCollateral ?? false;
-  const { submit, state, reset } = useSubmitIntent();
+  const { submit, state, reset, isBlocked } = useSubmitIntent();
   const exitGuard = useExitMarketGuard(market, position, userAccount);
   const isPending = state.status === "signing" || state.status === "submitting";
   const collateralActionLabel = isCollateral
     ? `Exit ${market.underlyingSymbol} collateral`
     : `Enter ${market.underlyingSymbol} collateral`;
-  const isCollateralActionDisabled = isPending || exitGuard.isChecking || (isCollateral && exitGuard.isBlocked);
+  const isCollateralActionDisabled =
+    isPending || isBlocked || exitGuard.isChecking || (isCollateral && exitGuard.isBlocked);
 
   const submitCollateralToggle = () => {
     if (isCollateralActionDisabled) return;
@@ -135,6 +136,8 @@ function SupplyRow({
       market: market.cToken,
       underlying: market.underlying,
       actionType: isCollateral ? ACTION_TYPE.EXIT_MARKET : ACTION_TYPE.ENTER_MARKET,
+      underlyingDecimals: market.underlyingDecimals,
+      iou: marketIou(market),
     });
   };
 
