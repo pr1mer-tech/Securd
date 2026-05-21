@@ -102,7 +102,7 @@ export function TxStatusModal({ txHash, actionLabel, onClose }: Props) {
           {status?.isFailed && (
             <div className="flex flex-col gap-1 text-center pt-1">
               <p className="text-systemRed text-sm font-medium">
-                Transaction failed on XRPL EVM.
+                Transaction failed.
               </p>
               {status.errorMessage && (
                 <p className="text-systemRed/80 text-xs font-mono break-words">

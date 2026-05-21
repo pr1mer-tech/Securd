@@ -27,6 +27,12 @@ export type AxelarStatus = {
 type GmpEvent = {
   status?: string;
   simplified_status?: string;
+  // Axelar-side confirmation failure (e.g. the relay gas fee was too low to
+  // verify the message). Surfaced separately from `error`, which only carries
+  // destination-chain execution reverts.
+  is_insufficient_fee?: boolean;
+  confirm_failed?: boolean;
+  confirm_failed_event?: { error?: { code?: string; message?: string } };
   call?: { transactionHash?: string };
   gas_paid?: object;
   approved?: { transactionHash?: string };
@@ -38,10 +44,43 @@ type GmpEvent = {
     | null;
 };
 
+function isExecuted(event: GmpEvent): boolean {
+  return (
+    event.simplified_status === "executed" ||
+    event.status === "executed" ||
+    !!event.executed?.transactionHash
+  );
+}
+
+function isFailed(event: GmpEvent): boolean {
+  // Execution wins over any failure flag: a message that landed on the
+  // destination is never "failed". ITS Hub flows transiently report
+  // is_insufficient_fee mid-relay before Axelar settles gas and proceeds —
+  // so is_insufficient_fee alone is not terminal. A genuinely unconfirmable
+  // message also raises confirm_failed, which is the reliable terminal signal.
+  if (isExecuted(event)) return false;
+  return (
+    event.simplified_status === "failed" ||
+    !!event.error ||
+    !!event.confirm_failed
+  );
+}
+
 function formatError(event: GmpEvent | null): string | undefined {
-  const e = event?.error?.error;
-  if (!e) return undefined;
+  if (!event) return undefined;
+  // Confirmation-stage failure (insufficient relay gas, etc.) — lives on
+  // confirm_failed_event, never on `error`.
+  const cf = event.confirm_failed_event?.error;
+  if (cf) {
+    return [cf.message, cf.code && `(${cf.code})`].filter(Boolean).join(" ") || cf.code;
+  }
+  if (event.is_insufficient_fee) {
+    return "Insufficient Axelar gas fee — the cross-chain message could not be confirmed.";
+  }
+  // Destination-chain execution revert.
   // CANNOT_EXECUTE_MESSAGE/V2 / EstimationReverted / ERROR → "EstimationReverted (ERROR)"
+  const e = event.error?.error;
+  if (!e) return undefined;
   const parts = [e.message, e.reason && `(${e.reason})`].filter(Boolean);
   return parts.join(" ") || e.code;
 }
@@ -71,8 +110,8 @@ function parseStatus(
   // For direct GMP, the source message carries it. `dest` picks whichever exists.
   const dest = child ?? source;
 
-  const sourceFailed = source.simplified_status === "failed" || !!source.error;
-  const destFailed = dest.simplified_status === "failed" || !!dest.error;
+  const sourceFailed = isFailed(source);
+  const destFailed = isFailed(dest);
   const hasFailed = sourceFailed || destFailed;
 
   const destExecuted =

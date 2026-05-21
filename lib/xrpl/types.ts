@@ -32,8 +32,9 @@ export const XRPL_AXELAR_GATEWAY =
   process.env.NEXT_PUBLIC_XRPL_AXELAR_GATEWAY ?? "rNrjh1KGZk2jBR3wPfAQnoidtFFYQKbQn2";
 export const AXELAR_DESTINATION_CHAIN =
   process.env.NEXT_PUBLIC_AXELAR_DESTINATION_CHAIN ?? "xrpl-evm";
-// Gas for ITS ingress of native XRP on REPAY, in drops (added on top of the
-// repay amount). SUPPLY carries no gas — native-XRP supply ingress is free.
+// Gas for ITS ingress of native XRP — SUPPLY and REPAY both pay it, in drops,
+// added on top of the deposit. Axelar deducts it from the Payment Amount to
+// fund the cross-chain relay; without it the message cannot be confirmed.
 export const ITS_GAS_FEE_DROPS = 2_000_000n;
 // Gas for ITS ingress of an IOU token — taken from the token itself, in whole
 // token units. Added to the Payment Amount; the intent envelope excludes it.

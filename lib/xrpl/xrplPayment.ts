@@ -50,9 +50,8 @@ function addWholeTokens(decimalStr: string, whole: number): string {
 /**
  * Builds an XRPL Payment for SUPPLY or REPAY via Axelar ITS.
  *
- * Native XRP: SUPPLY sends depositDrops only — native-XRP supply ingress
- *             carries no Axelar gas (gas_fee_amount = "0"). REPAY sends
- *             (depositDrops + ITS_GAS_FEE_DROPS).
+ * Native XRP: the user sends (depositDrops + ITS_GAS_FEE_DROPS). Axelar takes
+ *             the gas portion for the relay and bridges depositDrops.
  * IOU token:  the user sends an issued-currency Amount object whose value is
  *             (deposit + ITS_IOU_GAS_FEE) — gas is taken from the token itself.
  *
@@ -90,10 +89,10 @@ export function buildItsPayment(params: {
     };
   }
 
-  // Native-XRP SUPPLY carries no Axelar gas; REPAY pays ITS_GAS_FEE_DROPS,
-  // which Axelar deducts from the Payment Amount (net bridged = deposit.drops).
-  const gasDrops =
-    envelope.actionType === ACTION_TYPE.SUPPLY ? 0n : ITS_GAS_FEE_DROPS;
+  // Both SUPPLY and REPAY pay ITS_GAS_FEE_DROPS for the Axelar relay; Axelar
+  // deducts it from the Payment Amount, so the net bridged = deposit.drops.
+  // (SUPPLY previously paid 0 gas, which left the message unconfirmable.)
+  const gasDrops = ITS_GAS_FEE_DROPS;
   const totalDrops = deposit.drops + gasDrops;
   return {
     TransactionType: "Payment" as const,
