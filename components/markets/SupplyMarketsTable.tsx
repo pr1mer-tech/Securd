@@ -130,8 +130,14 @@ function SupplyRow({
   const isCollateralActionDisabled =
     isPending || isBlocked || exitGuard.isChecking || (isCollateral && exitGuard.isBlocked);
 
+  // Frozen at submit time — `collateralActionLabel` recomputes once the intent
+  // completes and `isCollateral` flips, which would otherwise relabel the open
+  // TxStatusModal (e.g. "Exit" → "Enter" after a successful exit).
+  const [submittedLabel, setSubmittedLabel] = useState<string | null>(null);
+
   const submitCollateralToggle = () => {
     if (isCollateralActionDisabled) return;
+    setSubmittedLabel(collateralActionLabel);
     void submit({
       market: market.cToken,
       underlying: market.underlying,
@@ -247,8 +253,11 @@ function SupplyRow({
       {state.txHash && (
         <TxStatusModal
           txHash={state.txHash}
-          actionLabel={collateralActionLabel}
-          onClose={reset}
+          actionLabel={submittedLabel ?? collateralActionLabel}
+          onClose={() => {
+            reset();
+            setSubmittedLabel(null);
+          }}
         />
       )}
     </>
