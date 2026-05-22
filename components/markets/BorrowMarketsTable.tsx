@@ -6,7 +6,7 @@ import { useUserAccount } from "@/lib/hooks/useUserAccount";
 import { MarketAssetIcon } from "./MarketAssetIcon";
 import { BorrowModal } from "./BorrowModal";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
+import { formatUSD, formatAPY, formatTokenAmount } from "@/lib/helpers/market.helpers";
 import type { MarketData, UserMarketPosition } from "@/lib/types/market.types";
 import type { Address } from "viem";
 
@@ -105,7 +105,12 @@ function BorrowRow({
   onRepay: () => void;
 }) {
   const borrowed = position?.borrowBalanceUSD ?? 0;
+  const borrowedUnderlying = position
+    ? Number(position.borrowBalance) / 10 ** market.underlyingDecimals
+    : 0;
   const hasPosition = borrowed > 0;
+  const availableLiquidityUnderlying =
+    market.priceUSD > 0 ? market.availableLiquidityUSD / market.priceUSD : 0;
 
   return (
     <tr className="border-b border-white/5 hover:bg-white/[0.03] transition-colors group">
@@ -131,9 +136,14 @@ function BorrowRow({
 
       {/* Available liquidity */}
       <td className="px-4 py-4 text-right hidden md:table-cell">
-        <span className="text-securdWhite text-sm tabular-nums">
-          {formatUSD(market.availableLiquidityUSD)}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-securdWhite text-sm tabular-nums">
+            {formatTokenAmount(availableLiquidityUnderlying)} {market.underlyingSymbol}
+          </span>
+          <span className="text-securdGrey text-xs tabular-nums">
+            {formatUSD(market.availableLiquidityUSD)}
+          </span>
+        </div>
       </td>
 
       {/* Utilization bar */}
@@ -154,9 +164,14 @@ function BorrowRow({
       {/* Borrowed */}
       <td className="px-6 py-4 text-right">
         {hasPosition ? (
-          <span className="text-securdWhite font-medium text-sm tabular-nums">
-            {formatUSD(borrowed)}
-          </span>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-securdWhite font-medium text-sm tabular-nums">
+              {borrowedUnderlying.toLocaleString(undefined, { maximumFractionDigits: 4 })} {market.underlyingSymbol}
+            </span>
+            <span className="text-securdGrey text-xs tabular-nums">
+              {formatUSD(borrowed)}
+            </span>
+          </div>
         ) : (
           <span className="text-securdGrey text-sm">—</span>
         )}

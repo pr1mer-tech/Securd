@@ -6,7 +6,6 @@ import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
 import { HealthFactor } from "./HealthFactor";
 import { BorrowLimitBar } from "./BorrowLimitBar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Wallet } from "lucide-react";
 
 export function AccountSummary() {
   const { address } = useAccount();
@@ -69,14 +68,6 @@ function DisconnectedState({ onConnect }: { onConnect: () => void }) {
           Connect your XRPL wallet to view your positions and start earning.
         </span>
       </div>
-      <button
-        type="button"
-        onClick={onConnect}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-securdPrimaryLight text-securdBlack font-bold text-sm hover:opacity-90 transition-opacity shrink-0"
-      >
-        <Wallet size={16} />
-        Connect Wallet
-      </button>
     </div>
   );
 }
