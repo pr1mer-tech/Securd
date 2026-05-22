@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMarkets } from "@/lib/hooks/useMarkets";
 import { useUserAccount } from "@/lib/hooks/useUserAccount";
+import { useXrplBalance } from "@/lib/hooks/useXrplBalance";
 import { MarketAssetIcon } from "./MarketAssetIcon";
 import { BorrowModal } from "./BorrowModal";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +14,7 @@ import type { Address } from "viem";
 export function BorrowMarketsTable() {
   const { markets, isLoading } = useMarkets();
   const { userAccount } = useUserAccount();
+  const { getWalletBalance } = useXrplBalance();
   const [modalMarket, setModalMarket] = useState<{
     market: MarketData;
     defaultAction: "borrow" | "repay";
@@ -86,6 +88,7 @@ export function BorrowMarketsTable() {
           position={userPositions.get(modalMarket.market.cToken)}
           userAccount={userAccount}
           defaultAction={modalMarket.defaultAction}
+          walletBalance={getWalletBalance(modalMarket.market)}
           onClose={() => setModalMarket(null)}
         />
       )}

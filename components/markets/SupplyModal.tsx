@@ -66,6 +66,15 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
         : 0;
 
   const isValid = inputAmount > 0;
+  // Supply guard: block when the user types more than their XRPL wallet holds.
+  // Without this the XRPL Payment goes to the gateway and fails with
+  // tecUNFUNDED_PAYMENT (or insufficient trustline balance for an IOU), surfacing
+  // only as a generic "Transaction failed".
+  const exceedsWallet =
+    tab === "supply" &&
+    walletBalance !== null &&
+    walletBalance !== undefined &&
+    inputAmount > walletBalance;
   const withdrawBlocked = tab === "withdraw" && withdrawPreview.isBlocked;
   const previewLabel = withdrawPreview.isLoading
     ? "Checking on-chain..."
@@ -147,7 +156,12 @@ export function SupplyModal({ market, position, defaultAction, onClose, userAcco
                     ? "Transaction in progress…"
                     : `Supply ${market.underlyingSymbol}`
               }
-              disabled={!isValid || isPending || isBlocked}
+              disabled={!isValid || isPending || isBlocked || exceedsWallet}
+              warning={
+                exceedsWallet
+                  ? `Amount exceeds your wallet balance (${walletBalance?.toFixed(4)} ${market.underlyingSymbol})`
+                  : undefined
+              }
               onClick={() =>
                 submit({
                   market: market.cToken,

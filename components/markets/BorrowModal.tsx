@@ -22,6 +22,9 @@ type Props = {
   position?: UserMarketPosition;
   userAccount?: UserAccount | null;
   defaultAction: "borrow" | "repay";
+  /** XRPL wallet balance of the market's underlying — used by the Repay
+   *  guard. `null` = trustline absent (IOU) or wallet not connected. */
+  walletBalance?: number | null;
   onClose: () => void;
 };
 
@@ -29,7 +32,7 @@ type Props = {
 // during the Axelar relay window (typically 2-5 minutes).
 const REPAY_MAX_BUFFER = 1.005;
 
-export function BorrowModal({ market, position, userAccount, defaultAction, onClose }: Props) {
+export function BorrowModal({ market, position, userAccount, defaultAction, walletBalance, onClose }: Props) {
   const [tab, setTab] = useState<"borrow" | "repay">(defaultAction);
   const [amount, setAmount] = useState("");
   const [isMaxRepay, setIsMaxRepay] = useState(false);
@@ -77,6 +80,14 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
   const { submit, state, reset, isBlocked } = useSubmitIntent();
   const isPending = state.status === "signing" || state.status === "submitting";
   const borrowBlocked = tab === "borrow" && borrowPreview.isBlocked;
+  // Repay guard: input must fit the XRPL wallet balance, otherwise the
+  // outbound Payment fails at the XRPL gateway with tecUNFUNDED_PAYMENT (or
+  // insufficient IOU balance) and the user only sees "Transaction failed".
+  const exceedsWallet =
+    tab === "repay" &&
+    walletBalance !== null &&
+    walletBalance !== undefined &&
+    inputAmount > walletBalance;
   const previewLabel = borrowPreview.isLoading
     ? "Checking on-chain..."
     : borrowPreview.isExact
@@ -213,7 +224,12 @@ export function BorrowModal({ market, position, userAccount, defaultAction, onCl
                     ? "Transaction in progress…"
                     : `Repay ${market.underlyingSymbol}`
               }
-              disabled={!isValid || isPending || isBlocked}
+              disabled={!isValid || isPending || isBlocked || exceedsWallet}
+              warning={
+                exceedsWallet
+                  ? `Amount exceeds your wallet balance (${walletBalance?.toFixed(4)} ${market.underlyingSymbol})`
+                  : undefined
+              }
               onClick={() =>
                 submit({
                   market: market.cToken,

@@ -131,6 +131,7 @@ export function UserPosition({ market }: Props) {
           position={position}
           userAccount={userAccount}
           defaultAction={borrowModal}
+          walletBalance={getWalletBalance(market)}
           onClose={() => setBorrowModal(null)}
         />
       )}
