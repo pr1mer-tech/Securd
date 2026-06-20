@@ -7,6 +7,7 @@ import { useMarkets } from "@/lib/hooks/useMarkets";
 import { MarketAssetIcon } from "@/components/markets/MarketAssetIcon";
 import { MarketStats } from "@/components/markets/MarketDetail/MarketStats";
 import { UtilizationChart } from "@/components/markets/MarketDetail/UtilizationChart";
+import { MarketHistoryChart } from "@/components/markets/MarketDetail/MarketHistoryChart";
 import { UserPosition } from "@/components/markets/MarketDetail/UserPosition";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatAPY } from "@/lib/helpers/market.helpers";
@@ -59,6 +60,7 @@ export default function MarketDetailPage() {
             {/* Left: market stats + chart */}
             <div className="lg:col-span-2 flex flex-col gap-6">
               <UtilizationChart market={market} />
+              <MarketHistoryChart market={market} />
               <MarketStats market={market} />
             </div>
 
