@@ -19,6 +19,54 @@ export function calcBorrowAPY(
   return Number((borrowRatePerBlock * blocksPerYear * 1000000n) / MANTISSA) / 10000;
 }
 
+export function annualizeRatePerBlock(
+  ratePerBlock: bigint,
+  blocksPerYear: bigint,
+): number {
+  return Number((ratePerBlock * blocksPerYear * 1000000n) / MANTISSA) / 10000;
+}
+
+export function mantissaToPercent(value: bigint): number {
+  return Number((value * 10000n) / MANTISSA) / 100;
+}
+
+export function calcBorrowRateAtUtilization(params: {
+  utilizationMantissa: bigint;
+  baseRatePerBlock: bigint;
+  multiplierPerBlock: bigint;
+  jumpMultiplierPerBlock: bigint;
+  kink: bigint;
+  blocksPerYear: bigint;
+}): number {
+  const {
+    utilizationMantissa,
+    baseRatePerBlock,
+    multiplierPerBlock,
+    jumpMultiplierPerBlock,
+    kink,
+    blocksPerYear,
+  } = params;
+
+  const ratePerBlock =
+    utilizationMantissa <= kink
+      ? baseRatePerBlock + (utilizationMantissa * multiplierPerBlock) / MANTISSA
+      : baseRatePerBlock +
+        (kink * multiplierPerBlock) / MANTISSA +
+        ((utilizationMantissa - kink) * jumpMultiplierPerBlock) / MANTISSA;
+
+  return annualizeRatePerBlock(ratePerBlock, blocksPerYear);
+}
+
+export function calcSupplyRateAtUtilization(params: {
+  borrowRateAPY: number;
+  utilizationPct: number;
+  reserveFactorPct: number;
+}): number {
+  const utilization = params.utilizationPct / 100;
+  const reserveShare = 1 - params.reserveFactorPct / 100;
+  return params.borrowRateAPY * utilization * reserveShare;
+}
+
 export function calcUtilization(
   cash: bigint,
   borrows: bigint,
@@ -67,6 +115,10 @@ export function formatTokenAmount(value: number, decimals = 4): string {
 
 export function formatAPY(apy: number): string {
   return `${apy.toFixed(2)}%`;
+}
+
+export function formatPercent(value: number, decimals = 0): string {
+  return `${value.toFixed(decimals)}%`;
 }
 
 export function healthFactorColor(hf: number): string {

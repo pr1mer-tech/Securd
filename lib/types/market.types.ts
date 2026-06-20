@@ -5,8 +5,11 @@ export type MarketData = {
   underlying: Address;
   symbol: string;
   name: string;
+  cTokenDecimals: number;
   underlyingSymbol: string;
   underlyingDecimals: number;
+  isListed: boolean;
+  isRewarded: boolean;
   // XRPL Ledger identity — present only for IOU markets (absent for native XRP).
   // Drives the IOU Amount object in SUPPLY/REPAY payments.
   xrplCurrency?: string;
@@ -22,6 +25,21 @@ export type MarketData = {
   supplyRatePerBlock: bigint;
   reserveFactor: bigint;
   collateralFactor: bigint;
+  borrowCap: bigint;
+  mintGuardianPaused: boolean;
+  borrowGuardianPaused: boolean;
+  transferGuardianPaused: boolean;
+  closeFactor: bigint;
+  liquidationIncentive: bigint;
+  protocolSeizeShare: bigint;
+
+  // Interest rate model values
+  interestRateModel: Address;
+  blocksPerYear: bigint;
+  baseRatePerBlock: bigint;
+  multiplierPerBlock: bigint;
+  jumpMultiplierPerBlock: bigint;
+  kink: bigint;
 
   // Computed display values
   supplyAPY: number;

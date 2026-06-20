@@ -50,6 +50,7 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
   const [
     symbol,
     name,
+    cTokenDecimals,
     marketCfg,
     totalCash,
     totalBorrows,
@@ -62,9 +63,17 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     irmAddress,
     marketInfo,
     rawPrice,
+    borrowCap,
+    mintGuardianPaused,
+    borrowGuardianPaused,
+    transferGuardianPaused,
+    closeFactor,
+    liquidationIncentive,
+    protocolSeizeShare,
   ] = await Promise.all([
     xrplEvmClient.readContract({ ...ct, functionName: "symbol" }),
     xrplEvmClient.readContract({ ...ct, functionName: "name" }),
+    xrplEvmClient.readContract({ ...ct, functionName: "decimals" }),
     // marketConfigOf() is the authoritative underlying — the address the
     // BridgeAdapter validates intent envelopes against (NATIVE_UNDERLYING for
     // native XRP).
@@ -92,6 +101,37 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
       functionName: "getUnderlyingPrice",
       args: [cToken],
     }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "borrowCaps",
+      args: [cToken],
+    }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "mintGuardianPaused",
+      args: [cToken],
+    }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "borrowGuardianPaused",
+      args: [cToken],
+    }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "transferGuardianPaused",
+    }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "closeFactorMantissa",
+    }),
+    xrplEvmClient.readContract({
+      ...comptrollerContract,
+      functionName: "liquidationIncentiveMantissa",
+    }),
+    xrplEvmClient.readContract({
+      ...ct,
+      functionName: "protocolSeizeShareMantissa",
+    }),
   ]);
 
   // marketConfigOf() returns [underlying, tokenId, listed].
@@ -101,10 +141,14 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
   // blocksPerYear is read from this market's own IRM — markets may use separate
   // IRM instances, and the value can be recalibrated on-chain. Kicked off here
   // so it resolves concurrently with the underlying-token reads below.
-  const blocksPerYearPromise = xrplEvmClient.readContract({
-    ...irmContract(irmAddress),
-    functionName: "blocksPerYear",
-  });
+  const irm = irmContract(irmAddress);
+  const irmParamsPromise = Promise.all([
+    xrplEvmClient.readContract({ ...irm, functionName: "blocksPerYear" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "baseRatePerBlock" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "multiplierPerBlock" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "jumpMultiplierPerBlock" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "kink" }),
+  ]);
 
   // Native XRP has no ERC20 underlying — its symbol/decimals are fixed.
   // IOU markets: read the underlying-token symbol/decimals from chain.
@@ -118,10 +162,18 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     underlyingSymbol = erc20Symbol;
     underlyingDecimals = erc20Decimals;
   }
-  const blocksPerYear = await blocksPerYearPromise;
+  const [
+    blocksPerYear,
+    baseRatePerBlock,
+    multiplierPerBlock,
+    jumpMultiplierPerBlock,
+    kink,
+  ] = await irmParamsPromise;
 
   // markets() returns [isListed, collateralFactorMantissa, isRewarded]
+  const isListed = marketInfo[0];
   const collateralFactor = marketInfo[1];
+  const isRewarded = marketInfo[2];
 
   // Compound oracle: price mantissa = USD_price * 1e(36 - underlyingDecimals)
   const priceUSD = Number(rawPrice) / 10 ** (36 - underlyingDecimals);
@@ -145,8 +197,11 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     underlying,
     symbol,
     name,
+    cTokenDecimals,
     underlyingSymbol,
     underlyingDecimals,
+    isListed,
+    isRewarded,
     xrplCurrency: xrplIdentity?.xrplCurrency,
     xrplIssuer: xrplIdentity?.xrplIssuer,
     totalSupply,
@@ -158,6 +213,19 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     supplyRatePerBlock,
     reserveFactor,
     collateralFactor,
+    borrowCap,
+    mintGuardianPaused,
+    borrowGuardianPaused,
+    transferGuardianPaused,
+    closeFactor,
+    liquidationIncentive,
+    protocolSeizeShare,
+    interestRateModel: irmAddress,
+    blocksPerYear,
+    baseRatePerBlock,
+    multiplierPerBlock,
+    jumpMultiplierPerBlock,
+    kink,
     supplyAPY,
     borrowAPY,
     utilization,
