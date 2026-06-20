@@ -261,7 +261,9 @@ out/
 /broadcast/**/dry-run/
 
 # Docs
-docs/
+docs/*
+!docs/
+!docs/securd-squid-evm-liquidity-bridge-spec.md
 
 # Dotenv file
 .env
