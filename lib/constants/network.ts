@@ -15,6 +15,23 @@ export const XRPL_EVM_RPC_URL =
 // XRPL EVM mainnet is chain id 1440000; anything else is treated as testnet.
 const IS_MAINNET = XRPL_EVM_CHAIN_ID === 1440000;
 
+// Block explorer base URLs (no trailing slash). Each falls back to the right
+// network default, overridable via NEXT_PUBLIC_ env. Call sites append paths.
+export const EXPLORER_XRPL_EVM =
+  process.env.NEXT_PUBLIC_EXPLORER_XRPL_EVM ??
+  (IS_MAINNET
+    ? "https://explorer.xrplevm.org"
+    : "https://explorer.testnet.xrplevm.org");
+export const EXPLORER_XRPL_LEDGER =
+  process.env.NEXT_PUBLIC_EXPLORER_XRPL_LEDGER ??
+  (IS_MAINNET ? "https://livenet.xrpl.org" : "https://testnet.xrpl.org");
+export const AXELARSCAN_URL =
+  process.env.NEXT_PUBLIC_AXELARSCAN_URL ??
+  (IS_MAINNET ? "https://axelarscan.io" : "https://testnet.axelarscan.io");
+export const AXELARSCAN_API_URL =
+  process.env.NEXT_PUBLIC_AXELARSCAN_API_URL ??
+  (IS_MAINNET ? "https://api.axelarscan.io" : "https://testnet.api.axelarscan.io");
+
 export const xrplEvm = {
   id: XRPL_EVM_CHAIN_ID,
   name: IS_MAINNET ? "XRPL EVM" : "XRPL EVM Testnet",
@@ -24,12 +41,7 @@ export const xrplEvm = {
     public: { http: [XRPL_EVM_RPC_URL] },
   },
   blockExplorers: {
-    default: {
-      name: "XRPL EVM Explorer",
-      url: IS_MAINNET
-        ? "https://explorer.xrplevm.org"
-        : "https://explorer.testnet.xrplevm.org",
-    },
+    default: { name: "XRPL EVM Explorer", url: EXPLORER_XRPL_EVM },
   },
   testnet: !IS_MAINNET,
 } as const satisfies Chain;
