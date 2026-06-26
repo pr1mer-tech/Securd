@@ -3,7 +3,7 @@ import type { Address } from "viem";
 import { db } from "@/db/db";
 import { marketSnapshot } from "@/db/schema";
 import { xrplEvmClient } from "@/lib/constants/xrplEvmClient";
-import { xrplEvmTestnet } from "@/lib/constants/xrplEvmChain";
+import { xrplEvm } from "@/lib/constants/network";
 import { NATIVE_UNDERLYING } from "@/lib/constants/markets";
 import {
   bridgeAdapterContract,
@@ -118,7 +118,7 @@ export async function getMarketSnapshotHistory(params: {
     .from(marketSnapshot)
     .where(
       and(
-        eq(marketSnapshot.chain_id, xrplEvmTestnet.id),
+        eq(marketSnapshot.chain_id, xrplEvm.id),
         eq(marketSnapshot.c_token, params.cToken.toLowerCase()),
         gte(marketSnapshot.snapshot_at, from),
       ),
@@ -201,7 +201,7 @@ async function collectOneMarketSnapshot(
 
   return {
     snapshot_at: snapshotAt,
-    chain_id: xrplEvmTestnet.id,
+    chain_id: xrplEvm.id,
     c_token: cToken.toLowerCase(),
     underlying: underlying.toLowerCase(),
     symbol,

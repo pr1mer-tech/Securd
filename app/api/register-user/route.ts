@@ -8,7 +8,7 @@ import {
   stringToHex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { xrplEvmTestnet } from "@/lib/constants/xrplEvmChain";
+import { xrplEvm, XRPL_EVM_RPC_URL } from "@/lib/constants/network";
 import { xrplEvmClient } from "@/lib/constants/xrplEvmClient";
 import { ADDRESSES, bridgeAdapterContract } from "@/lib/constants/contracts";
 
@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
 
   const walletClient = createWalletClient({
     account,
-    chain: xrplEvmTestnet,
-    transport: http("https://rpc.testnet.xrplevm.org"),
+    chain: xrplEvm,
+    transport: http(XRPL_EVM_RPC_URL),
   });
 
   // Sends a tx and waits for it to be mined; throws if it reverts.

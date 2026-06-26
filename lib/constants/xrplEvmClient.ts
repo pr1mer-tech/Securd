@@ -1,8 +1,8 @@
 import { createPublicClient, http } from "viem";
-import { xrplEvmTestnet } from "./xrplEvmChain";
+import { xrplEvm, XRPL_EVM_RPC_URL } from "./network";
 
 // Read-only client for XRPL EVM — no wallet needed, queries proxy positions
 export const xrplEvmClient = createPublicClient({
-  chain: xrplEvmTestnet,
-  transport: http("https://rpc.testnet.xrplevm.org"),
+  chain: xrplEvm,
+  transport: http(XRPL_EVM_RPC_URL),
 });

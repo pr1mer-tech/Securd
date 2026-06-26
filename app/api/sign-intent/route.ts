@@ -5,8 +5,9 @@ import type { IntentEnvelope } from "@/lib/xrpl/types";
 import { ACTION_TYPE } from "@/lib/xrpl/types";
 import { ADDRESSES, bridgeAdapterContract } from "@/lib/constants/contracts";
 import { xrplEvmClient } from "@/lib/constants/xrplEvmClient";
+import { XRPL_EVM_CHAIN_ID } from "@/lib/constants/network";
 
-const CHAIN_ID = BigInt(1449000);
+const CHAIN_ID = BigInt(XRPL_EVM_CHAIN_ID);
 
 // Action types permitted through the server signing service — all six
 // lending actions. ENTER_MARKET / EXIT_MARKET carry no amount; the rest

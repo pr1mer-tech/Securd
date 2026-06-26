@@ -1,18 +1,8 @@
-import { type Chain } from "viem";
-
-export const xrplEvmTestnet = {
-  id: 1449000,
-  name: "XRPL EVM Testnet",
-  nativeCurrency: { name: "XRP", symbol: "XRP", decimals: 18 },
-  rpcUrls: {
-    default: { http: ["https://rpc.testnet.xrplevm.org"] },
-    public: { http: ["https://rpc.testnet.xrplevm.org"] },
-  },
-  blockExplorers: {
-    default: {
-      name: "XRPL EVM Explorer",
-      url: "https://explorer.testnet.xrplevm.org",
-    },
-  },
-  testnet: true,
-} as const satisfies Chain;
+// Env-driven XRPL EVM chain definition lives in ./network.
+// `xrplEvmTestnet` kept as a back-compat alias for existing imports.
+export {
+  xrplEvm,
+  xrplEvm as xrplEvmTestnet,
+  XRPL_EVM_CHAIN_ID,
+  XRPL_EVM_RPC_URL,
+} from "./network";

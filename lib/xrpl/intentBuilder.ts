@@ -1,5 +1,6 @@
 import { encodeAbiParameters, keccak256, toHex } from "viem";
 import { ADDRESSES } from "@/lib/constants/contracts";
+import { XRPL_EVM_CHAIN_ID } from "@/lib/constants/network";
 import { xrplAddressToBytes32 } from "@/lib/utils/xrplProxy";
 import {
   ACTION_TYPE,
@@ -106,7 +107,7 @@ export function buildSigningDigest(payloadHash: `0x${string}`): `0x${string}` {
   return keccak256(
     encodeAbiParameters(
       [{ type: "address" }, { type: "uint256" }, { type: "bytes32" }],
-      [ADDRESSES.bridgeAdapter, BigInt(1449000), payloadHash],
+      [ADDRESSES.bridgeAdapter, BigInt(XRPL_EVM_CHAIN_ID), payloadHash],
     ),
   );
 }
