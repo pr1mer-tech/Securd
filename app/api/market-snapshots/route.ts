@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { persistMarketSnapshots } from "@/lib/markets/snapshotIndexer";
 
 export const runtime = "nodejs";
+// Indexing reads every market on-chain; never serve a cached result.
+export const dynamic = "force-dynamic";
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -14,7 +16,7 @@ function isAuthorized(req: NextRequest): boolean {
   return bearer === secret || headerSecret === secret;
 }
 
-export async function POST(req: NextRequest) {
+async function runIndex(req: NextRequest): Promise<NextResponse> {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -40,4 +42,14 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+// Vercel Cron invokes the endpoint with GET and an `Authorization: Bearer ${CRON_SECRET}` header.
+export async function GET(req: NextRequest) {
+  return runIndex(req);
+}
+
+// POST kept for manual / external triggers.
+export async function POST(req: NextRequest) {
+  return runIndex(req);
 }
