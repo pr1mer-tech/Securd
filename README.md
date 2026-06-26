@@ -1,6 +1,6 @@
 # Securd — XRPL Lending Protocol
 
-Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 1449000). Users supply assets to earn interest and borrow against their collateral. All interaction happens from the **XRPL Ledger** using any XRPL wallet (Xaman, Crossmark, GemWallet, or WalletConnect) — no EVM wallet is ever required. Cross-chain communication is handled by **Axelar GMP and ITS**.
+Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 1440000). Users supply assets to earn interest and borrow against their collateral. All interaction happens from the **XRPL Ledger** using any XRPL wallet (Xaman, Crossmark, GemWallet, or WalletConnect) — no EVM wallet is ever required. Cross-chain communication is handled by **Axelar GMP and ITS**.
 
 ---
 
@@ -32,7 +32,7 @@ Each XRPL address gets a deterministic **proxy contract** on XRPL EVM (salt = `k
 | Layer              | Technology                                                                   |
 | ------------------ | ---------------------------------------------------------------------------- |
 | Smart contracts    | Solidity — lending core + Axelar adapters                                    |
-| XRPL EVM reads     | viem `publicClient` (chain ID 1449000)                                       |
+| XRPL EVM reads     | viem `publicClient` (chain ID 1440000)                                       |
 | XRPL wallet        | XRPL Connect (Xaman, Crossmark, GemWallet, WalletConnect) via `xrpl-connect` |
 | Cross-chain bridge | Axelar GMP (enter/exit collateral, borrow/withdraw) + ITS (supply/repay)     |
 | Frontend           | Next.js 14 App Router, Tailwind CSS, Zustand                                 |
