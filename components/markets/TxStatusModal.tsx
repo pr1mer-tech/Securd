@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2, Circle, XCircle, Loader2, ExternalLink } from "lucide-react";
 import { useAxelarStatus, type AxelarStep } from "@/lib/xrpl/useAxelarStatus";
+import { EXPLORER_XRPL_EVM } from "@/lib/constants/network";
 
 type Props = {
   txHash: string;
@@ -86,7 +87,7 @@ export function TxStatusModal({ txHash, actionLabel, onClose }: Props) {
               )}
               {status.evmTxHash && (
                 <ExternalLinkButton
-                  href={`https://explorer.testnet.xrplevm.org/tx/${status.evmTxHash}`}
+                  href={`${EXPLORER_XRPL_EVM}/tx/${status.evmTxHash}`}
                   label="XRPL EVM Tx"
                 />
               )}

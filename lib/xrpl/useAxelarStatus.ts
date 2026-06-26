@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  AXELARSCAN_API_URL,
+  AXELARSCAN_URL,
+  EXPLORER_XRPL_LEDGER,
+} from "@/lib/constants/network";
 
-const AXELARSCAN_API = "https://testnet.api.axelarscan.io";
+const AXELARSCAN_API = AXELARSCAN_API_URL;
 const POLL_INTERVAL_MS = 5_000;
 const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -90,8 +95,8 @@ function parseStatus(
   child: GmpEvent | null,
   txHash: string,
 ): AxelarStatus {
-  const xrplLink = `https://testnet.xrpl.org/transactions/${txHash}`;
-  const axelarLink = `https://testnet.axelarscan.io/gmp/${txHash.toLowerCase()}`;
+  const xrplLink = `${EXPLORER_XRPL_LEDGER}/transactions/${txHash}`;
+  const axelarLink = `${AXELARSCAN_URL}/gmp/${txHash.toLowerCase()}`;
 
   if (!source) {
     return {

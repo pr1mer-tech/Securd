@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { getProxyAddress } from "@/lib/utils/xrplProxy";
+import {
+  EXPLORER_XRPL_EVM,
+  EXPLORER_XRPL_LEDGER,
+  AXELARSCAN_URL,
+} from "@/lib/constants/network";
 import { type Address } from "viem";
 
 const NAV = [
@@ -141,9 +146,9 @@ function ConnectButton() {
     toast.success("Address copied to clipboard");
   };
 
-  const xrplLink = `https://testnet.xrpl.org/accounts/${account.address}`;
-  const axelarLink = `https://testnet.axelarscan.io/address/${account.address}`;
-  const evmLink = proxyAddress ? `https://explorer.testnet.xrplevm.org/address/${proxyAddress}` : null;
+  const xrplLink = `${EXPLORER_XRPL_LEDGER}/accounts/${account.address}`;
+  const axelarLink = `${AXELARSCAN_URL}/address/${account.address}`;
+  const evmLink = proxyAddress ? `${EXPLORER_XRPL_EVM}/address/${proxyAddress}` : null;
 
   return (
     <DropdownMenu>
