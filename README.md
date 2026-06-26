@@ -1,5 +1,7 @@
 # Securd — XRPL Lending Protocol
 
+> **⚠️ This branch is for XRPL EVM Sidechain Testnet**
+
 Securd is a decentralized lending protocol deployed on **XRPL EVM** (chain ID 1449000). Users supply assets to earn interest and borrow against their collateral. All interaction happens from the **XRPL Ledger** using any XRPL wallet (Xaman, Crossmark, GemWallet, or WalletConnect) — no EVM wallet is ever required. Cross-chain communication is handled by **Axelar GMP and ITS**.
 
 ---
