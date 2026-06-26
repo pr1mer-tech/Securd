@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatUSD, formatAPY, formatTokenAmount } from "@/lib/helpers/market.helpers";
 import { useSubmitIntent, ACTION_TYPE, marketIou } from "@/lib/xrpl/useSubmitIntent";
 import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
+import { SquidBridgeModal } from "./SquidBridgeModal";
+import { ArrowLeftRight } from "lucide-react";
 import type { MarketData, UserAccount, UserMarketPosition } from "@/lib/types/market.types";
 
 export function SupplyMarketsTable() {
@@ -21,6 +23,7 @@ export function SupplyMarketsTable() {
     market: MarketData;
     defaultAction: "supply" | "withdraw";
   } | null>(null);
+  const [bridgeMarket, setBridgeMarket] = useState<MarketData | null>(null);
 
   const userPositions = new Map<string, UserMarketPosition>(
     userAccount?.positions.map((p) => [p.cToken.toLowerCase(), p]) ?? [],
@@ -66,6 +69,7 @@ export function SupplyMarketsTable() {
                     onSupply={() =>
                       setModalMarket({ market, defaultAction: "supply" })
                     }
+                    onBridge={() => setBridgeMarket(market)}
                     onWithdraw={() =>
                       setModalMarket({ market, defaultAction: "withdraw" })
                     }
@@ -96,6 +100,13 @@ export function SupplyMarketsTable() {
           onClose={() => setModalMarket(null)}
         />
       )}
+
+      {bridgeMarket && (
+        <SquidBridgeModal
+          market={bridgeMarket}
+          onClose={() => setBridgeMarket(null)}
+        />
+      )}
     </>
   );
 }
@@ -106,6 +117,7 @@ function SupplyRow({
   userAccount,
   walletBalance,
   onSupply,
+  onBridge,
   onWithdraw,
 }: {
   market: MarketData;
@@ -113,6 +125,7 @@ function SupplyRow({
   userAccount?: UserAccount | null;
   walletBalance: number | null;
   onSupply: () => void;
+  onBridge: () => void;
   onWithdraw: () => void;
 }) {
   const suppliedUSD = position?.supplyBalanceUSD ?? 0;
@@ -241,6 +254,14 @@ function SupplyRow({
                 Withdraw
               </button>
             )}
+            <button
+              onClick={onBridge}
+              title={`Bridge ${market.underlyingSymbol} with Squid`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors"
+            >
+              <ArrowLeftRight size={13} />
+              Bridge
+            </button>
             <button
               onClick={onSupply}
               className="px-3 py-1.5 text-xs font-bold rounded-lg bg-securdPrimary text-securdWhite hover:bg-securdPrimary/80 transition-colors"
