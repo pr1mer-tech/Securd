@@ -15,6 +15,16 @@ export const XRPL_EVM_RPC_URL =
 // XRPL EVM mainnet is chain id 1440000; anything else is treated as testnet.
 const IS_MAINNET = XRPL_EVM_CHAIN_ID === 1440000;
 
+// Mainnet-only features (Squid liquidity bridge, advanced strategies planner).
+// These target real mainnet liquidity/contracts and have no testnet equivalent,
+// so they are shown only on mainnet by default. Force on/off with
+// NEXT_PUBLIC_MAINNET_FEATURES=true|false (referenced literally for inlining).
+const MAINNET_FEATURES_OVERRIDE =
+  process.env.NEXT_PUBLIC_MAINNET_FEATURES?.trim();
+export const MAINNET_FEATURES_ENABLED = MAINNET_FEATURES_OVERRIDE
+  ? MAINNET_FEATURES_OVERRIDE === "true"
+  : IS_MAINNET;
+
 // Block explorer base URLs (no trailing slash). Each falls back to the right
 // network default, overridable via NEXT_PUBLIC_ env. Call sites append paths.
 export const EXPLORER_XRPL_EVM =
