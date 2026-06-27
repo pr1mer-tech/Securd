@@ -2,6 +2,7 @@ import { AccountSummary } from "@/components/markets/AccountSummary";
 import { SupplyMarketsTable } from "@/components/markets/SupplyMarketsTable";
 import { BorrowMarketsTable } from "@/components/markets/BorrowMarketsTable";
 import { AdvancedStrategiesPanel } from "@/components/strategies/AdvancedStrategiesPanel";
+import { MAINNET_FEATURES_ENABLED } from "@/lib/constants/network";
 
 export const metadata = {
   title: "Secur·d — Markets",
@@ -16,7 +17,7 @@ export default function MarketsPage() {
 
       {/* Market tables */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col gap-6">
-        <AdvancedStrategiesPanel />
+        {MAINNET_FEATURES_ENABLED && <AdvancedStrategiesPanel />}
         <SupplyMarketsTable />
         <BorrowMarketsTable />
       </div>

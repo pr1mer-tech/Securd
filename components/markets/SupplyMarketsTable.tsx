@@ -12,6 +12,7 @@ import { formatUSD, formatAPY, formatTokenAmount } from "@/lib/helpers/market.he
 import { useSubmitIntent, ACTION_TYPE, marketIou } from "@/lib/xrpl/useSubmitIntent";
 import { useExitMarketGuard } from "@/lib/hooks/useExitMarketGuard";
 import { SquidBridgeModal } from "./SquidBridgeModal";
+import { MAINNET_FEATURES_ENABLED } from "@/lib/constants/network";
 import { ArrowLeftRight } from "lucide-react";
 import type { MarketData, UserAccount, UserMarketPosition } from "@/lib/types/market.types";
 
@@ -101,7 +102,7 @@ export function SupplyMarketsTable() {
         />
       )}
 
-      {bridgeMarket && (
+      {MAINNET_FEATURES_ENABLED && bridgeMarket && (
         <SquidBridgeModal
           market={bridgeMarket}
           onClose={() => setBridgeMarket(null)}
@@ -254,14 +255,16 @@ function SupplyRow({
                 Withdraw
               </button>
             )}
-            <button
-              onClick={onBridge}
-              title={`Bridge ${market.underlyingSymbol} with Squid`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors"
-            >
-              <ArrowLeftRight size={13} />
-              Bridge
-            </button>
+            {MAINNET_FEATURES_ENABLED && (
+              <button
+                onClick={onBridge}
+                title={`Bridge ${market.underlyingSymbol} with Squid`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-white/20 text-securdWhite hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeftRight size={13} />
+                Bridge
+              </button>
+            )}
             <button
               onClick={onSupply}
               className="px-3 py-1.5 text-xs font-bold rounded-lg bg-securdPrimary text-securdWhite hover:bg-securdPrimary/80 transition-colors"
