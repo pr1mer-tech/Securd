@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useMarkets } from "@/lib/hooks/useMarkets";
 import { useUserAccount } from "@/lib/hooks/useUserAccount";
 import { useXrplBalance } from "@/lib/hooks/useXrplBalance";
@@ -166,15 +167,18 @@ function SupplyRow({
       <tr className="border-b border-white/5 hover:bg-white/[0.03] transition-colors group">
         {/* Asset */}
         <td className="px-6 py-4">
-          <div className="flex items-center gap-3">
+          <Link
+            href={`/markets/${market.cToken}`}
+            className="flex items-center gap-3 w-fit"
+          >
             <MarketAssetIcon symbol={market.underlyingSymbol} size="md" />
             <div className="flex flex-col">
-              <span className="text-securdWhite font-medium text-sm">
+              <span className="text-securdWhite font-medium text-sm hover:underline">
                 {market.underlyingSymbol}
               </span>
               <span className="text-securdGrey text-xs">{market.name}</span>
             </div>
-          </div>
+          </Link>
         </td>
 
         {/* APY */}
