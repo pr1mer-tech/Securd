@@ -6,12 +6,15 @@ export const SQUID_NATIVE_TOKEN =
 
 export const SQUID_XRPL_EVM_MAINNET_CHAIN_ID = "1440000";
 
-const DEFAULT_SQUID_APP_URL = "https://apiplus.squidrouter.com/";
+const DEFAULT_SQUID_APP_URL = "https://app.squidrouter.com/";
 const DEFAULT_SOURCE_CHAIN_ID = "1";
 
-function publicEnv(name: string): string | undefined {
-  const value = process.env[name]?.trim();
-  return value ? value : undefined;
+// NEXT_PUBLIC_ vars must be referenced literally (process.env.NEXT_PUBLIC_X)
+// for Next.js to inline them into client bundles — process.env[dynamicKey]
+// resolves to undefined in the browser. This helper only trims the value.
+function trimmed(value: string | undefined): string | undefined {
+  const v = value?.trim();
+  return v ? v : undefined;
 }
 
 type SquidBridgeUrlParams = {
@@ -29,17 +32,19 @@ export function getSquidDestinationToken(underlying: Address): Address {
 
 export function getSquidBridgeConfig() {
   return {
-    appUrl: publicEnv("NEXT_PUBLIC_SQUID_APP_URL") ?? DEFAULT_SQUID_APP_URL,
-    widgetIframeUrl: publicEnv("NEXT_PUBLIC_SQUID_WIDGET_IFRAME_URL"),
+    appUrl:
+      trimmed(process.env.NEXT_PUBLIC_SQUID_APP_URL) ?? DEFAULT_SQUID_APP_URL,
+    widgetIframeUrl: trimmed(process.env.NEXT_PUBLIC_SQUID_WIDGET_IFRAME_URL),
     destinationChainId:
-      publicEnv("NEXT_PUBLIC_SQUID_DESTINATION_CHAIN_ID") ??
+      trimmed(process.env.NEXT_PUBLIC_SQUID_DESTINATION_CHAIN_ID) ??
       SQUID_XRPL_EVM_MAINNET_CHAIN_ID,
     defaultSourceChainId:
-      publicEnv("NEXT_PUBLIC_SQUID_DEFAULT_SOURCE_CHAIN_ID") ??
+      trimmed(process.env.NEXT_PUBLIC_SQUID_DEFAULT_SOURCE_CHAIN_ID) ??
       DEFAULT_SOURCE_CHAIN_ID,
     defaultSourceToken:
-      (publicEnv("NEXT_PUBLIC_SQUID_DEFAULT_SOURCE_TOKEN") as Address | undefined) ??
-      SQUID_NATIVE_TOKEN,
+      (trimmed(process.env.NEXT_PUBLIC_SQUID_DEFAULT_SOURCE_TOKEN) as
+        | Address
+        | undefined) ?? SQUID_NATIVE_TOKEN,
   };
 }
 
@@ -58,11 +63,45 @@ export function buildSquidBridgeUrl({
   });
 }
 
+// The Widget Studio iframe route parses everything after `?config=` as one
+// JSON blob, so appending extra query params (chains/tokens) corrupts it and
+// the widget renders blank. Prefill must instead be merged into the config
+// JSON itself via `initialAssets`. If the URL has no parseable config param,
+// return it untouched rather than risk breaking it.
 export function buildSquidWidgetUrl(
   widgetIframeUrl: string,
-  params: SquidBridgeUrlParams,
+  {
+    destinationToken,
+    destinationChainId,
+    sourceChainId,
+    sourceToken,
+  }: SquidBridgeUrlParams,
 ): string {
-  return buildSquidUrl(widgetIframeUrl, params);
+  const cfg = getSquidBridgeConfig();
+  const url = new URL(widgetIframeUrl);
+  const rawConfig = url.searchParams.get("config");
+  if (!rawConfig) return widgetIframeUrl;
+
+  let widgetConfig: Record<string, unknown>;
+  try {
+    widgetConfig = JSON.parse(rawConfig);
+  } catch {
+    return widgetIframeUrl;
+  }
+
+  widgetConfig.initialAssets = {
+    from: {
+      chainId: sourceChainId ?? cfg.defaultSourceChainId,
+      address: sourceToken ?? cfg.defaultSourceToken,
+    },
+    to: {
+      chainId: destinationChainId ?? cfg.destinationChainId,
+      address: destinationToken,
+    },
+  };
+
+  url.searchParams.set("config", JSON.stringify(widgetConfig));
+  return url.toString();
 }
 
 function buildSquidUrl(
