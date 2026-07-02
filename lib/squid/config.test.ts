@@ -58,7 +58,7 @@ describe("getSquidDestinationToken", () => {
 describe("getSquidBridgeConfig defaults", () => {
   test("falls back to documented defaults when env is unset", () => {
     const cfg = getSquidBridgeConfig();
-    expect(cfg.appUrl).toBe("https://apiplus.squidrouter.com/");
+    expect(cfg.appUrl).toBe("https://app.squidrouter.com/");
     expect(cfg.widgetIframeUrl).toBeUndefined();
     expect(cfg.destinationChainId).toBe(SQUID_XRPL_EVM_MAINNET_CHAIN_ID);
     expect(cfg.defaultSourceChainId).toBe("1");
@@ -67,7 +67,7 @@ describe("getSquidBridgeConfig defaults", () => {
 
   test("trims blank env values back to the defaults", () => {
     process.env.NEXT_PUBLIC_SQUID_APP_URL = "   ";
-    expect(getSquidBridgeConfig().appUrl).toBe("https://apiplus.squidrouter.com/");
+    expect(getSquidBridgeConfig().appUrl).toBe("https://app.squidrouter.com/");
   });
 
   test("honours overrides from env", () => {
@@ -84,7 +84,7 @@ describe("buildSquidBridgeUrl", () => {
     const url = new URL(
       buildSquidBridgeUrl({ destinationToken: ERC20_UNDERLYING }),
     );
-    expect(url.origin + url.pathname).toBe("https://apiplus.squidrouter.com/");
+    expect(url.origin + url.pathname).toBe("https://app.squidrouter.com/");
     expect(url.searchParams.get("chains")).toBe(
       `1,${SQUID_XRPL_EVM_MAINNET_CHAIN_ID}`,
     );
@@ -110,18 +110,59 @@ describe("buildSquidBridgeUrl", () => {
 });
 
 describe("buildSquidWidgetUrl", () => {
-  test("builds against the supplied widget iframe base", () => {
+  const widgetBase =
+    "https://studio.example/iframe?config=" +
+    encodeURIComponent(JSON.stringify({ integratorId: "test-integrator" }));
+
+  test("merges initialAssets into the config JSON without extra params", () => {
     const url = new URL(
+      buildSquidWidgetUrl(widgetBase, { destinationToken: ERC20_UNDERLYING }),
+    );
+    expect(url.origin + url.pathname).toBe("https://studio.example/iframe");
+    // No loose chains/tokens params — the studio iframe would fail to parse them.
+    expect(url.searchParams.get("chains")).toBeNull();
+    expect(url.searchParams.get("tokens")).toBeNull();
+
+    const config = JSON.parse(url.searchParams.get("config")!);
+    expect(config.integratorId).toBe("test-integrator");
+    expect(config.initialAssets).toEqual({
+      from: { chainId: "1", address: SQUID_NATIVE_TOKEN },
+      to: {
+        chainId: SQUID_XRPL_EVM_MAINNET_CHAIN_ID,
+        address: ERC20_UNDERLYING,
+      },
+    });
+  });
+
+  test("explicit params override the config defaults", () => {
+    const url = new URL(
+      buildSquidWidgetUrl(widgetBase, {
+        destinationToken: ERC20_UNDERLYING,
+        destinationChainId: "1449000",
+        sourceChainId: "10",
+        sourceToken: "0x00000000000000000000000000000000000000aa",
+      }),
+    );
+    const config = JSON.parse(url.searchParams.get("config")!);
+    expect(config.initialAssets).toEqual({
+      from: {
+        chainId: "10",
+        address: "0x00000000000000000000000000000000000000aa",
+      },
+      to: { chainId: "1449000", address: ERC20_UNDERLYING },
+    });
+  });
+
+  test("returns the URL untouched when it has no parseable config param", () => {
+    expect(
       buildSquidWidgetUrl("https://widget.example/swap", {
         destinationToken: ERC20_UNDERLYING,
       }),
-    );
-    expect(url.origin + url.pathname).toBe("https://widget.example/swap");
-    expect(url.searchParams.get("chains")).toBe(
-      `1,${SQUID_XRPL_EVM_MAINNET_CHAIN_ID}`,
-    );
-    expect(url.searchParams.get("tokens")).toBe(
-      `${SQUID_NATIVE_TOKEN},${ERC20_UNDERLYING}`,
-    );
+    ).toBe("https://widget.example/swap");
+    expect(
+      buildSquidWidgetUrl("https://widget.example/swap?config=not-json", {
+        destinationToken: ERC20_UNDERLYING,
+      }),
+    ).toBe("https://widget.example/swap?config=not-json");
   });
 });
