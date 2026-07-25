@@ -167,7 +167,7 @@ export function AdvancedStrategiesPanel() {
                   <Row
                     key={index}
                     label={`Loop ${index + 1}`}
-                    value={`${formatUSD(value / 2)} XRP + ${formatUSD(value / 2)} ${plan.pool.secondAssetSymbol}`}
+                    value={`${formatUSD(value / 2)} in XRP + ${formatUSD(value / 2)} in ${plan.pool.secondAssetSymbol}`}
                   />
                 ))
               )}

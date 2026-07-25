@@ -1,3 +1,5 @@
+import type { MarketData } from "@/lib/types/market.types";
+
 const MANTISSA = 10n ** 18n;
 
 // APY = ratePerBlock × blocksPerYear × 100 / 1e18.
@@ -25,8 +27,95 @@ export function calcUtilization(
   reserves: bigint,
 ): number {
   const total = cash + borrows - reserves;
-  if (total === 0n) return 0;
-  return Number((borrows * 10000n) / total) / 100;
+  // total can be non-positive in a thin/near-drained market (reserves close
+  // to cash+borrows) — clamp here rather than at every call site, since a
+  // negative bigint division would otherwise surface as a nonsensical
+  // negative utilization percentage in the UI.
+  if (total <= 0n) return 0;
+  const pct = Number((borrows * 10000n) / total) / 100;
+  return Math.min(Math.max(pct, 0), 100);
+}
+
+export type RateCurvePoint = {
+  utilizationPct: number;
+  borrowAPY: number;
+  supplyAPY: number;
+};
+
+type IrmCurveParams = Pick<
+  MarketData,
+  | "kink"
+  | "baseRatePerBlock"
+  | "multiplierPerBlock"
+  | "jumpMultiplierPerBlock"
+  | "reserveFactor"
+  | "blocksPerYear"
+>;
+
+// Replicates the on-chain JumpRateModel formula (getBorrowRate/getSupplyRate)
+// at a synthetic utilization rather than the market's real cash/borrows/
+// reserves — lets the UI plot the full 0–100% rate curve from four static IRM
+// params instead of needing N separate contract calls.
+function borrowRatePerBlockAtUtilization(
+  utilizationMantissa: bigint,
+  params: IrmCurveParams,
+): bigint {
+  if (utilizationMantissa <= params.kink) {
+    return (
+      (utilizationMantissa * params.multiplierPerBlock) / MANTISSA +
+      params.baseRatePerBlock
+    );
+  }
+  const normalRate =
+    (params.kink * params.multiplierPerBlock) / MANTISSA + params.baseRatePerBlock;
+  const excessUtilization = utilizationMantissa - params.kink;
+  return (
+    (excessUtilization * params.jumpMultiplierPerBlock) / MANTISSA + normalRate
+  );
+}
+
+function supplyRatePerBlockAtUtilization(
+  utilizationMantissa: bigint,
+  borrowRatePerBlock: bigint,
+  reserveFactorMantissa: bigint,
+): bigint {
+  const oneMinusReserveFactor = MANTISSA - reserveFactorMantissa;
+  const rateToPool = (borrowRatePerBlock * oneMinusReserveFactor) / MANTISSA;
+  return (utilizationMantissa * rateToPool) / MANTISSA;
+}
+
+/**
+ * Samples the market's real on-chain rate model across the full 0–100%
+ * utilization range, so the UI can plot the actual curve shape (including
+ * where the kink sits) instead of a single current-utilization snapshot.
+ */
+export function buildRateCurve(market: IrmCurveParams, steps = 20): RateCurvePoint[] {
+  const kinkPct = Math.round(Number(market.kink) / 1e16);
+  const samplePcts = new Set<number>();
+  for (let i = 0; i <= steps; i += 1) {
+    samplePcts.add(Math.round((i * 100) / steps));
+  }
+  samplePcts.add(Math.min(100, Math.max(0, kinkPct))); // exact corner at the kink
+
+  return Array.from(samplePcts)
+    .sort((a, b) => a - b)
+    .map((utilizationPct) => {
+      const utilizationMantissa = (BigInt(utilizationPct) * MANTISSA) / 100n;
+      const borrowRatePerBlock = borrowRatePerBlockAtUtilization(
+        utilizationMantissa,
+        market,
+      );
+      const supplyRatePerBlock = supplyRatePerBlockAtUtilization(
+        utilizationMantissa,
+        borrowRatePerBlock,
+        market.reserveFactor,
+      );
+      return {
+        utilizationPct,
+        borrowAPY: calcBorrowAPY(borrowRatePerBlock, market.blocksPerYear),
+        supplyAPY: calcSupplyAPY(supplyRatePerBlock, market.blocksPerYear),
+      };
+    });
 }
 
 // Converts cToken balance to underlying amount using exchange rate (1e18 mantissa)

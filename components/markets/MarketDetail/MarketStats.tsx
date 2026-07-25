@@ -1,4 +1,4 @@
-import { formatUSD, formatAPY } from "@/lib/helpers/market.helpers";
+import { formatUSD, formatAPY, toUSD } from "@/lib/helpers/market.helpers";
 import type { MarketData } from "@/lib/types/market.types";
 
 type Props = { market: MarketData };
@@ -6,11 +6,13 @@ type Props = { market: MarketData };
 export function MarketStats({ market }: Props) {
   const reserveFactor = (Number(market.reserveFactor) / 1e18) * 100;
   const collateralFactor = (Number(market.collateralFactor) / 1e18) * 100;
+  const totalReservesUSD = toUSD(market.totalReserves, market.underlyingDecimals, market.priceUSD);
 
   const stats = [
     { label: "Total Supply", value: formatUSD(market.totalSupplyUSD) },
     { label: "Total Borrow", value: formatUSD(market.totalBorrowsUSD) },
     { label: "Available Liquidity", value: formatUSD(market.availableLiquidityUSD) },
+    { label: "Total Reserves", value: formatUSD(totalReservesUSD) },
     { label: "Utilization", value: `${market.utilization.toFixed(1)}%` },
     { label: "Supply APY", value: formatAPY(market.supplyAPY), valueClass: "text-systemGreen" },
     { label: "Borrow APY", value: formatAPY(market.borrowAPY), valueClass: "text-systemRed" },

@@ -23,6 +23,15 @@ export type MarketData = {
   reserveFactor: bigint;
   collateralFactor: bigint;
 
+  // IRM curve parameters — read from this market's own interest rate model
+  // instance, used to plot the full rate-vs-utilization curve (see
+  // buildRateCurve in market.helpers.ts) rather than assuming a shape.
+  kink: bigint;
+  baseRatePerBlock: bigint;
+  multiplierPerBlock: bigint;
+  jumpMultiplierPerBlock: bigint;
+  blocksPerYear: bigint;
+
   // Computed display values
   supplyAPY: number;
   borrowAPY: number;

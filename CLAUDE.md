@@ -12,10 +12,6 @@ bun run lint         # ESLint via next lint
 
 # TypeScript check (no build output)
 npx tsc --noEmit
-
-# Drizzle migrations
-bunx drizzle-kit generate
-bunx drizzle-kit migrate
 ```
 
 **Package manager:** `bun` (v1.3.10). Use `bun install` not `npm install`. Node ≥ 24 required.

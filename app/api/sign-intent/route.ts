@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { privateKeyToAccount } from "viem/accounts";
-import { keccak256, encodeAbiParameters, toBytes } from "viem";
+import { keccak256, encodeAbiParameters, toBytes, hexToString } from "viem";
 import type { IntentEnvelope } from "@/lib/xrpl/types";
 import { ACTION_TYPE } from "@/lib/xrpl/types";
 import { ADDRESSES, bridgeAdapterContract } from "@/lib/constants/contracts";
@@ -24,6 +24,14 @@ const SIGNABLE_ACTION_TYPES = new Set<number>([
 const ZERO_AMOUNT_ACTION_TYPES = new Set<number>([
   ACTION_TYPE.ENTER_MARKET,
   ACTION_TYPE.EXIT_MARKET,
+]);
+
+// Actions that send funds out to an XRPL address — destinationAddress must
+// be present and must equal the caller's own claimed address (see VULN-04
+// check below). All other actions carry no egress and must leave it empty.
+const EGRESS_ACTION_TYPES = new Set<number>([
+  ACTION_TYPE.BORROW,
+  ACTION_TYPE.WITHDRAW,
 ]);
 
 function buildDigest(envelope: IntentEnvelope): `0x${string}` {
@@ -150,6 +158,38 @@ export async function POST(req: NextRequest) {
   if (!SIGNABLE_ACTION_TYPES.has(envelope.actionType)) {
     return NextResponse.json(
       { error: "Action type not permitted" },
+      { status: 400 },
+    );
+  }
+
+  // VULN-04 fix: the xrplAccount check above only proves the caller *knows*
+  // the address (public info) — it does not prove key ownership. Without this
+  // check, anyone could request a signed BORROW/WITHDRAW intent for a known
+  // victim address with destinationAddress rewritten to their own wallet, and
+  // only need to submit their own XRPL payment to trigger it. Pinning
+  // destinationAddress to the same address asserted in the header closes that
+  // off: funds from a BORROW/WITHDRAW against xrplAccount can only ever be
+  // routed back to the address that requested the signature. Non-egress
+  // actions must carry no destination at all.
+  if (EGRESS_ACTION_TYPES.has(envelope.actionType)) {
+    let decodedDestination: string;
+    try {
+      decodedDestination = hexToString(envelope.destinationAddress);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid destinationAddress" },
+        { status: 400 },
+      );
+    }
+    if (decodedDestination !== xrplAddress) {
+      return NextResponse.json(
+        { error: "destinationAddress must match the requesting xrplAddress" },
+        { status: 403 },
+      );
+    }
+  } else if (envelope.destinationAddress !== "0x") {
+    return NextResponse.json(
+      { error: "destinationAddress must be empty for this action type" },
       { status: 400 },
     );
   }

@@ -26,10 +26,10 @@ function bigintToUSD(value: bigint): number {
   return Number(value) / 1e18;
 }
 
-function parseInputToEvmWei(value: string): bigint {
+function parseInputToEvmWei(value: string, decimals: number): bigint {
   const clean = value.trim();
   if (!clean || Number(clean) <= 0) return 0n;
-  return parseUnits(clean, 18);
+  return parseUnits(clean, decimals);
 }
 
 function underlyingToRedeemTokens(amountWei: bigint, exchangeRate: bigint): bigint {
@@ -66,7 +66,7 @@ export function useHypotheticalLiquidity(params: {
 
       let amountWei: bigint;
       try {
-        amountWei = parseInputToEvmWei(amount);
+        amountWei = parseInputToEvmWei(amount, market.underlyingDecimals);
       } catch {
         setState({
           isLoading: false,
@@ -160,6 +160,7 @@ export function useHypotheticalLiquidity(params: {
     inputUSD,
     market.cToken,
     market.exchangeRate,
+    market.underlyingDecimals,
     userAccount,
   ]);
 

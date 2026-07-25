@@ -98,13 +98,21 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
   const underlying = marketCfg[0];
   const isNative = underlying.toLowerCase() === NATIVE_UNDERLYING.toLowerCase();
 
-  // blocksPerYear is read from this market's own IRM — markets may use separate
-  // IRM instances, and the value can be recalibrated on-chain. Kicked off here
-  // so it resolves concurrently with the underlying-token reads below.
-  const blocksPerYearPromise = xrplEvmClient.readContract({
-    ...irmContract(irmAddress),
-    functionName: "blocksPerYear",
-  });
+  // IRM curve parameters are read from this market's own IRM — markets may
+  // use separate IRM instances, and values can be recalibrated on-chain.
+  // Kicked off here so they resolve concurrently with the underlying-token
+  // reads below. blocksPerYear feeds the APY conversion; kink/base/multiplier/
+  // jumpMultiplier feed the full rate-vs-utilization curve on the market
+  // detail page (buildRateCurve in market.helpers.ts) — reading the real
+  // params instead of assuming a shape.
+  const irm = irmContract(irmAddress);
+  const irmParamsPromise = Promise.all([
+    xrplEvmClient.readContract({ ...irm, functionName: "blocksPerYear" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "kink" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "baseRatePerBlock" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "multiplierPerBlock" }),
+    xrplEvmClient.readContract({ ...irm, functionName: "jumpMultiplierPerBlock" }),
+  ]);
 
   // Native XRP has no ERC20 underlying — its symbol/decimals are fixed.
   // IOU markets: read the underlying-token symbol/decimals from chain.
@@ -118,7 +126,8 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     underlyingSymbol = erc20Symbol;
     underlyingDecimals = erc20Decimals;
   }
-  const blocksPerYear = await blocksPerYearPromise;
+  const [blocksPerYear, kink, baseRatePerBlock, multiplierPerBlock, jumpMultiplierPerBlock] =
+    await irmParamsPromise;
 
   // markets() returns [isListed, collateralFactorMantissa, isRewarded]
   const collateralFactor = marketInfo[1];
@@ -158,6 +167,11 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     supplyRatePerBlock,
     reserveFactor,
     collateralFactor,
+    kink,
+    baseRatePerBlock,
+    multiplierPerBlock,
+    jumpMultiplierPerBlock,
+    blocksPerYear,
     supplyAPY,
     borrowAPY,
     utilization,

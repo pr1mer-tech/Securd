@@ -11,6 +11,19 @@ import { privateKeyToAccount } from "viem/accounts";
 import { xrplEvmTestnet } from "@/lib/constants/xrplEvmChain";
 import { xrplEvmClient } from "@/lib/constants/xrplEvmClient";
 import { ADDRESSES, bridgeAdapterContract } from "@/lib/constants/contracts";
+import { getClientIp, isRateLimited } from "@/lib/api/rateLimit";
+
+// This endpoint is unauthenticated by design (self-service onboarding) but it
+// spends real gas from DEPLOYER_PRIVATE_KEY's wallet on every unregistered
+// address it's given, with no proof the caller controls that XRPL account.
+// Without a cap, it's a trivial gas-drain DoS: any caller can flood it with
+// arbitrary address strings and burn the signer's balance until legitimate
+// intent-signing breaks for everyone. Limits are deliberately tight — this
+// route should fire at most once per real wallet connect.
+const IP_LIMIT = 5;
+const IP_WINDOW_MS = 60_000;
+const ADDRESS_LIMIT = 3;
+const ADDRESS_WINDOW_MS = 60_000;
 
 // The bridge adapter only accepts cross-chain messages from XRPL Ledger.
 const SOURCE_CHAIN = "xrpl";
@@ -28,6 +41,20 @@ export async function POST(req: NextRequest) {
   const xrplAddress = req.headers.get("x-xrpl-address");
   if (!xrplAddress) {
     return NextResponse.json({ error: "Missing x-xrpl-address" }, { status: 400 });
+  }
+
+  const ip = getClientIp(req);
+  if (isRateLimited(`register-user:ip:${ip}`, IP_LIMIT, IP_WINDOW_MS)) {
+    return NextResponse.json(
+      { error: "Too many registration requests — try again shortly" },
+      { status: 429 },
+    );
+  }
+  if (isRateLimited(`register-user:addr:${xrplAddress}`, ADDRESS_LIMIT, ADDRESS_WINDOW_MS)) {
+    return NextResponse.json(
+      { error: "Too many registration attempts for this address" },
+      { status: 429 },
+    );
   }
 
   const pk = process.env.DEPLOYER_PRIVATE_KEY;

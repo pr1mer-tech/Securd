@@ -1,3 +1,4 @@
+import { ProtocolStats } from "@/components/markets/ProtocolStats";
 import { AccountSummary } from "@/components/markets/AccountSummary";
 import { SupplyMarketsTable } from "@/components/markets/SupplyMarketsTable";
 import { BorrowMarketsTable } from "@/components/markets/BorrowMarketsTable";
@@ -11,6 +12,9 @@ export const metadata = {
 export default function MarketsPage() {
   return (
     <>
+      {/* Protocol-wide aggregate stats — visible with or without a wallet */}
+      <ProtocolStats />
+
       {/* Account summary — teal hero section */}
       <AccountSummary />
 

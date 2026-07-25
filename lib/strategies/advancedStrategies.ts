@@ -48,6 +48,8 @@ export type StrategyStep = {
   label: string;
   network: string;
   action: string;
+  /** False for steps that are pure monitoring/computation, not a wallet signature. */
+  requiresSignature: boolean;
 };
 
 export type StrategyControlStatus = "covered" | "partial" | "blocked";
@@ -141,10 +143,11 @@ export function buildStrategyPlan(input: StrategyPlanInput): StrategyPlan {
       : 0;
   const minGasXrp = loopCount * pool.estimatedLoopGasXrp.min;
   const maxGasXrp = loopCount * pool.estimatedLoopGasXrp.max;
-  const signatureCount =
-    input.mode === "delta-neutral"
-      ? 3 + loopCount * 5
-      : 1 + loopCount * 5;
+  // Derived from the actual runbook rather than a separate formula, so the
+  // "Manual signatures" metric can never drift out of sync with the step
+  // list shown right below it in the panel.
+  const steps = buildSteps(pool, input.mode, loopCount);
+  const signatureCount = steps.filter((step) => step.requiresSignature).length;
   const capturedMaxLeveragePct =
     maxLeverage > 1
       ? ((targetLeverage - 1) / (maxLeverage - 1)) * 100
@@ -175,7 +178,7 @@ export function buildStrategyPlan(input: StrategyPlanInput): StrategyPlan {
       loopCount,
       capturedMaxLeveragePct,
     }),
-    steps: buildSteps(pool, input.mode, loopCount),
+    steps,
     executionReadiness: buildExecutionReadiness(),
     failurePlaybook: buildFailurePlaybook(input.mode),
   };
@@ -242,11 +245,13 @@ function buildSteps(
       label: "Supply LP collateral",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: `Bridge and supply ${pool.label} LP tokens to Securd.`,
+      requiresSignature: true,
     },
     {
       label: "Enable collateral",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: "Submit ENTER_MARKET once for the LP market.",
+      requiresSignature: true,
     },
   ];
 
@@ -256,21 +261,25 @@ function buildSteps(
         label: `Loop ${i}: borrow XRP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Submit BORROW intent for the XRP half of the loop.",
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: borrow ${pool.secondAssetSymbol}`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: `Submit BORROW intent for the ${pool.secondAssetSymbol} half of the loop.`,
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: add liquidity`,
         network: STRATEGY_MAINNET.xrplLedger,
         action: "Submit AMMDeposit with tfTwoAsset using the latest amm_info ratio.",
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: re-supply LP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Bridge newly minted LP tokens back to Securd with Add Gas.",
+        requiresSignature: true,
       },
     );
   }
@@ -281,16 +290,19 @@ function buildSteps(
         label: "Open XRP hedge",
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Borrow the target XRP hedge amount against LP collateral.",
+        requiresSignature: true,
       },
       {
         label: "Sell borrowed XRP",
         network: STRATEGY_MAINNET.xrplLedger,
         action: `Swap borrowed XRP into ${pool.secondAssetSymbol} through the native AMM/DEX.`,
+        requiresSignature: true,
       },
       {
         label: "Monitor rebalance",
         network: STRATEGY_MAINNET.xrplLedger,
         action: "Recompute f*x from amm_info and rebalance when drift crosses the trigger.",
+        requiresSignature: false,
       },
     );
   }
