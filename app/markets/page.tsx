@@ -1,7 +1,6 @@
 import { ProtocolStats } from "@/components/markets/ProtocolStats";
 import { AccountSummary } from "@/components/markets/AccountSummary";
 import { MarketsTabs } from "@/components/markets/MarketsTabs";
-import { AdvancedStrategiesPanel } from "@/components/strategies/AdvancedStrategiesPanel";
 
 export const metadata = {
   title: "Secur·d — Markets",
@@ -19,7 +18,6 @@ export default function MarketsPage() {
 
       {/* Market tables */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col gap-6">
-        <AdvancedStrategiesPanel />
         <MarketsTabs />
       </div>
     </>
