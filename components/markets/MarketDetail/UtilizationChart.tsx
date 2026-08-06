@@ -52,7 +52,7 @@ export function UtilizationChart({ market }: Props) {
   const kinkX = xForUtilization(kinkPct);
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6">
+    <div className="bg-white/3 rounded-2xl border border-white/10 p-6">
       <div className="flex flex-col gap-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex flex-col gap-1">
@@ -72,7 +72,7 @@ export function UtilizationChart({ market }: Props) {
         <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#111417]">
           <svg
             viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-            className="h-[260px] w-full"
+            className="h-65 w-full"
             role="img"
             aria-label={`${market.underlyingSymbol} interest rate curve`}
           >
@@ -121,8 +121,18 @@ export function UtilizationChart({ market }: Props) {
               stroke="rgba(255, 255, 255, 0.45)"
               strokeWidth="1"
             />
-            <circle cx={currentX} cy={currentBorrowY} r="5" fill="rgb(239, 68, 68)" />
-            <circle cx={currentX} cy={currentSupplyY} r="5" fill="rgb(34, 197, 94)" />
+            <circle
+              cx={currentX}
+              cy={currentBorrowY}
+              r="5"
+              fill="rgb(239, 68, 68)"
+            />
+            <circle
+              cx={currentX}
+              cy={currentSupplyY}
+              r="5"
+              fill="rgb(34, 197, 94)"
+            />
             <text
               x={Math.min(currentX + 8, CHART_WIDTH - 112)}
               y={CHART_HEIGHT - PADDING.bottom - 8}
@@ -135,11 +145,32 @@ export function UtilizationChart({ market }: Props) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <RateCard label="Current Utilization" value={formatPercent(market.utilization, 1)} />
+          <RateCard
+            label="Current Utilization"
+            value={formatPercent(market.utilization, 1)}
+          />
           <RateCard label="Base Rate" value={formatAPY(baseAPY)} />
           <RateCard label="Slope Below Kink" value={formatAPY(multiplierAPY)} />
-          <RateCard label="Slope Above Kink" value={formatAPY(jumpMultiplierAPY)} />
+          <RateCard
+            label="Slope Above Kink"
+            value={formatAPY(jumpMultiplierAPY)}
+          />
         </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <RateCard
+          label="Current Utilization"
+          value={`${market.utilization.toFixed(1)}%`}
+        />
+        <RateCard
+          label="Borrow APY"
+          value={`${market.borrowAPY.toFixed(2)}%`}
+        />
+        <RateCard
+          label="Supply APY"
+          value={`${market.supplyAPY.toFixed(2)}%`}
+        />
       </div>
     </div>
   );
@@ -151,7 +182,7 @@ function buildCurvePoints(
 ): CurvePoint[] {
   return Array.from({ length: 26 }, (_, i) => {
     const utilizationPct = i * 4;
-    const utilizationMantissa = BigInt(utilizationPct) * MANTISSA / 100n;
+    const utilizationMantissa = (BigInt(utilizationPct) * MANTISSA) / 100n;
     const borrowAPY = calcBorrowRateAtUtilization({
       utilizationMantissa,
       baseRatePerBlock: market.baseRatePerBlock,
@@ -175,7 +206,10 @@ function pointsToPolyline(
   key: "borrowAPY" | "supplyAPY",
 ): string {
   return points
-    .map((point) => `${xForUtilization(point.utilizationPct)},${yForRate(point[key], yMax)}`)
+    .map(
+      (point) =>
+        `${xForUtilization(point.utilizationPct)},${yForRate(point[key], yMax)}`,
+    )
     .join(" ");
 }
 
@@ -266,7 +300,9 @@ function RateCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-white/5 rounded-xl p-3 flex flex-col gap-1">
       <span className="text-securdGrey text-[11px]">{label}</span>
-      <span className="font-bold text-sm tabular-nums text-securdWhite">{value}</span>
+      <span className="font-bold text-sm tabular-nums text-securdWhite">
+        {value}
+      </span>
     </div>
   );
 }

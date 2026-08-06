@@ -1,5 +1,7 @@
+import { ProtocolStats } from "@/components/markets/ProtocolStats";
 import { AccountSummary } from "@/components/markets/AccountSummary";
 import { MarketsTabs } from "@/components/markets/MarketsTabs";
+import { AdvancedStrategiesPanel } from "@/components/strategies/AdvancedStrategiesPanel";
 
 export const metadata = {
   title: "Secur·d — Markets",
@@ -9,11 +11,15 @@ export const metadata = {
 export default function MarketsPage() {
   return (
     <>
+      {/* Protocol-wide aggregate stats — visible with or without a wallet */}
+      <ProtocolStats />
+
       {/* Account summary — teal hero section */}
       <AccountSummary />
 
-      {/* Markets / Advanced Strategies tabs */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      {/* Market tables */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 flex flex-col gap-6">
+        <AdvancedStrategiesPanel />
         <MarketsTabs />
       </div>
     </>

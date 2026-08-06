@@ -29,7 +29,7 @@ export function MarketStats({ market }: Props) {
   );
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-6">
+    <div className="bg-white/3 rounded-2xl border border-white/10 p-6">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex flex-col gap-1">
@@ -47,51 +47,112 @@ export function MarketStats({ market }: Props) {
         </div>
 
         <Section title="Liquidity">
-          <MetricRow label="Total Supply" value={formatUSD(market.totalSupplyUSD)} />
-          <MetricRow label="Total Borrow" value={formatUSD(market.totalBorrowsUSD)} />
-          <MetricRow label="Available Liquidity" value={formatUSD(market.availableLiquidityUSD)} />
-          <MetricRow label="Protocol Reserves" value={formatUSD(totalReservesUSD)} />
-          <MetricRow label="Utilization" value={formatPercent(market.utilization, 1)} />
+          <MetricRow
+            label="Total Supply"
+            value={formatUSD(market.totalSupplyUSD)}
+          />
+          <MetricRow
+            label="Total Borrow"
+            value={formatUSD(market.totalBorrowsUSD)}
+          />
+          <MetricRow
+            label="Available Liquidity"
+            value={formatUSD(market.availableLiquidityUSD)}
+          />
+          <MetricRow
+            label="Protocol Reserves"
+            value={formatUSD(totalReservesUSD)}
+          />
+          <MetricRow
+            label="Utilization"
+            value={formatPercent(market.utilization, 1)}
+          />
         </Section>
 
         <Section title="Risk Parameters">
-          <MetricRow label="Collateral Factor" value={formatPercent(collateralFactor, 0)} />
-          <MetricRow label="Reserve Factor" value={formatPercent(reserveFactor, 0)} />
+          <MetricRow
+            label="Collateral Factor"
+            value={formatPercent(collateralFactor, 0)}
+          />
+          <MetricRow
+            label="Reserve Factor"
+            value={formatPercent(reserveFactor, 0)}
+          />
           <MetricRow label="Borrow Cap" value={formatBorrowCap(market)} />
           <MetricRow
             label="Supply Status"
             value={market.mintGuardianPaused ? "Paused" : "Active"}
-            valueClass={market.mintGuardianPaused ? "text-systemRed" : "text-systemGreen"}
+            valueClass={
+              market.mintGuardianPaused ? "text-systemRed" : "text-systemGreen"
+            }
           />
           <MetricRow
             label="Borrow Status"
             value={market.borrowGuardianPaused ? "Paused" : "Active"}
-            valueClass={market.borrowGuardianPaused ? "text-systemRed" : "text-systemGreen"}
+            valueClass={
+              market.borrowGuardianPaused
+                ? "text-systemRed"
+                : "text-systemGreen"
+            }
           />
           <MetricRow
             label="cToken Transfer"
             value={market.transferGuardianPaused ? "Paused" : "Active"}
-            valueClass={market.transferGuardianPaused ? "text-systemRed" : "text-systemGreen"}
+            valueClass={
+              market.transferGuardianPaused
+                ? "text-systemRed"
+                : "text-systemGreen"
+            }
           />
         </Section>
 
         <Section title="Liquidation Parameters">
-          <MetricRow label="Close Factor" value={formatPercent(closeFactor, 0)} />
-          <MetricRow label="Liquidation Incentive" value={formatPercent(liquidationIncentive, 0)} />
-          <MetricRow label="Liquidation Penalty" value={formatPercent(liquidationPenalty, 0)} />
-          <MetricRow label="Protocol Seize Share" value={formatPercent(protocolSeizeShare, 0)} />
+          <MetricRow
+            label="Close Factor"
+            value={formatPercent(closeFactor, 0)}
+          />
+          <MetricRow
+            label="Liquidation Incentive"
+            value={formatPercent(liquidationIncentive, 0)}
+          />
+          <MetricRow
+            label="Liquidation Penalty"
+            value={formatPercent(liquidationPenalty, 0)}
+          />
+          <MetricRow
+            label="Protocol Seize Share"
+            value={formatPercent(protocolSeizeShare, 0)}
+          />
         </Section>
 
         <Section title="Protocol Mechanics">
-          <MetricRow label="Oracle Price" value={`$${market.priceUSD.toFixed(4)}`} />
+          <MetricRow
+            label="Oracle Price"
+            value={`$${market.priceUSD.toFixed(4)}`}
+          />
           <MetricRow
             label={`1 ${market.symbol}`}
             value={`${formatTokenAmount(exchangeRate, 6)} ${market.underlyingSymbol}`}
           />
-          <MetricRow label="Supply APY" value={formatAPY(market.supplyAPY)} valueClass="text-systemGreen" />
-          <MetricRow label="Borrow APY" value={formatAPY(market.borrowAPY)} valueClass="text-systemRed" />
-          <MetricRow label="Rewards" value={market.isRewarded ? "Enabled" : "Disabled"} />
-          <MetricRow label="Rate Model" value={shortAddress(market.interestRateModel)} valueClass="font-mono" />
+          <MetricRow
+            label="Supply APY"
+            value={formatAPY(market.supplyAPY)}
+            valueClass="text-systemGreen"
+          />
+          <MetricRow
+            label="Borrow APY"
+            value={formatAPY(market.borrowAPY)}
+            valueClass="text-systemRed"
+          />
+          <MetricRow
+            label="Rewards"
+            value={market.isRewarded ? "Enabled" : "Disabled"}
+          />
+          <MetricRow
+            label="Rate Model"
+            value={shortAddress(market.interestRateModel)}
+            valueClass="font-mono"
+          />
         </Section>
 
         <Section title="Contracts">
@@ -99,7 +160,8 @@ export function MarketStats({ market }: Props) {
           <AddressLinkRow
             label="Underlying"
             address={
-              market.underlying.toLowerCase() === NATIVE_UNDERLYING.toLowerCase()
+              market.underlying.toLowerCase() ===
+              NATIVE_UNDERLYING.toLowerCase()
                 ? undefined
                 : market.underlying
             }
@@ -107,28 +169,23 @@ export function MarketStats({ market }: Props) {
           />
           <AddressLinkRow label="Comptroller" address={ADDRESSES.comptroller} />
           <AddressLinkRow label="Oracle" address={ADDRESSES.oracle} />
-          <AddressLinkRow label="Rate Model" address={market.interestRateModel} />
+          <AddressLinkRow
+            label="Rate Model"
+            address={market.interestRateModel}
+          />
         </Section>
       </div>
     </div>
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
       <h4 className="text-xs uppercase tracking-wider text-securdGrey">
         {title}
       </h4>
-      <div className="flex flex-col divide-y divide-white/10">
-        {children}
-      </div>
+      <div className="flex flex-col divide-y divide-white/10">{children}</div>
     </section>
   );
 }
@@ -145,7 +202,9 @@ function MetricRow({
   return (
     <div className="flex justify-between items-center gap-4 py-3">
       <span className="text-securdGrey text-sm">{label}</span>
-      <span className={`text-sm font-medium tabular-nums text-right ${valueClass ?? "text-securdWhite"}`}>
+      <span
+        className={`text-sm font-medium tabular-nums text-right ${valueClass ?? "text-securdWhite"}`}
+      >
         {value}
       </span>
     </div>
@@ -181,20 +240,16 @@ function AddressLinkRow({
   );
 }
 
-function StatusPill({
-  label,
-  tone,
-}: {
-  label: string;
-  tone: "green" | "red";
-}) {
+function StatusPill({ label, tone }: { label: string; tone: "green" | "red" }) {
   const cls =
     tone === "green"
       ? "border-systemGreen/30 bg-systemGreen/10 text-systemGreen"
       : "border-systemRed/30 bg-systemRed/10 text-systemRed";
 
   return (
-    <span className={`w-fit rounded-full border px-3 py-1 text-xs font-bold ${cls}`}>
+    <span
+      className={`w-fit rounded-full border px-3 py-1 text-xs font-bold ${cls}`}
+    >
       {label}
     </span>
   );
@@ -206,7 +261,11 @@ function formatBorrowCap(market: MarketData): string {
   return `${formatTokenAmount(amount, 2)} ${market.underlyingSymbol}`;
 }
 
-function toUsdFromRaw(value: bigint, decimals: number, priceUSD: number): number {
+function toUsdFromRaw(
+  value: bigint,
+  decimals: number,
+  priceUSD: number,
+): number {
   return (Number(value) / 10 ** decimals) * priceUSD;
 }
 
