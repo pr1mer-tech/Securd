@@ -1,16 +1,18 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+// This app has no light-mode support — it's permanently dark-themed via
+// custom Tailwind color tokens, not next-themes/Tailwind's dark: variant
+// system (no ThemeProvider is mounted anywhere). Hardcoding "dark" here
+// instead of theme="system" avoids sonner falling back to the OS-level
+// prefers-color-scheme and rendering light-mode toasts on top of this UI.
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="dark"
       className="toaster group"
       toastOptions={{
         classNames: {

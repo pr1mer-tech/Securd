@@ -24,8 +24,20 @@ const REFRESH_MS = 30_000;
 
 // Minimal ERC20 metadata ABI — only the underlying-token reads we need.
 const erc20MetaAbi = [
-  { type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
-  { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ type: "uint8" }] },
+  {
+    type: "function",
+    name: "symbol",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "string" }],
+  },
+  {
+    type: "function",
+    name: "decimals",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint8" }],
+  },
 ] as const;
 
 /**
@@ -89,7 +101,10 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     xrplEvmClient.readContract({ ...ct, functionName: "exchangeRateStored" }),
     xrplEvmClient.readContract({ ...ct, functionName: "borrowRatePerBlock" }),
     xrplEvmClient.readContract({ ...ct, functionName: "supplyRatePerBlock" }),
-    xrplEvmClient.readContract({ ...ct, functionName: "reserveFactorMantissa" }),
+    xrplEvmClient.readContract({
+      ...ct,
+      functionName: "reserveFactorMantissa",
+    }),
     xrplEvmClient.readContract({ ...ct, functionName: "interestRateModel" }),
     xrplEvmClient.readContract({
       ...comptrollerContract,
@@ -146,7 +161,10 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
     xrplEvmClient.readContract({ ...irm, functionName: "blocksPerYear" }),
     xrplEvmClient.readContract({ ...irm, functionName: "baseRatePerBlock" }),
     xrplEvmClient.readContract({ ...irm, functionName: "multiplierPerBlock" }),
-    xrplEvmClient.readContract({ ...irm, functionName: "jumpMultiplierPerBlock" }),
+    xrplEvmClient.readContract({
+      ...irm,
+      functionName: "jumpMultiplierPerBlock",
+    }),
     xrplEvmClient.readContract({ ...irm, functionName: "kink" }),
   ]);
 
@@ -156,8 +174,16 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
   let underlyingDecimals = 18;
   if (!isNative) {
     const [erc20Symbol, erc20Decimals] = await Promise.all([
-      xrplEvmClient.readContract({ address: underlying, abi: erc20MetaAbi, functionName: "symbol" }),
-      xrplEvmClient.readContract({ address: underlying, abi: erc20MetaAbi, functionName: "decimals" }),
+      xrplEvmClient.readContract({
+        address: underlying,
+        abi: erc20MetaAbi,
+        functionName: "symbol",
+      }),
+      xrplEvmClient.readContract({
+        address: underlying,
+        abi: erc20MetaAbi,
+        functionName: "decimals",
+      }),
     ]);
     underlyingSymbol = erc20Symbol;
     underlyingDecimals = erc20Decimals;
@@ -184,8 +210,13 @@ async function fetchOneMarket(cToken: Address): Promise<MarketData> {
 
   // cToken totalSupply → underlying: totalSupply_cToken * exchangeRate / 1e18
   const totalSupplyUnderlyingRaw = (totalSupply * exchangeRate) / 10n ** 18n;
-  const totalSupplyUnderlying = Number(totalSupplyUnderlyingRaw) / 10 ** underlyingDecimals;
-  const totalSupplyUSD = toUSD(totalSupplyUnderlyingRaw, underlyingDecimals, priceUSD);
+  const totalSupplyUnderlying =
+    Number(totalSupplyUnderlyingRaw) / 10 ** underlyingDecimals;
+  const totalSupplyUSD = toUSD(
+    totalSupplyUnderlyingRaw,
+    underlyingDecimals,
+    priceUSD,
+  );
   const totalBorrowsUSD = toUSD(totalBorrows, underlyingDecimals, priceUSD);
   const availableLiquidityUSD = toUSD(totalCash, underlyingDecimals, priceUSD);
 

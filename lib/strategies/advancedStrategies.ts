@@ -48,6 +48,8 @@ export type StrategyStep = {
   label: string;
   network: string;
   action: string;
+  /** False for steps that are pure monitoring/computation, not a wallet signature. */
+  requiresSignature: boolean;
 };
 
 export type StrategyControlStatus = "covered" | "partial" | "blocked";
@@ -125,36 +127,40 @@ export function buildStrategyPlan(input: StrategyPlanInput): StrategyPlan {
   const safetyBufferPct = clampNumber(input.targetSafetyBufferPct, 0, 50);
   const rebalanceTriggerPct = clampNumber(input.rebalanceTriggerPct, 1, 20);
   const safetyBuffer = safetyBufferPct / 100;
-  const effectiveCollateralFactor = pool.collateralFactor * Math.max(0, 1 - safetyBuffer);
-  const targetLeverage = leverageAfterLoops(effectiveCollateralFactor, loopCount);
+  const effectiveCollateralFactor =
+    pool.collateralFactor * Math.max(0, 1 - safetyBuffer);
+  const targetLeverage = leverageAfterLoops(
+    effectiveCollateralFactor,
+    loopCount,
+  );
   const maxLeverage = 1 / (1 - pool.collateralFactor);
   const collateralUSD = startingEquityUSD * targetLeverage;
   const debtUSD = Math.max(0, collateralUSD - startingEquityUSD);
-  const loopLadderUSD = Array.from({ length: loopCount }, (_, index) =>
-    startingEquityUSD * effectiveCollateralFactor ** (index + 1),
+  const loopLadderUSD = Array.from(
+    { length: loopCount },
+    (_, index) => startingEquityUSD * effectiveCollateralFactor ** (index + 1),
   );
   // Deleverage unwinds loops in reverse order: the smallest (last) tranche is
   // withdrawn and repaid first, so the ladder is mirrored.
   const incrementalBorrowUSD =
-    input.mode === "deleverage" ? loopLadderUSD.slice().reverse() : loopLadderUSD;
+    input.mode === "deleverage"
+      ? loopLadderUSD.slice().reverse()
+      : loopLadderUSD;
   const xrpBorrowUSD = debtUSD / 2;
   const pairedAssetBorrowUSD = debtUSD / 2;
   const hedgeTargetXrp =
     input.mode === "delta-neutral" && xrpPriceUSD > 0
-      ? (collateralUSD / 2) / xrpPriceUSD
+      ? collateralUSD / 2 / xrpPriceUSD
       : 0;
   const minGasXrp = loopCount * pool.estimatedLoopGasXrp.min;
   const maxGasXrp = loopCount * pool.estimatedLoopGasXrp.max;
-  const signatureCount =
-    input.mode === "delta-neutral"
-      ? 3 + loopCount * 5
-      : input.mode === "deleverage"
-        ? 2 + loopCount * 5
-        : 1 + loopCount * 5;
+  // Derived from the actual runbook rather than a separate formula, so the
+  // "Manual signatures" metric can never drift out of sync with the step
+  // list shown right below it in the panel.
+  const steps = buildSteps(pool, input.mode, loopCount);
+  const signatureCount = steps.filter((step) => step.requiresSignature).length;
   const capturedMaxLeveragePct =
-    maxLeverage > 1
-      ? ((targetLeverage - 1) / (maxLeverage - 1)) * 100
-      : 0;
+    maxLeverage > 1 ? ((targetLeverage - 1) / (maxLeverage - 1)) * 100 : 0;
 
   return {
     pool,
@@ -181,13 +187,16 @@ export function buildStrategyPlan(input: StrategyPlanInput): StrategyPlan {
       loopCount,
       capturedMaxLeveragePct,
     }),
-    steps: buildSteps(pool, input.mode, loopCount),
+    steps,
     executionReadiness: buildExecutionReadiness(),
     failurePlaybook: buildFailurePlaybook(input.mode),
   };
 }
 
-export function leverageAfterLoops(collateralFactor: number, loops: number): number {
+export function leverageAfterLoops(
+  collateralFactor: number,
+  loops: number,
+): number {
   if (loops <= 0) return 1;
   if (collateralFactor <= 0) return 1;
   if (collateralFactor >= 1) return Number.POSITIVE_INFINITY;
@@ -213,7 +222,9 @@ function buildWarnings(params: {
   const warnings: string[] = [];
 
   if (params.startingEquityUSD < 500) {
-    warnings.push("Position size is below the recommended minimum for multi-leg relay costs.");
+    warnings.push(
+      "Position size is below the recommended minimum for multi-leg relay costs.",
+    );
   }
   if (params.loopCount > 4) {
     warnings.push(
@@ -223,25 +234,41 @@ function buildWarnings(params: {
     );
   }
   if (params.safetyBufferPct < 10) {
-    warnings.push("Safety buffer below 10% leaves little room for relay latency and oracle drift.");
+    warnings.push(
+      "Safety buffer below 10% leaves little room for relay latency and oracle drift.",
+    );
   }
   if (params.input.mode === "deleverage") {
-    warnings.push("Each withdraw tranche must keep the health factor above 1 until both repay legs land.");
-    warnings.push("AMMWithdraw returns both assets at the pool ratio; rebuild quotes from fresh amm_info before signing.");
+    warnings.push(
+      "Each withdraw tranche must keep the health factor above 1 until both repay legs land.",
+    );
+    warnings.push(
+      "AMMWithdraw returns both assets at the pool ratio; rebuild quotes from fresh amm_info before signing.",
+    );
   }
   if (params.input.mode === "delta-neutral" && params.rebalanceTriggerPct > 5) {
-    warnings.push("Delta-neutral rebalance trigger above 5% can leave meaningful gamma exposure.");
+    warnings.push(
+      "Delta-neutral rebalance trigger above 5% can leave meaningful gamma exposure.",
+    );
   }
   if (params.input.mode === "delta-neutral" && params.xrpPriceUSD <= 0) {
     warnings.push("Delta-neutral hedge sizing requires a positive XRP price.");
   }
   if (params.capturedMaxLeveragePct > 96) {
-    warnings.push("Target captures nearly all theoretical leverage; execution latency risk is elevated.");
+    warnings.push(
+      "Target captures nearly all theoretical leverage; execution latency risk is elevated.",
+    );
   }
 
-  warnings.push("Execution must wait for each Axelar leg to finish before signing the next nonce.");
-  warnings.push("LP-token ITS legs should pre-fund Add Gas instead of waiting for stuck transfers.");
-  warnings.push("Mainnet only: block execution on testnet wallets, testnet RPCs, or unlisted chain IDs.");
+  warnings.push(
+    "Execution must wait for each Axelar leg to finish before signing the next nonce.",
+  );
+  warnings.push(
+    "LP-token ITS legs should pre-fund Add Gas instead of waiting for stuck transfers.",
+  );
+  warnings.push(
+    "Mainnet only: block execution on testnet wallets, testnet RPCs, or unlisted chain IDs.",
+  );
 
   return warnings;
 }
@@ -260,11 +287,13 @@ function buildSteps(
       label: "Supply LP collateral",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: `Bridge and supply ${pool.label} LP tokens to Securd.`,
+      requiresSignature: true,
     },
     {
       label: "Enable collateral",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: "Submit ENTER_MARKET once for the LP market.",
+      requiresSignature: true,
     },
   ];
 
@@ -274,21 +303,26 @@ function buildSteps(
         label: `Loop ${i}: borrow XRP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Submit BORROW intent for the XRP half of the loop.",
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: borrow ${pool.secondAssetSymbol}`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: `Submit BORROW intent for the ${pool.secondAssetSymbol} half of the loop.`,
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: add liquidity`,
         network: STRATEGY_MAINNET.xrplLedger,
-        action: "Submit AMMDeposit with tfTwoAsset using the latest amm_info ratio.",
+        action:
+          "Submit AMMDeposit with tfTwoAsset using the latest amm_info ratio.",
+        requiresSignature: true,
       },
       {
         label: `Loop ${i}: re-supply LP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Bridge newly minted LP tokens back to Securd with Add Gas.",
+        requiresSignature: true,
       },
     );
   }
@@ -299,16 +333,20 @@ function buildSteps(
         label: "Open XRP hedge",
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Borrow the target XRP hedge amount against LP collateral.",
+        requiresSignature: true,
       },
       {
         label: "Sell borrowed XRP",
         network: STRATEGY_MAINNET.xrplLedger,
         action: `Swap borrowed XRP into ${pool.secondAssetSymbol} through the native AMM/DEX.`,
+        requiresSignature: true,
       },
       {
         label: "Monitor rebalance",
         network: STRATEGY_MAINNET.xrplLedger,
-        action: "Recompute f*x from amm_info and rebalance when drift crosses the trigger.",
+        action:
+          "Recompute f*x from amm_info and rebalance when drift crosses the trigger.",
+        requiresSignature: false,
       },
     );
   }
@@ -319,7 +357,10 @@ function buildSteps(
 // Exact inverse of the leverage runbook: loops are unwound in reverse order
 // (withdraw → remove liquidity → repay both legs), then the market is exited
 // and the remaining unlevered LP equity is withdrawn.
-function buildDeleverageSteps(pool: StrategyPool, loopCount: number): StrategyStep[] {
+function buildDeleverageSteps(
+  pool: StrategyPool,
+  loopCount: number,
+): StrategyStep[] {
   const steps: StrategyStep[] = [];
 
   for (let i = 1; i <= loopCount; i += 1) {
@@ -327,22 +368,28 @@ function buildDeleverageSteps(pool: StrategyPool, loopCount: number): StrategySt
       {
         label: `Unwind ${i}: withdraw LP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
-        action: "Submit WITHDRAW intent for the LP tranche freed by the safety buffer; LP tokens are delivered back to the XRPL Ledger.",
+        action:
+          "Submit WITHDRAW intent for the LP tranche freed by the safety buffer; LP tokens are delivered back to the XRPL Ledger.",
+        requiresSignature: true,
       },
       {
         label: `Unwind ${i}: remove liquidity`,
         network: STRATEGY_MAINNET.xrplLedger,
-        action: "Submit AMMWithdraw with tfTwoAsset using the latest amm_info ratio.",
+        action:
+          "Submit AMMWithdraw with tfTwoAsset using the latest amm_info ratio.",
+        requiresSignature: true,
       },
       {
         label: `Unwind ${i}: repay XRP`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: "Submit REPAY intent for the XRP half of the loop.",
+        requiresSignature: true,
       },
       {
         label: `Unwind ${i}: repay ${pool.secondAssetSymbol}`,
         network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
         action: `Submit REPAY intent for the ${pool.secondAssetSymbol} half of the loop.`,
+        requiresSignature: true,
       },
     );
   }
@@ -352,11 +399,13 @@ function buildDeleverageSteps(pool: StrategyPool, loopCount: number): StrategySt
       label: "Exit market",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: "Submit EXIT_MARKET once all loop debt is repaid.",
+      requiresSignature: true,
     },
     {
       label: "Withdraw remaining LP",
       network: `${STRATEGY_MAINNET.xrplEvm} (${STRATEGY_MAINNET.xrplEvmChainId}) via Axelar`,
       action: `Withdraw the remaining ${pool.label} LP equity back to the XRPL Ledger.`,
+      requiresSignature: true,
     },
   );
 
@@ -430,7 +479,8 @@ function buildExecutionReadiness(): StrategyExecutionReadiness {
     },
   ];
   const blockingControlCount = controls.filter(
-    (control) => control.requiredBeforeExecution && control.status !== "covered",
+    (control) =>
+      control.requiredBeforeExecution && control.status !== "covered",
   ).length;
 
   return {
@@ -444,18 +494,24 @@ function buildExecutionReadiness(): StrategyExecutionReadiness {
   };
 }
 
-function buildFailurePlaybook(mode: StrategyMode): StrategyFailurePlaybookStep[] {
+function buildFailurePlaybook(
+  mode: StrategyMode,
+): StrategyFailurePlaybookStep[] {
   const preflight: StrategyFailurePlaybookStep = {
     phase: "Preflight",
-    stopSignal: "AMM data, oracle price, contract address, or chain ID is stale or missing.",
+    stopSignal:
+      "AMM data, oracle price, contract address, or chain ID is stale or missing.",
     exposure: "No new protocol exposure yet.",
-    unwindAction: "Do not sign. Refresh mainnet data and rebuild the full plan.",
+    unwindAction:
+      "Do not sign. Refresh mainnet data and rebuild the full plan.",
   };
   const relayTimeout: StrategyFailurePlaybookStep = {
     phase: "Relay timeout",
-    stopSignal: "Axelar confirmation or destination execution does not finish inside the timeout.",
+    stopSignal:
+      "Axelar confirmation or destination execution does not finish inside the timeout.",
     exposure: "State may be partially complete on one chain.",
-    unwindAction: "Freeze the sequencer, reconcile on-chain state, then resume or unwind from the last confirmed step.",
+    unwindAction:
+      "Freeze the sequencer, reconcile on-chain state, then resume or unwind from the last confirmed step.",
   };
 
   if (mode === "deleverage") {
@@ -463,21 +519,28 @@ function buildFailurePlaybook(mode: StrategyMode): StrategyFailurePlaybookStep[]
       preflight,
       {
         phase: "After LP withdraw leg",
-        stopSignal: "LP delivery to the XRPL Ledger stalls or the AMMWithdraw quote moves out of bounds.",
-        exposure: "Collateral is reduced while the full loop debt is still live; health factor is at its tightest.",
-        unwindAction: "Pause the unwind; re-supply the withdrawn LP or complete AMMWithdraw and repay immediately.",
+        stopSignal:
+          "LP delivery to the XRPL Ledger stalls or the AMMWithdraw quote moves out of bounds.",
+        exposure:
+          "Collateral is reduced while the full loop debt is still live; health factor is at its tightest.",
+        unwindAction:
+          "Pause the unwind; re-supply the withdrawn LP or complete AMMWithdraw and repay immediately.",
       },
       {
         phase: "After AMMWithdraw",
         stopSignal: "A repay ITS leg cannot be submitted or stalls in transit.",
-        exposure: "Debt is still live while the repay assets sit idle on the XRPL Ledger.",
-        unwindAction: "Add Gas on the stuck ITS leg and land both repay legs before the next withdraw.",
+        exposure:
+          "Debt is still live while the repay assets sit idle on the XRPL Ledger.",
+        unwindAction:
+          "Add Gas on the stuck ITS leg and land both repay legs before the next withdraw.",
       },
       {
         phase: "After one repay leg",
         stopSignal: "The matching repay leg fails or is under-delivered.",
-        exposure: "Remaining one-sided debt keeps directional and liquidation risk.",
-        unwindAction: "Finish the second repay leg before signing any further withdraw.",
+        exposure:
+          "Remaining one-sided debt keeps directional and liquidation risk.",
+        unwindAction:
+          "Finish the second repay leg before signing any further withdraw.",
       },
       relayTimeout,
     ];
@@ -489,19 +552,25 @@ function buildFailurePlaybook(mode: StrategyMode): StrategyFailurePlaybookStep[]
       phase: "After one borrow leg",
       stopSignal: "The matching borrow leg or XRPL asset delivery fails.",
       exposure: "One-sided debt creates directional and liquidation risk.",
-      unwindAction: "Stop the loop and repay the completed borrow leg before signing another borrow.",
+      unwindAction:
+        "Stop the loop and repay the completed borrow leg before signing another borrow.",
     },
     {
       phase: "After both borrow legs",
-      stopSignal: "AMMDeposit quote moves outside slippage or reserve-ratio bounds.",
+      stopSignal:
+        "AMMDeposit quote moves outside slippage or reserve-ratio bounds.",
       exposure: "Debt is live, but no new LP collateral has been supplied.",
-      unwindAction: "Repay both borrowed legs or rebuild the AMMDeposit from fresh amm_info.",
+      unwindAction:
+        "Repay both borrowed legs or rebuild the AMMDeposit from fresh amm_info.",
     },
     {
       phase: "After AMMDeposit",
-      stopSignal: "LP bridge or supply leg is delayed, under-gassed, or rejected.",
-      exposure: "Borrow debt is live while new LP collateral is not yet counted by Securd.",
-      unwindAction: "Add Gas immediately; if still delayed, stop new loops and monitor health factor.",
+      stopSignal:
+        "LP bridge or supply leg is delayed, under-gassed, or rejected.",
+      exposure:
+        "Borrow debt is live while new LP collateral is not yet counted by Securd.",
+      unwindAction:
+        "Add Gas immediately; if still delayed, stop new loops and monitor health factor.",
     },
     relayTimeout,
   ];
@@ -509,9 +578,12 @@ function buildFailurePlaybook(mode: StrategyMode): StrategyFailurePlaybookStep[]
   if (mode === "delta-neutral") {
     playbook.push({
       phase: "Delta hedge",
-      stopSignal: "Borrowed XRP cannot be sold within slippage or liquidity bounds.",
-      exposure: "The position is long LP XRP exposure and additionally short borrowed XRP.",
-      unwindAction: "Repay the hedge borrow or retry the sale with fresh XRPL AMM/DEX liquidity data.",
+      stopSignal:
+        "Borrowed XRP cannot be sold within slippage or liquidity bounds.",
+      exposure:
+        "The position is long LP XRP exposure and additionally short borrowed XRP.",
+      unwindAction:
+        "Repay the hedge borrow or retry the sale with fresh XRPL AMM/DEX liquidity data.",
     });
   }
 

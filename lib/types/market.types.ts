@@ -35,11 +35,15 @@ export type MarketData = {
 
   // Interest rate model values
   interestRateModel: Address;
-  blocksPerYear: bigint;
+
+  // IRM curve parameters — read from this market's own interest rate model
+  // instance, used to plot the full rate-vs-utilization curve (see
+  // buildRateCurve in market.helpers.ts) rather than assuming a shape.
+  kink: bigint;
   baseRatePerBlock: bigint;
   multiplierPerBlock: bigint;
   jumpMultiplierPerBlock: bigint;
-  kink: bigint;
+  blocksPerYear: bigint;
 
   // Computed display values
   supplyAPY: number;
