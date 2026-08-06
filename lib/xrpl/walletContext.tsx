@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { IS_MAINNET } from "@/lib/constants/network";
 
 type AccountInfo = { address: string; publicKey?: string };
 
@@ -51,7 +52,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       if (cancelled) return;
 
       const m = new xc.WalletManager({
-        network: "testnet",
+        network: IS_MAINNET ? "mainnet" : "testnet",
         autoConnect: true,
         adapters: [
           new xc.XamanAdapter({ apiKey: process.env.NEXT_PUBLIC_XUMM_API_KEY ?? "" }),

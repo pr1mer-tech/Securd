@@ -8,12 +8,14 @@ import { type Chain } from "viem";
 export const XRPL_EVM_CHAIN_ID = Number(
   process.env.NEXT_PUBLIC_XRPL_EVM_CHAIN_ID ?? 1449000,
 );
+// XRPL EVM mainnet is chain id 1440000; anything else is treated as testnet.
+export const IS_MAINNET = XRPL_EVM_CHAIN_ID === 1440000;
+
 export const XRPL_EVM_RPC_URL =
   process.env.NEXT_PUBLIC_XRPL_EVM_RPC_URL ??
-  "https://rpc.testnet.xrplevm.org";
-
-// XRPL EVM mainnet is chain id 1440000; anything else is treated as testnet.
-const IS_MAINNET = XRPL_EVM_CHAIN_ID === 1440000;
+  (IS_MAINNET
+    ? "https://rpc.xrplevm.org"
+    : "https://rpc.testnet.xrplevm.org");
 
 // Mainnet-only features (Squid liquidity bridge, advanced strategies planner).
 // These target real mainnet liquidity/contracts and have no testnet equivalent,
