@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ES2022",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
+    ],
+    "noUncheckedIndexedAccess": true,
+    "types": [
+      "bun-types"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -15,7 +19,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -32,9 +36,17 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "scripts/**/*.ts",
+    "accrue-interest.ts",
+    "check-irm.ts",
+    "check-irm-owner.ts",
+    "check-irm-util.ts",
+    "check-market-values.ts",
+    "contractDebug.ts"
   ]
 }

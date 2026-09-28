@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { serial, varchar, integer, numeric, date, doublePrecision, pgTable, uniqueIndex, AnyPgColumn } from 'drizzle-orm/pg-core';
+import { serial, varchar, integer, numeric, date, doublePrecision, pgTable, uniqueIndex, AnyPgColumn, timestamp } from 'drizzle-orm/pg-core';
 
 export const blockchain = pgTable('blockchain', {
     id_blockchain: serial('id_blockchain').primaryKey(),
@@ -121,3 +121,32 @@ export const priceRelations = relations(price, ({ one }) => ({
 }));
 
 export type Price = typeof price.$inferSelect;
+
+export const marketSnapshot = pgTable('market_snapshot', {
+    id_market_snapshot: serial('id_market_snapshot').primaryKey(),
+    snapshot_at: timestamp('snapshot_at', { withTimezone: true, mode: 'date' }).notNull(),
+    chain_id: integer('chain_id').notNull(),
+    c_token: varchar('c_token', { length: 42 }).notNull(),
+    underlying: varchar('underlying', { length: 42 }).notNull(),
+    symbol: varchar('symbol').notNull(),
+    underlying_symbol: varchar('underlying_symbol').notNull(),
+    underlying_decimals: integer('underlying_decimals').notNull(),
+    supply_apy: doublePrecision('supply_apy').notNull(),
+    borrow_apy: doublePrecision('borrow_apy').notNull(),
+    utilization: doublePrecision('utilization').notNull(),
+    total_supply_usd: doublePrecision('total_supply_usd').notNull(),
+    total_borrows_usd: doublePrecision('total_borrows_usd').notNull(),
+    available_liquidity_usd: doublePrecision('available_liquidity_usd').notNull(),
+    price_usd: doublePrecision('price_usd').notNull(),
+    total_cash_raw: varchar('total_cash_raw', { length: 80 }).notNull(),
+    total_borrows_raw: varchar('total_borrows_raw', { length: 80 }).notNull(),
+    total_reserves_raw: varchar('total_reserves_raw', { length: 80 }).notNull(),
+    total_supply_raw: varchar('total_supply_raw', { length: 80 }).notNull(),
+    exchange_rate_raw: varchar('exchange_rate_raw', { length: 80 }).notNull(),
+    supply_rate_per_block_raw: varchar('supply_rate_per_block_raw', { length: 80 }).notNull(),
+    borrow_rate_per_block_raw: varchar('borrow_rate_per_block_raw', { length: 80 }).notNull(),
+}, (table) => ({
+    uniqueMarketSnapshotEntry: uniqueIndex("uniqueMarketSnapshotEntry").on(table.chain_id, table.c_token, table.snapshot_at),
+}));
+
+export type MarketSnapshot = typeof marketSnapshot.$inferSelect;

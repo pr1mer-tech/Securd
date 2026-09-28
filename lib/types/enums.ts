@@ -1,7 +1,5 @@
 export enum ActiveTab {
-  SAVE = 0,
-  FARM = 1,
-  ANALYTICS = 2,
+  MARKETS = 0,
 }
 
 export enum ButtonType {
@@ -25,17 +23,6 @@ export enum TooltipPosition {
   RIGHT = "right",
   BOTTOM = "bottom",
   LEFT = "left",
-}
-
-export enum FarmActionMode {
-  LOCK = "Lock",
-  LEVERAGE = "Leverage",
-  BORROW = "Borrow",
-}
-
-export enum LockOptions {
-  LOCK = "Lock",
-  RELEASE = "Release",
 }
 
 export enum TableTextType {
@@ -62,14 +49,4 @@ export enum GraphPeriod {
   WEEK = "week",
   MONTH = "month",
   YEAR = "year",
-}
-
-export enum ActionMode {
-  DEPOSIT = "Deposit",
-  WITHDRAW = "Withdraw",
-}
-
-export enum BorrowOptions {
-  BORROW = "Borrow",
-  REPAY = "Repay",
 }

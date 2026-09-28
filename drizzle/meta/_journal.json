@@ -29,6 +29,13 @@
       "when": 1712550684136,
       "tag": "0003_gifted_mad_thinker",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1712550684137,
+      "tag": "0004_market_snapshots",
+      "breakpoints": true
     }
   ]
 }
